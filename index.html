@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="My Garden">
+<meta name="theme-color" content="#2E5A1C">
+<title>My Garden Planner</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --gd:#1B4A0A;--gm:#2E5A1C;--gb:#3A8C1C;--gl:#4CAF50;
+  --sd:#3A1A08;--sm:#5C3010;--sl:#7A4020;--sb:#9B5E30;
+  --td:#1A1A1A;--tm:#555;--tl:#888;--br:#E0D8CF;--wh:#fff;
+  --dn:#C0392B;--db:#FDE8E8;
+  --st:env(safe-area-inset-top,0px);--sbot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111;}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;transition:opacity .22s,transform .22s;}
+.screen.hidden{opacity:0;pointer-events:none;transform:translateY(10px);}
+
+/* ── AUTH ── */
+#auth-screen{background:linear-gradient(160deg,#1B4A0A,#2E5A1C 40%,#4A8C20);align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.auth-logo{font-size:54px;margin-bottom:8px;}
+.auth-title{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px;}
+.auth-sub{font-size:14px;color:rgba(255,255,255,.7);margin-bottom:22px;text-align:center;}
+.auth-card{background:rgba(255,255,255,.97);border-radius:20px;padding:20px;width:100%;max-width:360px;box-shadow:0 12px 48px rgba(0,0,0,.3);}
+.auth-tabs{display:flex;background:#F0EBE0;border-radius:10px;padding:3px;margin-bottom:16px;}
+.auth-tab{flex:1;padding:7px;border:none;background:transparent;border-radius:8px;font-size:14px;font-weight:500;color:var(--tm);cursor:pointer;font-family:inherit;transition:all .15s;}
+.auth-tab.active{background:#fff;color:var(--gm);box-shadow:0 1px 4px rgba(0,0,0,.1);}
+.afield{margin-bottom:10px;position:relative;}
+.afield label{display:block;font-size:11px;font-weight:600;color:var(--tm);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;}
+.ainp{width:100%;padding:10px 38px 10px 12px;border:1.5px solid var(--br);border-radius:10px;font-size:15px;font-family:inherit;outline:none;color:var(--td);background:#FAFAF8;transition:border-color .15s;}
+.ainp:focus{border-color:var(--gb);background:#fff;}
+.pw-eye{position:absolute;right:10px;bottom:9px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--tl);padding:2px;}
+.abtn{width:100%;padding:13px;background:var(--gb);color:#fff;border:none;border-radius:11px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;}
+.abtn:active{filter:brightness(.88);}
+.abtn:disabled{opacity:.6;}
+.aerr{font-size:12px;color:var(--dn);margin-top:6px;text-align:center;min-height:16px;}
+.aerr.ok{color:#2E7D32;}
+.afoot{font-size:11px;color:rgba(255,255,255,.5);margin-top:14px;text-align:center;}
+
+/* ── TOPBAR ── */
+#topbar{background:var(--gm);color:#fff;padding:calc(var(--st) + 9px) 12px 9px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:60;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.tl{display:flex;align-items:center;gap:8px;}
+.app-ttl{font-size:15px;font-weight:700;}
+.gsel{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer;font-family:inherit;max-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ta{display:flex;gap:4px;align-items:center;}
+.tbb{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:5px 8px;font-size:13px;cursor:pointer;}
+.tbb:active{background:rgba(255,255,255,.28);}
+.ro-badge{background:#F5C542;color:#333;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;}
+
+/* ── CANVAS ── */
+#garden-wrap{flex:1;overflow:hidden;position:relative;}
+#gs{width:100%;height:100%;overflow:auto;}
+#gs::-webkit-scrollbar{display:none;}
+#gc{position:relative;width:2400px;min-height:2000px;transform-origin:top left;}
+#bg-layer{position:absolute;inset:0;background:#5A9E30;}
+#grass-tex{position:absolute;inset:0;pointer-events:none;z-index:1;
+  background-image:radial-gradient(ellipse 3px 6px at 12% 22%,rgba(255,255,255,.08) 0%,transparent 100%),
+    radial-gradient(ellipse 2px 4px at 55% 68%,rgba(0,0,0,.05) 0%,transparent 100%),
+    radial-gradient(ellipse 5px 3px at 78% 38%,rgba(255,255,255,.05) 0%,transparent 100%);
+  background-size:26px 26px,20px 36px,38px 22px;}
+#grid-ov{position:absolute;inset:0;pointer-events:none;z-index:2;
+  background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);
+  background-size:48px 48px;}
+
+/* ── BEDS ── */
+.bed-wrap{position:absolute;z-index:10;touch-action:none;cursor:move;}
+.bed-card{border-radius:10px;overflow:visible;box-shadow:0 6px 20px rgba(0,0,0,.35);}
+.bed-name-tag{position:absolute;top:-24px;left:0;background:var(--sd);color:#DEB887;font-size:11px;font-weight:600;border-radius:6px 6px 0 0;padding:2px 8px;white-space:nowrap;display:flex;align-items:center;gap:4px;opacity:0;transition:opacity .15s;pointer-events:none;}
+.bed-wrap:hover .bed-name-tag,.bed-wrap.bed-sel .bed-name-tag{opacity:1;pointer-events:auto;}
+.bed-name-inp{background:transparent;border:none;color:#DEB887;font-size:11px;font-weight:600;font-family:inherit;outline:none;width:80px;cursor:text;}
+.bed-name-inp:focus{border-bottom:1px solid #DEB887;}
+.bab{background:rgba(255,255,255,.15);border:none;color:#DEB887;border-radius:4px;width:20px;height:20px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bab:active{background:rgba(255,255,255,.35);}
+.bab.lkd{color:#F5C542;}
+.bed-soil{background:var(--sm);border-radius:10px;display:grid;gap:2px;padding:5px;}
+.bed-cell{width:44px;height:44px;background:var(--sl);border-radius:4px;border:1.5px solid var(--sb);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:border-color .12s,background .12s;}
+.bed-cell.hp{background:#6B3518;}
+.bed-cell.csel{border-color:#A8E060;background:#4A2010;box-shadow:0 0 0 2px #A8E06055;}
+.bed-cell svg{width:34px;height:34px;pointer-events:none;}
+.cbadge{position:absolute;bottom:1px;right:2px;font-size:7px;color:#FFDE7A;font-weight:600;pointer-events:none;}
+.cdate{position:absolute;top:0;left:0;right:0;font-size:7px;color:#B8F0B8;pointer-events:none;text-align:center;}
+.inter-row{display:flex;margin-left:22px;gap:2px;margin-top:0;}
+.ibed-cell{width:44px;height:44px;background:rgba(90,50,20,.45);border-radius:4px;border:1px dashed rgba(155,94,48,.55);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+.ibed-cell.hp{background:rgba(107,53,24,.8);}
+.ibed-cell.csel{border:1.5px solid #A8E060;}
+.ibed-cell svg{width:32px;height:32px;pointer-events:none;}
+
+/* ── GROW BAG ── */
+.growbag-wrap{position:absolute;z-index:10;touch-action:none;}
+.growbag-body{display:flex;flex-direction:column;align-items:center;cursor:move;touch-action:none;}
+.growbag-circle{width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8B5E3C,#5C3010);border:3px solid #9B5E30;box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 2px 6px rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;}
+.growbag-circle svg{width:44px;height:44px;}
+.growbag-lbl{font-size:10px;color:#DEB887;margin-top:3px;font-weight:600;text-align:center;}
+.growbag-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
+.growbag-rh{position:absolute;bottom:2px;right:2px;width:12px;height:12px;background:rgba(255,255,255,.3);cursor:ew-resize;border-radius:50%;display:none;z-index:3;}
+.growbag-wrap.selected .growbag-x{display:flex;}
+.growbag-wrap.selected .growbag-rh{display:block;}
+
+/* ── STRUCTURES ── */
+.struct-wrap{position:absolute;z-index:8;touch-action:none;}
+.struct-card{border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.struct-icon{font-size:42px;line-height:1;pointer-events:none;}
+.struct-lbl{font-size:10px;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);margin-top:2px;pointer-events:none;}
+.struct-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
+.struct-lk{position:absolute;top:-7px;left:-7px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;border:none;font-size:9px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
+.struct-wrap.selected .struct-x,.struct-wrap.selected .struct-lk{display:flex;}
+.struct-rh{position:absolute;bottom:0;right:0;width:14px;height:14px;background:rgba(255,255,255,.35);cursor:se-resize;border-radius:3px 0 3px 0;display:none;}
+.struct-wrap.selected .struct-rh{display:block;}
+
+/* ── DECOR ── */
+.decor-wrap{position:absolute;z-index:9;touch-action:none;display:flex;flex-direction:column;align-items:center;}
+.decor-icon{font-size:30px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));cursor:move;}
+.decor-lbl{font-size:9px;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.5);font-weight:500;}
+.decor-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
+.decor-wrap.selected .decor-x{display:flex;}
+
+/* ── MULCH — styled patterns ── */
+.mulch-strip{position:absolute;z-index:5;touch-action:none;border-radius:4px;cursor:move;overflow:hidden;border:2px solid rgba(255,255,255,.15);}
+.mulch-strip canvas{position:absolute;inset:0;pointer-events:none;}
+.mulch-x{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
+.mulch-strip.selected .mulch-x{display:flex;}
+.mulch-rh{position:absolute;bottom:0;right:0;width:14px;height:14px;background:rgba(255,255,255,.3);cursor:se-resize;border-radius:3px 0 3px 0;}
+
+/* ── ANIMALS ── */
+.animal-wrap{position:absolute;z-index:20;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+.animal-emoji{font-size:26px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));transition:transform .3s;}
+.animal-emoji.flip{transform:scaleX(-1);}
+.animal-name{font-size:9px;color:rgba(255,255,255,.9);text-shadow:0 1px 2px rgba(0,0,0,.6);font-weight:600;white-space:nowrap;}
+.animal-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
+.animal-wrap.selected .animal-x{display:flex;}
+
+/* ── FARMER ── */
+#farmer{position:absolute;z-index:25;pointer-events:none;will-change:left,top;}
+.farmer-emoji{font-size:30px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));transition:transform .4s;}
+.farmer-emoji.flip{transform:scaleX(-1);}
+.farmer-name{font-size:9px;color:rgba(255,255,255,.95);text-shadow:0 1px 3px rgba(0,0,0,.7);font-weight:700;white-space:nowrap;text-align:center;}
+.farmer-bubble{position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.65);color:#fff;border-radius:10px;padding:2px 7px;font-size:10px;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;backdrop-filter:blur(4px);}
+.farmer-bubble.show{opacity:1;}
+
+/* ── POPUP ── */
+#popup{position:absolute;z-index:500;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.3);width:215px;overflow:hidden;display:none;animation:popIn .15s ease-out;}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+#popup.show{display:block;}
+#ph{background:var(--gb);padding:9px 12px;display:flex;align-items:center;gap:8px;position:relative;}
+#pi{width:34px;height:34px;flex-shrink:0;}
+#pt{color:#fff;font-size:13px;font-weight:600;}
+#ps{color:rgba(255,255,255,.8);font-size:10px;}
+.px2{position:absolute;top:6px;right:6px;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#pb{padding:10px 12px;}
+.pr{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
+.pr label{font-size:11px;color:var(--tm);width:62px;flex-shrink:0;font-weight:500;}
+.pdate{flex:1;font-size:12px;border:1.5px solid var(--br);border-radius:7px;padding:4px 6px;font-family:inherit;outline:none;color:var(--td);}
+.pdate:focus{border-color:var(--gb);}
+.pnote{width:100%;font-size:12px;border:1.5px solid var(--br);border-radius:7px;padding:6px 8px;font-family:inherit;resize:none;height:48px;margin-bottom:8px;outline:none;color:var(--td);}
+.pbtns{display:flex;gap:6px;}
+.psave{flex:1;background:var(--gb);color:#fff;border:none;border-radius:7px;padding:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.prem{background:var(--db);color:var(--dn);border:none;border-radius:7px;padding:7px 10px;font-size:12px;cursor:pointer;font-family:inherit;}
+
+/* ── PANELS ── */
+.panel{display:none;position:absolute;top:0;left:6px;right:6px;z-index:300;background:#fff;border-radius:0 0 16px 16px;padding:12px 14px 14px;box-shadow:0 6px 24px rgba(0,0,0,.2);max-height:86%;overflow-y:auto;}
+.panel.open{display:block;}
+.panel h3{font-size:14px;font-weight:600;color:var(--gm);margin-bottom:10px;}
+.pbd{position:absolute;inset:0;z-index:280;display:none;}
+.pbd.show{display:block;}
+.ap-inp{width:100%;padding:9px 11px;border:1.5px solid var(--br);border-radius:9px;font-size:14px;margin-bottom:9px;font-family:inherit;outline:none;color:var(--td);}
+.ap-inp:focus{border-color:var(--gb);}
+.ap-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.ap-row label{font-size:12px;color:var(--tm);width:58px;font-weight:500;}
+.ap-row input[type=range]{flex:1;accent-color:var(--gb);}
+.ap-row .vv{font-size:13px;font-weight:600;color:var(--gm);width:22px;text-align:right;}
+.ap-btns{display:flex;gap:7px;margin-top:4px;}
+.apgo{flex:1;background:var(--gb);color:#fff;border:none;border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.apcanc{background:#F0EBE0;color:var(--tm);border:none;border-radius:9px;padding:9px 12px;font-size:13px;cursor:pointer;font-family:inherit;}
+.apgo:active,.apcanc:active{filter:brightness(.92);}
+.closebtn{width:100%;background:#F0EBE0;color:var(--tm);border:none;border-radius:9px;padding:8px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px;}
+
+/* bg panel */
+.bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
+.bg-opt{border-radius:10px;height:54px;cursor:pointer;border:3px solid transparent;display:flex;align-items:flex-end;padding:4px 6px;font-size:10px;font-weight:600;color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.5);position:relative;overflow:hidden;}
+.bg-opt.chosen{border-color:#fff;box-shadow:0 0 0 2px var(--gb);}
+.bg-opt span{position:relative;z-index:1;}
+.bg-opt::before{content:'';position:absolute;inset:0;}
+.bg-lush::before{background:linear-gradient(135deg,#4CAF50,#2E7D32);}
+.bg-forest::before{background:linear-gradient(135deg,#1B5E20,#2E3B1E);}
+.bg-dry::before{background:linear-gradient(135deg,#8D9A5A,#6D7A3A);}
+.bg-sandy::before{background:linear-gradient(135deg,#C9A84C,#A08030);}
+.bg-earthy::before{background:linear-gradient(135deg,#795548,#5D4037);}
+.bg-meadow::before{background:linear-gradient(135deg,#69B84A,#8BC34A);}
+
+/* gardens panel */
+.gi{display:flex;align-items:center;padding:9px 11px;border:1.5px solid var(--br);border-radius:10px;margin-bottom:6px;cursor:pointer;}
+.gi.ag{border-color:var(--gb);background:#F0FAE8;}
+.gi-name{flex:1;font-size:13px;font-weight:500;color:var(--td);}
+.gi-meta{font-size:10px;color:var(--tl);}
+.gi-share,.gi-del{background:none;border:none;font-size:12px;cursor:pointer;padding:2px 5px;}
+.gi-share{color:var(--gb);}
+.gi-del{color:var(--tl);font-size:16px;}
+.share-box{background:#F0FAE8;border:1.5px solid var(--gb);border-radius:9px;padding:10px;margin-top:8px;}
+.share-url{font-size:11px;color:var(--gm);word-break:break-all;margin-bottom:7px;}
+.share-copy{background:var(--gb);color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit;}
+
+/* things panel */
+.sec-hdr{font-size:11px;color:var(--tl);margin:8px 0 5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.thing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:4px;}
+.ttile{display:flex;flex-direction:column;align-items:center;padding:9px 5px;border-radius:10px;border:1.5px solid var(--br);cursor:pointer;background:#FAFAF8;gap:3px;}
+.ttile:active{border-color:var(--gb);background:#EDF8E2;}
+.ttile-icon{font-size:26px;}
+.ttile-name{font-size:10px;text-align:center;color:var(--tm);font-weight:500;line-height:1.2;}
+
+/* mulch panel */
+.mulch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px;}
+.mtile{height:52px;border-radius:9px;cursor:pointer;border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:rgba(255,255,255,.95);text-shadow:0 1px 2px rgba(0,0,0,.5);position:relative;overflow:hidden;}
+.mtile:active{border-color:var(--gb);}
+.mtile canvas{position:absolute;inset:0;pointer-events:none;}
+.mtile span{position:relative;z-index:1;}
+
+/* ── BOTTOM SHEET ── */
+#bsheet{background:#fff;border-radius:20px 20px 0 0;position:absolute;bottom:0;left:0;right:0;max-height:72%;display:flex;flex-direction:column;box-shadow:0 -6px 28px rgba(0,0,0,.2);z-index:400;transform:translateY(102%);transition:transform .28s cubic-bezier(.4,0,.2,1);padding-bottom:var(--sbot);}
+#bsheet.open{transform:translateY(0);}
+.bspull{width:36px;height:4px;background:#DDD;border-radius:2px;margin:8px auto 4px;flex-shrink:0;}
+.bshead{padding:0 13px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid #F0EBE0;}
+.bshead h3{font-size:14px;font-weight:600;color:var(--td);}
+.bssub{font-size:11px;color:var(--tl);}
+.bsx{background:none;border:none;font-size:20px;cursor:pointer;color:var(--tl);line-height:1;padding:1px 3px;}
+.bscat{display:flex;gap:4px;padding:7px 13px 4px;flex-shrink:0;overflow-x:auto;}
+.bscat::-webkit-scrollbar{display:none;}
+.cbt{background:#F0EBE0;border:none;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.cbt.active{background:var(--gb);color:#fff;}
+.bssearch{margin:4px 13px;padding:7px 11px;border:1.5px solid var(--br);border-radius:9px;font-size:13px;font-family:inherit;outline:none;flex-shrink:0;color:var(--td);}
+.bssearch:focus{border-color:var(--gb);}
+.plist{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px 13px 12px;overflow-y:auto;flex:1;}
+.ptile{display:flex;flex-direction:column;align-items:center;padding:7px 3px;border-radius:10px;border:2px solid #EEE;cursor:pointer;background:#FAFAF8;gap:3px;}
+.ptile:active,.ptile.chosen{border-color:var(--gb);background:#EDF8E2;}
+.ptile svg{width:40px;height:40px;}
+.ptile-n{font-size:9px;text-align:center;color:#555;line-height:1.2;}
+
+/* ── FAB ── */
+#fabbar{display:flex;gap:6px;padding:9px 11px;padding-bottom:calc(9px + var(--sbot));background:var(--gd);flex-shrink:0;}
+.fab{flex:1;padding:10px;border-radius:11px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;}
+.fab:active{filter:brightness(.85);}
+.fab-soil{background:var(--sm);color:#DEB887;}
+.fab-green{background:var(--gl);color:#fff;}
+.fab-blue{background:#1976D2;color:#fff;}
+.fab-purple{background:#7B1FA2;color:#fff;}
+
+/* ── MISC ── */
+#save-ind{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border-radius:8px;font-size:11px;padding:3px 9px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;backdrop-filter:blur(4px);}
+#save-ind.show{opacity:1;}
+#toast{position:absolute;bottom:88px;left:50%;transform:translateX(-50%) translateY(6px);background:rgba(10,10,10,.85);color:#fff;padding:6px 16px;border-radius:20px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;white-space:nowrap;z-index:999;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#loading-screen{background:linear-gradient(160deg,#1B4A0A,#2E5A1C);align-items:center;justify-content:center;}
+.ll{font-size:56px;margin-bottom:14px;animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.lt{color:rgba(255,255,255,.8);font-size:15px;}
+</style>
+</head>
+<body>
+
+<div class="screen" id="loading-screen"><div class="ll">🌱</div><div class="lt">Loading your garden…</div></div>
+
+<!-- AUTH -->
+<div class="screen hidden" id="auth-screen">
+  <div class="auth-logo">🌱</div>
+  <div class="auth-title">My Garden Planner</div>
+  <div class="auth-sub">Plan, track &amp; grow your raised beds</div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+    <div id="login-form">
+      <div class="afield"><label>Email</label><input class="ainp" type="email" id="le" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="afield"><label>Password</label><input class="ainp" type="password" id="lp" placeholder="Password" autocomplete="current-password"><button class="pw-eye" type="button" onclick="togglePw('lp',this)">👁</button></div>
+      <button class="abtn" id="lbtn" onclick="doLogin()">Sign In</button>
+      <div class="aerr" id="lerr"></div>
+    </div>
+    <div id="signup-form" style="display:none">
+      <div class="afield"><label>Your Name</label><input class="ainp" type="text" id="sn" placeholder="e.g. Kim"></div>
+      <div class="afield"><label>Email</label><input class="ainp" type="email" id="se" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="afield"><label>Password</label><input class="ainp" type="password" id="sp" placeholder="At least 6 characters" autocomplete="new-password"><button class="pw-eye" type="button" onclick="togglePw('sp',this)">👁</button></div>
+      <div class="afield"><label>Confirm Password</label><input class="ainp" type="password" id="sp2" placeholder="Repeat password"><button class="pw-eye" type="button" onclick="togglePw('sp2',this)">👁</button></div>
+      <button class="abtn" id="sbtn" onclick="doSignup()">Create Account</button>
+      <div class="aerr" id="serr"></div>
+    </div>
+  </div>
+  <div class="afoot">Gardens saved to cloud ☁️ • Access from any device</div>
+</div>
+
+<!-- MAIN APP -->
+<div class="screen hidden" id="app-screen">
+  <div id="topbar">
+    <div class="tl">
+      <span class="app-ttl">🌱</span>
+      <button class="gsel" id="gsel-btn" onclick="togglePanel('gp')">My Garden ▾</button>
+    </div>
+    <div class="ta">
+      <span class="ro-badge hidden" id="ro-badge">👁 View Only</span>
+      <button class="tbb" onclick="togglePanel('bgp')">🎨</button>
+      <button class="tbb" onclick="zoomIn()">＋</button>
+      <button class="tbb" onclick="zoomOut()">－</button>
+      <button class="tbb" onclick="doSignOut()">↩</button>
+    </div>
+  </div>
+
+  <div id="garden-wrap">
+    <div id="gs"><div id="gc">
+      <div id="bg-layer"></div><div id="grass-tex"></div><div id="grid-ov"></div>
+    </div></div>
+
+    <!-- PANEL BACKDROPS -->
+    <div class="pbd" id="bd-gp" onclick="closePanel('gp')"></div>
+    <div class="pbd" id="bd-bgp" onclick="closePanel('bgp')"></div>
+    <div class="pbd" id="bd-ap" onclick="closePanel('ap')"></div>
+    <div class="pbd" id="bd-tp" onclick="closePanel('tp')"></div>
+    <div class="pbd" id="bd-mp" onclick="closePanel('mp')"></div>
+
+    <!-- GARDENS -->
+    <div class="panel" id="gp">
+      <h3>My Gardens</h3>
+      <div id="glist"></div>
+      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="newGarden()">+ New Garden</button>
+      <button class="closebtn" onclick="closePanel('gp')">Close</button>
+    </div>
+
+    <!-- BACKGROUND -->
+    <div class="panel" id="bgp">
+      <h3>Background</h3>
+      <div class="bg-grid">
+        <div class="bg-opt bg-lush chosen" data-bg="lush" onclick="setBg(this)"><span>Lush</span></div>
+        <div class="bg-opt bg-forest" data-bg="forest" onclick="setBg(this)"><span>Forest</span></div>
+        <div class="bg-opt bg-dry" data-bg="dry" onclick="setBg(this)"><span>Dry</span></div>
+        <div class="bg-opt bg-sandy" data-bg="sandy" onclick="setBg(this)"><span>Sandy</span></div>
+        <div class="bg-opt bg-earthy" data-bg="earthy" onclick="setBg(this)"><span>Earthy</span></div>
+        <div class="bg-opt bg-meadow" data-bg="meadow" onclick="setBg(this)"><span>Meadow</span></div>
+      </div>
+      <button class="closebtn" onclick="closePanel('bgp')">Done</button>
+    </div>
+
+    <!-- ADD BED -->
+    <div class="panel" id="ap">
+      <h3>New Raised Bed</h3>
+      <input class="ap-inp" id="ap-name" placeholder="Bed name (e.g. East Bed)" maxlength="28">
+      <div class="ap-row"><label>Columns</label><input type="range" id="ap-c" min="1" max="12" value="5" oninput="document.getElementById('ap-cv').textContent=this.value"><span class="vv" id="ap-cv">5</span></div>
+      <div class="ap-row"><label>Rows</label><input type="range" id="ap-r" min="1" max="10" value="3" oninput="document.getElementById('ap-rv').textContent=this.value"><span class="vv" id="ap-rv">3</span></div>
+      <label style="font-size:12px;color:var(--tm);display:flex;align-items:center;gap:6px;margin-bottom:10px;cursor:pointer;"><input type="checkbox" id="ap-inter" style="width:16px;height:16px;accent-color:var(--gb)"> Include intersection row planting</label>
+      <div class="ap-btns">
+        <button class="apcanc" onclick="closePanel('ap')">Cancel</button>
+        <button class="apgo" onclick="createBedFromPanel()">+ Create Bed</button>
+      </div>
+    </div>
+
+    <!-- ADD THINGS -->
+    <div class="panel" id="tp">
+      <h3>Add to Garden</h3>
+      <div class="sec-hdr">Structures &amp; Features</div>
+      <div class="thing-grid" id="struct-grid"></div>
+      <div class="sec-hdr">Decorations</div>
+      <div class="thing-grid" id="decor-grid"></div>
+      <div class="sec-hdr">Animals</div>
+      <div class="thing-grid" id="animal-grid"></div>
+      <div class="sec-hdr">Farmer</div>
+      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addFarmerPrompt()">🧑‍🌾 Add Farmer</button>
+      <div class="sec-hdr">Grow Bags</div>
+      <div class="thing-grid">
+        <div class="ttile" onclick="addGrowBag('sm');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Small (6")</span></div>
+        <div class="ttile" onclick="addGrowBag('md');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Medium (10")</span></div>
+        <div class="ttile" onclick="addGrowBag('lg');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Large (15")</span></div>
+      </div>
+      <button class="closebtn" onclick="closePanel('tp')">Close</button>
+    </div>
+
+    <!-- MULCH/COVER -->
+    <div class="panel" id="mp">
+      <h3>Ground Cover &amp; Mulch</h3>
+      <div class="mulch-grid" id="mulch-grid"></div>
+      <p style="font-size:12px;color:var(--tl);margin-bottom:8px">Tap a cover type to add it. Drag to position. Drag the corner handle to resize. Tap the cover to show the remove button.</p>
+      <button class="closebtn" onclick="closePanel('mp')">Close</button>
+    </div>
+
+    <!-- PLANT POPUP -->
+    <div id="popup">
+      <div id="ph"><div id="pi"></div><div><div id="pt"></div><div id="ps"></div></div><button class="px2" onclick="closePopup()">×</button></div>
+      <div id="pb">
+        <div class="pr"><label>🌱 Planted</label><input type="date" class="pdate" id="pd-p"></div>
+        <div class="pr"><label>💧 Watered</label><input type="date" class="pdate" id="pd-w"></div>
+        <div class="pr"><label>🌾 Harvest</label><input type="date" class="pdate" id="pd-h"></div>
+        <textarea class="pnote" id="pd-n" placeholder="Notes — variety, source, observations…"></textarea>
+        <div class="pbtns"><button class="prem" onclick="removeFromPopup()">Remove</button><button class="psave" onclick="savePopup()">Save</button></div>
+      </div>
+    </div>
+    <div id="save-ind">Saving…</div>
+  </div>
+
+  <!-- PLANT SHEET -->
+  <div id="bsheet">
+    <div class="bspull"></div>
+    <div class="bshead"><h3>Choose a plant</h3><span class="bssub" id="bssub">tap to place</span><button class="bsx" onclick="closeSheet()">×</button></div>
+    <div class="bscat">
+      <button class="cbt active" onclick="filterCat('all',this)">All</button>
+      <button class="cbt" onclick="filterCat('vegetable',this)">🥕 Veg</button>
+      <button class="cbt" onclick="filterCat('flower',this)">🌸 Flowers</button>
+      <button class="cbt" onclick="filterCat('herb',this)">🌿 Herbs</button>
+    </div>
+    <input class="bssearch" id="bss" placeholder="Search plants…" oninput="buildPlantGrid(this.value)">
+    <div class="plist" id="plist"></div>
+  </div>
+
+  <div id="fabbar">
+    <button class="fab fab-soil" onclick="togglePanel('ap')">🛖 Bed</button>
+    <button class="fab fab-green" onclick="openSheet()">🌿 Plant</button>
+    <button class="fab fab-blue" onclick="buildThingsPanel();togglePanel('tp')">＋ Add</button>
+    <button class="fab fab-purple" onclick="togglePanel('mp')">🟫 Cover</button>
+  </div>
+  <div id="toast"></div>
+</div>
+
+<script>
+// ── SUPABASE ─────────────────────────────────────────────────────────────────
+const SB_URL='https://qegebspqmckfhioizrwc.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ2Vic3BxbWNrZmhpb2l6cndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTYxNTIsImV4cCI6MjA5NjM5MjE1Mn0.yAzrg_d40PRv2cVxVZiJQ_5yslQU-KDBqGr-mBbEbQ8';
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+// ── PLANTS ──────────────────────────────────────────────────────────────────
+const PLANTS=[
+  {id:'tomato',name:'Tomato',cat:'vegetable',per:1,days:75,svg:`<svg viewBox="0 0 44 44"><circle cx="22" cy="26" r="14" fill="#E53935"/><ellipse cx="22" cy="14" rx="5" ry="7" fill="#43A047"/><ellipse cx="27" cy="17" rx="3" ry="5" transform="rotate(20 27 17)" fill="#2E7D32"/><ellipse cx="17" cy="17" rx="3" ry="5" transform="rotate(-20 17 17)" fill="#388E3C"/><circle cx="18" cy="25" r="3" fill="#EF5350" opacity=".5"/></svg>`},
+  {id:'cherry',name:'Cherry Tom.',cat:'vegetable',per:4,days:65,svg:`<svg viewBox="0 0 44 44"><circle cx="16" cy="28" r="8" fill="#E53935"/><circle cx="28" cy="28" r="8" fill="#C62828"/><circle cx="22" cy="20" r="8" fill="#EF5350"/><rect x="20" y="8" width="4" height="8" rx="2" fill="#43A047"/></svg>`},
+  {id:'pepper',name:'Pepper',cat:'vegetable',per:1,days:70,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="28" rx="8" ry="13" fill="#43A047"/><ellipse cx="22" cy="28" rx="6" ry="11" fill="#66BB6A"/><rect x="20" y="12" width="4" height="8" rx="2" fill="#2E7D32"/></svg>`},
+  {id:'hotpepper',name:'Hot Pepper',cat:'vegetable',per:1,days:80,svg:`<svg viewBox="0 0 44 44"><path d="M22 14 Q30 20 30 30 Q26 40 22 40 Q18 40 14 30 Q14 20 22 14Z" fill="#E53935"/><rect x="20" y="8" width="4" height="8" rx="2" fill="#2E7D32"/></svg>`},
+  {id:'corn',name:'Corn',cat:'vegetable',per:1,days:90,svg:`<svg viewBox="0 0 44 44"><rect x="17" y="14" width="10" height="22" rx="5" fill="#FDD835"/><rect x="17" y="14" width="6" height="22" rx="3" fill="#FFEE58"/><rect x="14" y="10" width="4" height="14" rx="2" transform="rotate(-15 14 10)" fill="#43A047"/><rect x="26" y="10" width="4" height="14" rx="2" transform="rotate(15 26 10)" fill="#388E3C"/></svg>`},
+  {id:'zucchini',name:'Zucchini',cat:'vegetable',per:1,days:50,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="26" rx="7" ry="13" fill="#558B2F"/><ellipse cx="22" cy="26" rx="5" ry="11" fill="#7CB342"/><circle cx="22" cy="14" r="5" fill="#43A047"/></svg>`},
+  {id:'cucumber',name:'Cucumber',cat:'vegetable',per:2,days:55,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="24" rx="8" ry="14" fill="#388E3C"/><ellipse cx="22" cy="24" rx="6" ry="12" fill="#66BB6A"/><ellipse cx="22" cy="22" rx="2" ry="8" fill="#A5D6A7" opacity=".6"/></svg>`},
+  {id:'carrot',name:'Carrot',cat:'vegetable',per:9,days:75,svg:`<svg viewBox="0 0 44 44"><path d="M22 14 L28 36 Q22 40 16 36 Z" fill="#FF6F00"/><path d="M22 14 L26 34 Q22 38 18 34 Z" fill="#FF8F00"/><rect x="18" y="8" width="3" height="10" rx="1.5" transform="rotate(-15 18 8)" fill="#43A047"/><rect x="22" y="6" width="3" height="12" rx="1.5" fill="#388E3C"/><rect x="26" y="8" width="3" height="10" rx="1.5" transform="rotate(15 26 8)" fill="#2E7D32"/></svg>`},
+  {id:'potato',name:'Potato',cat:'vegetable',per:1,days:80,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="26" rx="13" ry="11" fill="#C8A96E"/><ellipse cx="22" cy="26" rx="10" ry="9" fill="#D4B87A"/><circle cx="16" cy="22" r="2" fill="#A08040"/><circle cx="26" cy="28" r="2" fill="#A08040"/><rect x="20" y="12" width="4" height="8" rx="2" fill="#2E7D32"/></svg>`},
+  {id:'beet',name:'Beet',cat:'vegetable',per:9,days:60,svg:`<svg viewBox="0 0 44 44"><circle cx="22" cy="28" r="13" fill="#880E4F"/><circle cx="22" cy="28" r="10" fill="#AD1457"/><rect x="20" y="10" width="4" height="10" rx="2" fill="#2E7D32"/></svg>`},
+  {id:'cauliflower',name:'Cauliflower',cat:'vegetable',per:1,days:80,svg:`<svg viewBox="0 0 44 44"><circle cx="22" cy="24" r="12" fill="#F5F5F5"/><circle cx="16" cy="22" r="6" fill="#EEE"/><circle cx="28" cy="22" r="6" fill="#E0E0E0"/><circle cx="22" cy="18" r="6" fill="#F5F5F5"/><rect x="17" y="33" width="10" height="6" rx="2" fill="#A5D6A7"/></svg>`},
+  {id:'cantaloupe',name:'Cantaloupe',cat:'vegetable',per:1,days:90,svg:`<svg viewBox="0 0 44 44"><circle cx="22" cy="24" r="14" fill="#FFA726"/><circle cx="22" cy="24" r="12" fill="#FFB74D"/><path d="M12 18 Q22 14 32 18" stroke="#E65100" stroke-width="1.5" fill="none"/><path d="M11 24 Q22 20 33 24" stroke="#E65100" stroke-width="1.5" fill="none"/><rect x="20" y="8" width="4" height="8" rx="2" fill="#43A047"/></svg>`},
+  {id:'watermelon',name:'Watermelon',cat:'vegetable',per:1,days:85,svg:`<svg viewBox="0 0 44 44"><path d="M8 28 Q8 10 22 10 Q36 10 36 28 Z" fill="#43A047"/><path d="M10 28 Q10 12 22 12 Q34 12 34 28 Z" fill="#E53935"/><path d="M12 28 Q12 14 22 14 Q32 14 32 28 Z" fill="#EF9A9A"/><circle cx="18" cy="22" r="2" fill="#1A1A1A"/><circle cx="26" cy="24" r="2" fill="#1A1A1A"/></svg>`},
+  {id:'pumpkin',name:'Pumpkin',cat:'vegetable',per:1,days:110,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="27" rx="14" ry="12" fill="#E65100"/><ellipse cx="14" cy="27" rx="7" ry="11" fill="#F4511E"/><ellipse cx="30" cy="27" rx="7" ry="11" fill="#BF360C"/><ellipse cx="22" cy="27" rx="5" ry="12" fill="#FF6D00"/><rect x="20" y="12" width="4" height="7" rx="2" fill="#2E7D32"/></svg>`},
+  {id:'beans',name:'Pole Beans',cat:'vegetable',per:9,days:55,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="26" rx="6" ry="14" fill="#558B2F" transform="rotate(-10 22 26)"/><circle cx="20" cy="22" r="3" fill="#33691E"/><circle cx="22" cy="28" r="3" fill="#33691E"/><rect x="21" y="8" width="3" height="10" rx="1.5" fill="#2E7D32"/></svg>`},
+  {id:'onion',name:'Onion',cat:'vegetable',per:4,days:100,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="28" rx="13" ry="11" fill="#7B1FA2"/><ellipse cx="22" cy="28" rx="10" ry="9" fill="#9C27B0"/><rect x="20" y="14" width="4" height="10" rx="2" fill="#43A047"/></svg>`},
+  {id:'garlic',name:'Garlic',cat:'vegetable',per:4,days:240,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="27" rx="10" ry="11" fill="#F5F0E8"/><ellipse cx="16" cy="27" rx="6" ry="9" fill="#EDE0D4"/><ellipse cx="28" cy="27" rx="6" ry="9" fill="#E8D5C4"/><rect x="20" y="12" width="4" height="10" rx="2" fill="#2E7D32"/></svg>`},
+  {id:'lettuce',name:'Lettuce',cat:'vegetable',per:4,days:45,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="28" rx="14" ry="10" fill="#43A047"/><ellipse cx="16" cy="24" rx="8" ry="8" fill="#66BB6A"/><ellipse cx="28" cy="24" rx="8" ry="8" fill="#4CAF50"/><ellipse cx="22" cy="20" rx="7" ry="7" fill="#A5D6A7"/></svg>`},
+  {id:'strawberry',name:'Strawberry',cat:'vegetable',per:4,days:60,svg:`<svg viewBox="0 0 44 44"><path d="M22 36 Q12 26 12 20 Q12 14 22 14 Q32 14 32 20 Q32 26 22 36Z" fill="#E53935"/><circle cx="17" cy="22" r="1.5" fill="#fff" opacity=".7"/><circle cx="27" cy="23" r="1.5" fill="#fff" opacity=".7"/><rect x="18" y="8" width="3" height="8" rx="1.5" transform="rotate(-15 18 8)" fill="#43A047"/><rect x="22" y="6" width="3" height="9" rx="1.5" fill="#388E3C"/></svg>`},
+  {id:'broccoli',name:'Broccoli',cat:'vegetable',per:1,days:70,svg:`<svg viewBox="0 0 44 44"><rect x="19" y="26" width="6" height="14" rx="3" fill="#2E7D32"/><circle cx="22" cy="22" r="10" fill="#388E3C"/><circle cx="16" cy="20" r="6" fill="#43A047"/><circle cx="28" cy="20" r="6" fill="#2E7D32"/><circle cx="22" cy="14" r="6" fill="#4CAF50"/></svg>`},
+  {id:'spinach',name:'Spinach',cat:'vegetable',per:9,days:40,svg:`<svg viewBox="0 0 44 44"><ellipse cx="16" cy="26" rx="7" ry="11" fill="#2E7D32" transform="rotate(-20 16 26)"/><ellipse cx="28" cy="26" rx="7" ry="11" fill="#388E3C" transform="rotate(20 28 26)"/><ellipse cx="22" cy="22" rx="6" ry="12" fill="#43A047"/></svg>`},
+  {id:'peas',name:'Sugar Peas',cat:'vegetable',per:8,days:65,svg:`<svg viewBox="0 0 44 44"><rect x="18" y="10" width="8" height="28" rx="4" fill="#388E3C"/><rect x="18" y="10" width="5" height="28" rx="3" fill="#66BB6A"/><circle cx="22" cy="18" r="4" fill="#A5D6A7"/><circle cx="22" cy="28" r="4" fill="#C8E6C9"/></svg>`},
+  // FLOWERS
+  {id:'sunflower',name:'Sunflower',cat:'flower',per:1,days:80,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="24" width="4" height="18" rx="2" fill="#558B2F"/><circle cx="22" cy="20" r="8" fill="#5D4037"/><circle cx="22" cy="20" r="6" fill="#4E342E"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600" transform="rotate(45 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFCA28" transform="rotate(90 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600" transform="rotate(135 22 20)"/></svg>`},
+  {id:'dwarf-sun',name:'Dwarf Sunflower',cat:'flower',per:4,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#558B2F"/><circle cx="22" cy="24" r="6" fill="#5D4037"/><circle cx="22" cy="24" r="4" fill="#4E342E"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600" transform="rotate(45 22 24)"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFCA28" transform="rotate(90 22 24)"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600" transform="rotate(135 22 24)"/></svg>`},
+  {id:'lupin',name:'Lupin',cat:'flower',per:1,days:90,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="12" rx="2" fill="#388E3C"/><ellipse cx="22" cy="20" rx="5" ry="12" fill="#7B1FA2"/><ellipse cx="22" cy="18" rx="4" ry="10" fill="#9C27B0"/><ellipse cx="22" cy="16" rx="3" ry="7" fill="#CE93D8"/><ellipse cx="22" cy="20" rx="2" ry="5" fill="#E1BEE7"/></svg>`},
+  {id:'rose',name:'Rose',cat:'flower',per:1,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#388E3C"/><circle cx="22" cy="20" r="10" fill="#E91E63"/><circle cx="22" cy="20" r="7" fill="#F06292"/><circle cx="22" cy="20" r="5" fill="#F48FB1"/><circle cx="22" cy="20" r="3" fill="#FCE4EC"/></svg>`},
+  {id:'lavender',name:'Lavender',cat:'flower',per:1,days:90,svg:`<svg viewBox="0 0 44 44"><rect x="21" y="28" width="3" height="14" rx="1.5" fill="#558B2F"/><ellipse cx="22" cy="18" rx="4" ry="10" fill="#9575CD"/><ellipse cx="22" cy="16" rx="3" ry="7" fill="#B39DDB"/><ellipse cx="22" cy="14" rx="2" ry="5" fill="#D1C4E9"/></svg>`},
+  {id:'marigold',name:'Marigold',cat:'flower',per:4,days:45,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="12" rx="2" fill="#388E3C"/><circle cx="22" cy="22" r="8" fill="#FF8F00"/><ellipse cx="22" cy="12" rx="4" ry="7" fill="#FF6F00"/><ellipse cx="22" cy="12" rx="4" ry="7" fill="#FF8F00" transform="rotate(60 22 22)"/><ellipse cx="22" cy="12" rx="4" ry="7" fill="#FFA000" transform="rotate(120 22 22)"/><circle cx="22" cy="22" r="5" fill="#FF6F00"/></svg>`},
+  {id:'daisy',name:'Daisy',cat:'flower',per:4,days:50,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="12" rx="2" fill="#388E3C"/><circle cx="22" cy="20" r="5" fill="#FFF176"/><ellipse cx="22" cy="10" rx="3" ry="6" fill="#fff"/><ellipse cx="22" cy="10" rx="3" ry="6" fill="#fff" transform="rotate(45 22 20)"/><ellipse cx="22" cy="10" rx="3" ry="6" fill="#FFF9C4" transform="rotate(90 22 20)"/><ellipse cx="22" cy="10" rx="3" ry="6" fill="#fff" transform="rotate(135 22 20)"/></svg>`},
+  {id:'tulip',name:'Tulip',cat:'flower',per:1,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="26" width="4" height="16" rx="2" fill="#388E3C"/><ellipse cx="22" cy="20" rx="7" ry="10" fill="#E53935"/><ellipse cx="17" cy="18" rx="5" ry="9" fill="#EF5350"/><ellipse cx="27" cy="18" rx="5" ry="9" fill="#C62828"/></svg>`},
+  {id:'peony',name:'Peony',cat:'flower',per:1,days:120,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="12" rx="2" fill="#2E7D32"/><circle cx="22" cy="20" r="12" fill="#F48FB1"/><circle cx="22" cy="20" r="9" fill="#F06292"/><circle cx="22" cy="20" r="6" fill="#EC407A"/><circle cx="22" cy="20" r="3" fill="#AD1457"/></svg>`},
+  {id:'zinnia',name:'Zinnia',cat:'flower',per:4,days:55,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="12" rx="2" fill="#388E3C"/><circle cx="22" cy="20" r="5" fill="#FF6F00"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FF3D00"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FF6D00" transform="rotate(36 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FF3D00" transform="rotate(72 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FF6D00" transform="rotate(108 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FF3D00" transform="rotate(144 22 20)"/></svg>`},
+  // HERBS
+  {id:'basil',name:'Basil',cat:'herb',per:1,days:30,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#33691E"/><ellipse cx="22" cy="22" rx="10" ry="13" fill="#43A047"/><ellipse cx="22" cy="22" rx="7" ry="10" fill="#66BB6A"/></svg>`},
+  {id:'mint',name:'Mint',cat:'herb',per:1,days:30,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#00695C"/><ellipse cx="16" cy="22" rx="6" ry="9" fill="#00897B" transform="rotate(-10 16 22)"/><ellipse cx="28" cy="22" rx="6" ry="9" fill="#26A69A" transform="rotate(10 28 22)"/><ellipse cx="22" cy="18" rx="5" ry="8" fill="#4DB6AC"/></svg>`},
+  {id:'dill',name:'Dill',cat:'herb',per:1,days:40,svg:`<svg viewBox="0 0 44 44"><rect x="21" y="24" width="3" height="18" rx="1.5" fill="#558B2F"/><circle cx="22" cy="16" r="8" fill="none" stroke="#7CB342" stroke-width="1.5"/><circle cx="22" cy="12" r="2" fill="#AED581"/><circle cx="28" cy="16" r="2" fill="#AED581"/><circle cx="16" cy="16" r="2" fill="#AED581"/><circle cx="22" cy="20" r="2" fill="#AED581"/></svg>`},
+  {id:'rosemary',name:'Rosemary',cat:'herb',per:1,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#2E7D32"/><ellipse cx="22" cy="20" rx="5" ry="13" fill="#388E3C"/><ellipse cx="18" cy="22" rx="3" ry="9" fill="#43A047" transform="rotate(-15 18 22)"/><ellipse cx="26" cy="22" rx="3" ry="9" fill="#2E7D32" transform="rotate(15 26 22)"/></svg>`},
+  {id:'chives',name:'Chives',cat:'herb',per:9,days:30,svg:`<svg viewBox="0 0 44 44"><rect x="18" y="20" width="3" height="22" rx="1.5" fill="#558B2F"/><rect x="22" y="16" width="3" height="26" rx="1.5" fill="#43A047"/><rect x="26" y="20" width="3" height="22" rx="1.5" fill="#388E3C"/><circle cx="19" cy="14" r="4" fill="#CE93D8"/><circle cx="23" cy="10" r="4" fill="#BA68C8"/><circle cx="27" cy="14" r="4" fill="#AB47BC"/></svg>`},
+];
+const PM=Object.fromEntries(PLANTS.map(p=>[p.id,p]));
+
+// ── STATIC DATA ──────────────────────────────────────────────────────────────
+const STRUCTS=[
+  {id:'shed',name:'Shed',icon:'🏚',color:'#5D4037',w:90,h:80,resizable:true},
+  {id:'house',name:'House',icon:'🏠',color:'#455A64',w:110,h:90,resizable:true},
+  {id:'deck',name:'Deck/Porch',icon:'deck',color:'#8D6E63',w:120,h:80,resizable:true},
+  {id:'greenhouse',name:'Greenhouse',icon:'greenhouse',color:'#4CAF50',w:90,h:90,resizable:true},
+  {id:'fence',name:'Fence',icon:'🪵',color:'#795548',w:180,h:28,resizable:true},
+  {id:'pond',name:'Pond',icon:'pond',color:'#1976D2',w:90,h:70,resizable:true},
+  {id:'compost',name:'Compost',icon:'compost',color:'#558B2F',w:60,h:60},
+  {id:'arch',name:'Garden Arch',icon:'arch',color:'#388E3C',w:70,h:90,resizable:true},
+  {id:'trellis',name:'Trellis',icon:'trellis',color:'#6D4C41',w:60,h:90,resizable:true},
+  {id:'wheelbarrow',name:'Wheelbarrow',icon:'wheelbarrow',color:'#795548',w:70,h:55},
+  {id:'watering-can',name:'Watering Can',icon:'wateringcan',color:'#1976D2',w:60,h:55},
+  {id:'bench',name:'Bench',icon:'bench',color:'#8D6E63',w:80,h:48},
+  {id:'bfeeder',name:'Bird Feeder',icon:'birdfeeder',color:'#795548',w:52,h:68},
+  {id:'lantern',name:'Lantern',icon:'lantern',color:'#F9A825',w:44,h:60},
+  {id:'gnome',name:'Garden Gnome',icon:'🧝',color:'#E53935',w:48,h:60},
+];
+
+// SVG icon renderers for structs
+const STRUCT_SVGS={
+  deck:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="${h*0.3}" width="${w-4}" height="${h*0.65}" rx="3" fill="#A1887F"/>
+    ${Array.from({length:Math.floor((w-4)/10)},(_,i)=>`<rect x="${4+i*10}" y="${h*0.3}" width="7" height="${h*0.65}" rx="1" fill="#8D6E63" opacity=".7"/>`).join('')}
+    <rect x="0" y="${h*0.25}" width="${w}" height="6" rx="2" fill="#6D4C41"/>
+    <rect x="4" y="0" width="8" height="${h*0.3}" rx="2" fill="#5D4037"/>
+    <rect x="${w-12}" y="0" width="8" height="${h*0.3}" rx="2" fill="#5D4037"/>
+  </svg>`,
+  greenhouse:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="${h*0.35}" width="${w-8}" height="${h*0.6}" rx="2" fill="#B2DFDB" opacity=".7" stroke="#4CAF50" stroke-width="2"/>
+    <path d="M${w/2} 4 L${w-4} ${h*0.35} L4 ${h*0.35} Z" fill="#A5D6A7" stroke="#388E3C" stroke-width="2"/>
+    <line x1="${w/2}" y1="4" x2="${w/2}" y2="${h}" stroke="#4CAF50" stroke-width="1.5" opacity=".5"/>
+    <line x1="4" y1="${h*0.35}" x2="${w-4}" y2="${h*0.35}" stroke="#4CAF50" stroke-width="1.5" opacity=".5"/>
+    <line x1="4" y1="${h*0.6}" x2="${w-4}" y2="${h*0.6}" stroke="#4CAF50" stroke-width="1" opacity=".4"/>
+  </svg>`,
+  pond:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-2}" ry="${h/2-2}" fill="#1E88E5" opacity=".85"/>
+    <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-8}" ry="${h/2-8}" fill="#42A5F5" opacity=".6"/>
+    <ellipse cx="${w/2-6}" cy="${h/2-4}" rx="7" ry="4" fill="#66BB6A" opacity=".7"/>
+    <ellipse cx="${w/2+8}" cy="${h/2+5}" rx="5" ry="3" fill="#66BB6A" opacity=".5"/>
+    <text x="${w/2}" y="${h/2+4}" text-anchor="middle" font-size="14" opacity=".6">🐸</text>
+  </svg>`,
+  compost:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="${h*0.25}" width="${w-12}" height="${h*0.72}" rx="4" fill="#5D4037"/>
+    <rect x="8" y="${h*0.2}" width="${w-16}" height="8" rx="3" fill="#4E342E"/>
+    <rect x="10" y="${h*0.3}" width="${w-20}" height="${h*0.55}" rx="3" fill="#6D4C41"/>
+    <text x="${w/2}" y="${h*0.65}" text-anchor="middle" font-size="${h*0.3}">🍂</text>
+    <rect x="${w/2-4}" y="${h*0.12}" width="8" height="${h*0.15}" rx="2" fill="#5D4037"/>
+  </svg>`,
+  arch:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="${h*0.35}" width="10" height="${h*0.65}" rx="3" fill="#6D4C41"/>
+    <rect x="${w-14}" y="${h*0.35}" width="10" height="${h*0.65}" rx="3" fill="#6D4C41"/>
+    <path d="M4 ${h*0.38} Q${w/2} -8 ${w-4} ${h*0.38}" stroke="#5D4037" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M4 ${h*0.38} Q${w/2} -8 ${w-4} ${h*0.38}" stroke="#8D6E63" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <text x="${w/2-8}" y="${h*0.28}" font-size="13">🌸</text>
+    <text x="${w/2+2}" y="${h*0.18}" font-size="10">🌿</text>
+  </svg>`,
+  trellis:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="2" width="6" height="${h-4}" rx="2" fill="#8D6E63"/>
+    <rect x="${w-9}" y="2" width="6" height="${h-4}" rx="2" fill="#8D6E63"/>
+    ${[0.15,0.35,0.55,0.75,0.9].map(r=>`<rect x="3" y="${h*r}" width="${w-6}" height="4" rx="1" fill="#A1887F"/>`).join('')}
+    ${[0.3,0.6].map(c=>`<rect x="${w*c-2}" y="2" width="4" height="${h-4}" rx="1" fill="#795548" opacity=".6"/>`).join('')}
+    <text x="${w/2}" y="${h*0.5}" text-anchor="middle" font-size="11">🌿</text>
+  </svg>`,
+  wheelbarrow:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="${w*0.25}" cy="${h*0.82}" r="${h*0.16}" fill="none" stroke="#5D4037" stroke-width="3"/>
+    <circle cx="${w*0.25}" cy="${h*0.82}" r="${h*0.05}" fill="#5D4037"/>
+    <path d="M${w*0.2} ${h*0.78} L${w*0.55} ${h*0.55} L${w*0.85} ${h*0.45} L${w*0.82} ${h*0.7} L${w*0.45} ${h*0.75} Z" fill="#8D6E63"/>
+    <rect x="${w*0.82}" y="${h*0.28}" width="5" height="${h*0.2}" rx="2" fill="#6D4C41" transform="rotate(-15,${w*0.84},${h*0.38})"/>
+    <rect x="${w*0.7}" y="${h*0.28}" width="5" height="${h*0.2}" rx="2" fill="#6D4C41" transform="rotate(-10,${w*0.72},${h*0.38})"/>
+    <text x="${w*0.6}" y="${h*0.6}" font-size="12" text-anchor="middle">🌱</text>
+  </svg>`,
+  wateringcan:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="${w*0.42}" cy="${h*0.55}" rx="${w*0.28}" ry="${h*0.28}" fill="#1976D2"/>
+    <rect x="${w*0.14}" y="${h*0.42}" width="${w*0.56}" height="${h*0.36}" rx="8" fill="#1E88E5"/>
+    <path d="M${w*0.7} ${h*0.48} L${w*0.95} ${h*0.35} L${w*0.85} ${h*0.25}" stroke="#0D47A1" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.14} ${h*0.52} Q${w*0.04} ${h*0.42} ${w*0.1} ${h*0.32}" stroke="#1565C0" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    ${[0,1,2].map(i=>`<circle cx="${w*(0.82+i*0.06)}" cy="${h*(0.18+i*0.06)}" r="2" fill="#42A5F5" opacity=".8"/>`).join('')}
+    <ellipse cx="${w*0.42}" cy="${h*0.42}" rx="${w*0.28}" ry="5" fill="#1565C0" opacity=".6"/>
+  </svg>`,
+  bench:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="${h*0.3}" width="${w-8}" height="${h*0.22}" rx="3" fill="#A1887F"/>
+    <rect x="6" y="${h*0.3}" width="${(w-14)/2}" height="${h*0.22}" rx="2" fill="#8D6E63"/>
+    <rect x="${(w-14)/2+10}" y="${h*0.3}" width="${(w-14)/2}" height="${h*0.22}" rx="2" fill="#8D6E63"/>
+    <rect x="${w*0.12}" y="${h*0.52}" width="8" height="${h*0.44}" rx="2" fill="#795548"/>
+    <rect x="${w*0.5}" y="${h*0.52}" width="8" height="${h*0.44}" rx="2" fill="#795548"/>
+    <rect x="${w*0.77}" y="${h*0.52}" width="8" height="${h*0.44}" rx="2" fill="#795548"/>
+  </svg>`,
+  birdfeeder:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w/2-3}" y="${h*0.45}" width="6" height="${h*0.52}" rx="2" fill="#6D4C41"/>
+    <path d="M${w*0.1} ${h*0.48} L${w*0.9} ${h*0.48} L${w*0.75} ${h*0.25} L${w*0.25} ${h*0.25} Z" fill="#8D6E63"/>
+    <rect x="${w*0.1}" y="${h*0.44}" width="${w*0.8}" height="${h*0.18}" rx="3" fill="#A1887F"/>
+    <path d="M${w*0.2} ${h*0.25} L${w/2} ${h*0.04} L${w*0.8} ${h*0.25}" fill="#795548"/>
+    <text x="${w/2}" y="${h*0.42}" text-anchor="middle" font-size="11">🐦</text>
+  </svg>`,
+  lantern:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w/2-3}" y="0" width="6" height="${h*0.15}" rx="2" fill="#F9A825"/>
+    <rect x="${w/2-6}" y="${h*0.12}" width="12" height="6" rx="2" fill="#F57F17"/>
+    <rect x="${w*0.15}" y="${h*0.18}" width="${w*0.7}" height="${h*0.65}" rx="4" fill="#FFF9C4" stroke="#F9A825" stroke-width="2" opacity=".9"/>
+    <ellipse cx="${w/2}" cy="${h*0.5}" rx="${w*0.18}" ry="${h*0.22}" fill="#FFEE58" opacity=".9"/>
+    <circle cx="${w/2}" cy="${h*0.5}" r="${h*0.1}" fill="#FFF176"/>
+    <rect x="${w*0.15}" y="${h*0.83}" width="${w*0.7}" height="6" rx="2" fill="#F57F17"/>
+    <rect x="${w*0.25}" y="${h*0.89}" width="${w*0.5}" height="${h*0.1}" rx="2" fill="#E65100"/>
+    ${[0.25,0.5,0.75].map(x=>`<line x1="${w*x}" y1="${h*0.18}" x2="${w*x}" y2="${h*0.83}" stroke="#F9A825" stroke-width="1" opacity=".5"/>`).join('')}
+  </svg>`,
+};
+function getStructIcon(sDef,w,h){
+  if(STRUCT_SVGS[sDef.icon]){
+    return `<div style="width:${w}px;height:${h}px;display:flex;align-items:center;justify-content:center;pointer-events:none;">${STRUCT_SVGS[sDef.icon](w,h)}</div>`;
+  }
+  const iconSize=Math.min(w,h)*0.6;
+  return `<span class="struct-icon" style="font-size:${iconSize}px">${sDef.icon}</span><span class="struct-lbl" style="font-size:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);margin-top:2px">${sDef.name}</span>`;
+}
+const DECORS=[
+  {id:'scarecrow',name:'Scarecrow',emoji:'🪆'},
+  {id:'windchime',name:'Wind Chime',emoji:'🎐'},
+  {id:'mushroom',name:'Mushrooms',emoji:'🍄'},
+  {id:'stones',name:'Garden Stones',emoji:'🪨'},
+  {id:'flag',name:'Garden Flag',emoji:'🏴'},
+  {id:'beehive',name:'Bee Hive',emoji:'🪵'},
+  {id:'cat',name:'Cat',emoji:'🐈'},
+];
+const ANIMALS=[
+  {id:'chicken',name:'Chicken',emoji:'🐓',roam:true},
+  {id:'goat',name:'Goat',emoji:'🐐',roam:true},
+  {id:'horse',name:'Horse',emoji:'🐴',roam:false},
+  {id:'cow',name:'Cow',emoji:'🐄',roam:false},
+  {id:'rabbit',name:'Rabbit',emoji:'🐇',roam:true},
+  {id:'duck',name:'Duck',emoji:'🦆',roam:true},
+  {id:'dog',name:'Dog',emoji:'🐕',roam:true},
+  {id:'cat',name:'Cat',emoji:'🐈',roam:true},
+  {id:'bee',name:'Bees',emoji:'🐝',roam:true},
+];
+const MULCHES=[
+  {id:'woodchip',name:'Wood Chips',color:'#8D6E63',type:'woodchip'},
+  {id:'straw',name:'Straw',color:'#D4A017',type:'straw'},
+  {id:'gravel',name:'Gravel',color:'#9E9E9E',type:'gravel'},
+  {id:'bark',name:'Bark Mulch',color:'#6D4C41',type:'bark'},
+  {id:'stonepath',name:'Stone Path',color:'#78909C',type:'stone'},
+  {id:'grass',name:'Grass Clippings',color:'#7CB342',type:'grass'},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let cUser=null,gardens=[],cGardenId=null,beds=[],bedCount=0;
+let selCell=null,activePlant=null,popupTgt=null;
+let scale=1,isReadOnly=false,currentBg='lush';
+let dragging=null,dragOff={x:0,y:0};
+let saveTimer=null;
+let farmerEl=null,farmerTimer=null,farmerWalkTimer=null;
+const liveAnimals=[];
+const farmerLog=[];// rolling activity log
+const TODAY=new Date().toISOString().split('T')[0];
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('hidden',s.id!==id));}
+function toast(m,d=2100){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),d);}
+function showSaving(){const e=document.getElementById('save-ind');e.textContent='Saving…';e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>{e.textContent='✓ Saved';setTimeout(()=>e.classList.remove('show'),900);},1200);}
+function hd(p,d){if(!p||!d)return'';const dt=new Date(p);dt.setDate(dt.getDate()+d);return dt.toISOString().split('T')[0];}
+function togglePw(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
+function daysSince(d){if(!d)return null;return Math.floor((Date.now()-new Date(d).getTime())/(86400000));}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function switchTab(t){
+  document.getElementById('login-form').style.display=t==='login'?'':'none';
+  document.getElementById('signup-form').style.display=t==='signup'?'':'none';
+  document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',(t==='login'&&i===0)||(t==='signup'&&i===1)));
+}
+async function doLogin(){
+  const btn=document.getElementById('lbtn'),err=document.getElementById('lerr');
+  btn.disabled=true;btn.textContent='Signing in…';err.textContent='';
+  const{error}=await sb.auth.signInWithPassword({email:document.getElementById('le').value.trim(),password:document.getElementById('lp').value});
+  btn.disabled=false;btn.textContent='Sign In';
+  if(error)err.textContent=error.message;
+}
+async function doSignup(){
+  const btn=document.getElementById('sbtn'),err=document.getElementById('serr');
+  const pw=document.getElementById('sp').value,pw2=document.getElementById('sp2').value;
+  err.textContent='';err.className='aerr';
+  if(pw!==pw2){err.textContent='Passwords do not match.';return;}
+  if(pw.length<6){err.textContent='Password must be at least 6 characters.';return;}
+  btn.disabled=true;btn.textContent='Creating…';
+  const{error}=await sb.auth.signUp({email:document.getElementById('se').value.trim(),password:pw,options:{data:{display_name:document.getElementById('sn').value.trim()}}});
+  btn.disabled=false;btn.textContent='Create Account';
+  if(error){err.textContent=error.message;return;}
+  err.className='aerr ok';err.textContent='✓ Check your email to confirm, then sign in.';
+}
+async function doSignOut(){
+  stopFarmer();stopAllAnimals();
+  await sb.auth.signOut();
+  showScreen('auth-screen');
+  cUser=null;gardens=[];beds=[];cGardenId=null;isReadOnly=false;
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap').forEach(e=>e.remove());
+  document.getElementById('farmer')?.remove();farmerEl=null;
+}
+
+// ── SAVING — robust immediate save ────────────────────────────────────────────
+function scheduleSave(){
+  if(isReadOnly||!cGardenId)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveNow,800);
+}
+async function saveNow(){
+  if(!cGardenId||isReadOnly)return;
+  showSaving();
+  const bedsData=beds.map(b=>({
+    id:b.id,name:b.name,cols:b.cols,rows:b.rows,x:b.x,y:b.y,
+    locked:b.locked,cells:b.cells,inter:b.inter,intercells:b.intercells
+  }));
+  const structs=[];
+  document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{
+    try{const d=JSON.parse(el.dataset.sdata);d.x=parseInt(el.style.left)||d.x;d.y=parseInt(el.style.top)||d.y;structs.push(d);}catch(e){}
+  });
+  const payload={beds_json:JSON.stringify(bedsData),structures_json:JSON.stringify(structs),bg:currentBg};
+  const{error}=await sb.from('gardens').update(payload).eq('id',cGardenId);
+  if(error){console.error('Save error:',error.message);toast('⚠️ Save failed: '+error.message);}
+  const g=gardens.find(x=>x.id===cGardenId);
+  if(g){Object.assign(g,payload);}
+}
+
+// ── BACKGROUND ────────────────────────────────────────────────────────────────
+const BGS={lush:{bg:'#5A9E30',gr:'rgba(255,255,255,.07)'},forest:{bg:'#1B5E20',gr:'rgba(255,255,255,.05)'},dry:{bg:'#8D9A5A',gr:'rgba(255,255,255,.07)'},sandy:{bg:'#C9A84C',gr:'rgba(0,0,0,.06)'},earthy:{bg:'#5D4037',gr:'rgba(255,255,255,.06)'},meadow:{bg:'#69B84A',gr:'rgba(255,255,255,.09)'}};
+function applyBg(n){
+  currentBg=n;const s=BGS[n]||BGS.lush;
+  document.getElementById('bg-layer').style.background=s.bg;
+  document.getElementById('app-screen').style.background=s.bg;
+  document.getElementById('grid-ov').style.backgroundImage=`linear-gradient(${s.gr} 1px,transparent 1px),linear-gradient(90deg,${s.gr} 1px,transparent 1px)`;
+  document.querySelectorAll('.bg-opt').forEach(el=>el.classList.toggle('chosen',el.dataset.bg===n));
+}
+function setBg(el){applyBg(el.dataset.bg);closePanel('bgp');scheduleSave();}
+
+// ── PANELS ────────────────────────────────────────────────────────────────────
+const ALLPANELS=['gp','bgp','ap','tp','mp'];
+function togglePanel(id){
+  const el=document.getElementById(id),was=el.classList.contains('open');
+  ALLPANELS.forEach(p=>{document.getElementById(p).classList.remove('open');document.getElementById('bd-'+p)?.classList.remove('show');});
+  if(!was){el.classList.add('open');document.getElementById('bd-'+id)?.classList.add('show');}
+}
+function closePanel(id){document.getElementById(id).classList.remove('open');document.getElementById('bd-'+id)?.classList.remove('show');}
+
+// ── GARDENS ──────────────────────────────────────────────────────────────────
+async function loadGardens(){
+  const params=new URLSearchParams(window.location.search);
+  const shareToken=params.get('share');
+  if(shareToken){await loadShared(shareToken);return;}
+  const{data,error}=await sb.from('gardens').select('*').eq('user_id',cUser.id).order('created_at');
+  if(error){console.error('Load gardens error:',error.message);toast('⚠️ '+error.message);return;}
+  gardens=data||[];
+  if(gardens.length===0)await createGarden('My Garden');
+  else{await loadGarden(gardens[0]);renderGardensList();}
+}
+async function loadShared(token){
+  const{data,error}=await sb.from('gardens').select('*').eq('share_token',token).single();
+  if(error||!data){toast('Garden not found.');return;}
+  isReadOnly=true;
+  document.getElementById('ro-badge').classList.remove('hidden');
+  document.getElementById('fabbar').style.display='none';
+  gardens=[data];loadGarden(data);
+}
+async function createGarden(name){
+  const isDefault=(name==='My Garden');
+  // Pre-plant some cells: {plant_id, planted, watered, harvest, note}
+  function cell(id){return {plant_id:id,planted:TODAY,watered:TODAY,harvest:hd(TODAY,PM[id]?.days||60),note:''};}
+  const vegCells=[cell('tomato'),cell('tomato'),cell('pepper'),null,null,
+                  null,cell('cucumber'),cell('cucumber'),cell('lettuce'),cell('lettuce'),
+                  cell('carrot'),cell('carrot'),null,cell('lettuce'),null];
+  const herbCells=[cell('basil'),cell('basil'),cell('parsley'),cell('thyme'),cell('rosemary'),cell('chives')];
+  const flowerCells=[cell('sunflower'),cell('sunflower'),null,null,cell('marigold'),cell('marigold'),null,null];
+  const defaultBeds=isDefault?JSON.stringify([
+    {id:1,name:'Veggie Bed',cols:5,rows:3,x:180,y:200,locked:false,cells:vegCells,inter:false,intercells:[]},
+    {id:2,name:'Herb Garden',cols:3,rows:2,x:180,y:460,locked:false,cells:herbCells,inter:false,intercells:[]},
+    {id:3,name:'Flower Bed',cols:4,rows:2,x:520,y:260,locked:false,cells:flowerCells,inter:false,intercells:[]},
+  ]):'[]';
+  const defaultStructs=isDefault?JSON.stringify([
+    // Structures
+    {type:'struct',sid:'shed',x:760,y:90,locked:false,id:'st_def1'},
+    {type:'struct',sid:'compost',x:740,y:310,locked:false,id:'st_def2'},
+    {type:'struct',sid:'bench',x:430,y:480,locked:false,id:'st_def3'},
+    {type:'struct',sid:'watering-can',x:350,y:490,locked:false,id:'st_def4'},
+    {type:'struct',sid:'arch',x:490,y:160,locked:false,id:'st_def5'},
+    {type:'struct',sid:'bfeeder',x:660,y:200,locked:false,id:'st_def6'},
+    // Fences along top and left edge
+    {type:'struct',sid:'fence',x:170,y:140,w:420,h:32,locked:false,id:'st_def_f1'},
+    {type:'struct',sid:'fence',x:150,y:140,w:32,h:380,locked:false,id:'st_def_f2'},
+    // Ground cover patches
+    {type:'mulch',mid:'woodchip',mtype:'woodchip',color:'#8D6E63',x:155,y:380,w:220,h:60,id:'m_def1'},
+    {type:'mulch',mid:'grass',mtype:'grass',color:'#7CB342',x:450,y:160,w:100,h:80,id:'m_def2'},
+    {type:'mulch',mid:'straw',mtype:'straw',color:'#D4A017',x:155,y:155,w:420,h:38,id:'m_def3'},
+    // Grow bags
+    {type:'growbag',x:530,y:450,plant_id:'pumpkin',planted:TODAY,gb_harvest:hd(TODAY,PM['pumpkin']?.days||90),id:'gb_def1',size:80},
+    {type:'growbag',x:630,y:450,plant_id:'strawberry',planted:TODAY,gb_harvest:hd(TODAY,PM['strawberry']?.days||60),id:'gb_def2',size:72},
+    {type:'growbag',x:530,y:560,plant_id:null,planted:null,id:'gb_def3',size:56},
+    // Animals
+    {type:'animal',aid:'chicken',name:'Henrietta',x:280,y:330,since:TODAY,id:'an_def1'},
+    {type:'animal',aid:'chicken',name:'Cluck',x:320,y:370,since:TODAY,id:'an_def2'},
+    {type:'animal',aid:'rabbit',name:'Biscuit',x:490,y:200,since:TODAY,id:'an_def3'},
+    {type:'animal',aid:'bee',name:'The Bees',x:650,y:170,since:TODAY,id:'an_def4'},
+    // Farmer
+    {type:'farmer',name:'The Gardener',x:360,y:280,since:TODAY,id:'fr_def1'},
+  ]):'[]';
+  const{data,error}=await sb.from('gardens').insert({user_id:cUser.id,name,bg:'lush',beds_json:defaultBeds,structures_json:defaultStructs}).select().single();
+  if(error){console.error('Create garden error:',error.message);toast('⚠️ Could not create garden: '+error.message);return;}
+  gardens.push(data);renderGardensList();
+  await loadGarden(data);
+  if(isDefault)toast('🌱 Welcome! Your garden is ready to grow.',3500);
+}
+async function loadGarden(g){
+  cGardenId=g.id;
+  document.getElementById('gsel-btn').textContent=(g.name||'Garden')+' ▾';
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap').forEach(e=>e.remove());
+  document.getElementById('farmer')?.remove();farmerEl=null;
+  beds=[];bedCount=0;liveAnimals.length=0;
+  applyBg(g.bg||'lush');
+  try{const b=JSON.parse(g.beds_json||'[]');b.forEach(d=>restoreBed(d));}catch(e){console.error('Beds parse:',e);}
+  try{const s=JSON.parse(g.structures_json||'[]');s.forEach(d=>restoreStructure(d));}catch(e){console.error('Struct parse:',e);}
+  expandCanvas();startFarmer();
+}
+function renderGardensList(){
+  const list=document.getElementById('glist');list.innerHTML='';
+  gardens.forEach(g=>{
+    const item=document.createElement('div');item.className='gi'+(g.id===cGardenId?' ag':'');
+    const bc=()=>{try{return JSON.parse(g.beds_json||'[]').length;}catch(e){return 0;}};
+    const nameDiv=document.createElement('div');
+    nameDiv.innerHTML=`<div class="gi-name">🌿 ${g.name}</div><div class="gi-meta">${bc()} bed${bc()===1?'':'s'}</div>`;
+    nameDiv.style.flex='1';
+    item.appendChild(nameDiv);
+    if(g.user_id===cUser?.id){
+      const sh=document.createElement('button');sh.className='gi-share';sh.textContent='🔗';sh.title='Share read-only';
+      sh.onclick=async e=>{e.stopPropagation();await shareGarden(g);};
+      const dl=document.createElement('button');dl.className='gi-del';dl.textContent='×';
+      dl.onclick=async e=>{e.stopPropagation();if(!confirm('Delete "'+g.name+'"?'))return;await sb.from('gardens').delete().eq('id',g.id);gardens=gardens.filter(x=>x.id!==g.id);if(g.id===cGardenId){if(gardens.length)await loadGarden(gardens[0]);else await createGarden('My Garden');}renderGardensList();};
+      item.appendChild(sh);item.appendChild(dl);
+    }
+    item.onclick=async()=>{await loadGarden(g);renderGardensList();closePanel('gp');};
+    list.appendChild(item);
+  });
+}
+async function newGarden(){
+  const name=prompt('Garden name (e.g. Front Yard, Back Vegetable Patch):')||(null);
+  if(!name)return;
+  closePanel('gp');
+  await createGarden(name.trim()||('Garden '+(gardens.length+1)));
+}
+async function shareGarden(g){
+  let token=g.share_token;
+  if(!token){token=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);await sb.from('gardens').update({share_token:token}).eq('id',g.id);g.share_token=token;}
+  const url=`${window.location.origin}${window.location.pathname}?share=${token}`;
+  try{await navigator.clipboard.writeText(url);toast('📋 Share link copied!');}catch(e){prompt('Copy this link:',url);}
+}
+
+// ── PLANT SHEET ───────────────────────────────────────────────────────────────
+let catFilter='all';
+function filterCat(c,btn){catFilter=c;document.querySelectorAll('.cbt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');buildPlantGrid(document.getElementById('bss').value);}
+function buildPlantGrid(q=''){
+  const list=document.getElementById('plist');list.innerHTML='';
+  PLANTS.filter(p=>(catFilter==='all'||p.cat===catFilter)&&p.name.toLowerCase().includes(q.toLowerCase())).forEach(p=>{
+    const el=document.createElement('div');el.className='ptile'+(activePlant?.id===p.id?' chosen':'');
+    el.innerHTML=p.svg+`<span class="ptile-n">${p.name}</span>`;
+    el.onclick=()=>pickPlant(p);list.appendChild(el);
+  });
+}
+function openSheet(){document.getElementById('bsheet').classList.add('open');buildPlantGrid('');}
+function closeSheet(){document.getElementById('bsheet').classList.remove('open');}
+function pickPlant(p){
+  if(isReadOnly)return;
+  if(window._plantPickCb){const cb=window._plantPickCb;window._plantPickCb=null;closeSheet();cb(p);return;}
+  activePlant=p;document.getElementById('bssub').textContent=p.name+' selected';
+  closeSheet();
+  if(selCell){doPlace(selCell.bed,selCell.idx,p,selCell.inter);clearSel();}
+  else toast('Tap a cell to place '+p.name);
+  buildPlantGrid('');
+}
+
+// ── CELLS ─────────────────────────────────────────────────────────────────────
+function clearSel(){document.querySelectorAll('.bed-cell.csel,.ibed-cell.csel').forEach(c=>c.classList.remove('csel'));selCell=null;}
+function onCellTap(bed,idx,cellEl,isInter=false){
+  if(isReadOnly){toast('👁 View only');return;}
+  if(bed.locked){toast('🔒 Bed is locked');return;}
+  closePopup();deselectAll();
+  const cells=isInter?bed.intercells:bed.cells;
+  if(cells[idx]){openPopup(bed,idx,cellEl,isInter);return;}
+  if(activePlant){clearSel();doPlace(bed,idx,activePlant,isInter);return;}
+  clearSel();cellEl.classList.add('csel');selCell={bed,idx,inter:isInter};openSheet();
+}
+function doPlace(bed,idx,plant,isInter=false){
+  const cells=isInter?bed.intercells:bed.cells;
+  cells[idx]={plant_id:plant.id,planted:TODAY,watered:'',harvest:hd(TODAY,plant.days),note:''};
+  const els=isInter?bed.interEls:bed.cellEls;
+  renderCell(els[idx],cells[idx],isInter);
+  toast('✓ '+plant.name+' planted!');scheduleSave();
+}
+function renderCell(el,data,isInter=false){
+  el.innerHTML='';el.classList.toggle('hp',!!data);
+  if(!data)return;
+  const p=PM[data.plant_id];if(!p)return;
+  el.innerHTML=p.svg;
+  if(!isInter&&p.per>1){const b=document.createElement('span');b.className='cbadge';b.textContent=p.per+'x';el.appendChild(b);}
+  if(data.planted){const d=document.createElement('span');d.className='cdate';d.textContent=data.planted.slice(5);el.appendChild(d);}
+}
+
+// ── POPUP ─────────────────────────────────────────────────────────────────────
+function openPopup(bed,idx,cellEl,isInter=false){
+  const cells=isInter?bed.intercells:bed.cells;const data=cells[idx];if(!data)return;
+  const p=PM[data.plant_id];if(!p)return;
+  popupTgt={bed,idx,isInter};
+  document.getElementById('pi').innerHTML=p.svg;
+  document.getElementById('pt').textContent=p.name;
+  document.getElementById('ps').textContent='~'+p.days+' days to harvest';
+  document.getElementById('pd-p').value=data.planted||'';
+  document.getElementById('pd-w').value=data.watered||'';
+  document.getElementById('pd-h').value=data.harvest||hd(data.planted,p.days);
+  document.getElementById('pd-n').value=data.note||'';
+  const wr=document.getElementById('garden-wrap').getBoundingClientRect();
+  const cr=cellEl.getBoundingClientRect();
+  const PW=215,PH=280;
+  let left=cr.left-wr.left,top=cr.bottom-wr.top+5;
+  if(left+PW>wr.width-6)left=wr.width-PW-6;if(left<6)left=6;
+  if(top+PH>wr.height-6)top=cr.top-wr.top-PH-5;if(top<6)top=6;
+  const popup=document.getElementById('popup');
+  popup.style.left=left+'px';popup.style.top=top+'px';popup.classList.add('show');
+}
+function closePopup(){document.getElementById('popup').classList.remove('show');popupTgt=null;}
+function savePopup(){
+  if(!popupTgt||isReadOnly)return;
+  const cells=popupTgt.isInter?popupTgt.bed.intercells:popupTgt.bed.cells;
+  const d=cells[popupTgt.idx];if(!d)return;
+  d.planted=document.getElementById('pd-p').value;
+  d.watered=document.getElementById('pd-w').value;
+  d.harvest=document.getElementById('pd-h').value;
+  d.note=document.getElementById('pd-n').value;
+  const els=popupTgt.isInter?popupTgt.bed.interEls:popupTgt.bed.cellEls;
+  renderCell(els[popupTgt.idx],d,popupTgt.isInter);
+  closePopup();toast('✓ Saved');scheduleSave();
+}
+function removeFromPopup(){
+  if(!popupTgt||isReadOnly)return;
+  const cells=popupTgt.isInter?popupTgt.bed.intercells:popupTgt.bed.cells;
+  cells[popupTgt.idx]=null;
+  const els=popupTgt.isInter?popupTgt.bed.interEls:popupTgt.bed.cellEls;
+  renderCell(els[popupTgt.idx],null,popupTgt.isInter);
+  closePopup();toast('Plant removed');scheduleSave();
+}
+
+// ── BEDS ──────────────────────────────────────────────────────────────────────
+function getDropPos(w=60,h=60){
+  // Find an open position in the visible scroll area
+  const gs=document.getElementById('gs');
+  const cx=(gs.scrollLeft+gs.clientWidth*0.6)/scale;
+  const cy=(gs.scrollTop+gs.clientHeight*0.55)/scale;
+  return {x:Math.max(10,cx+Math.random()*40-20),y:Math.max(10,cy+Math.random()*40-20)};
+}
+function createBedFromPanel(){
+  if(isReadOnly)return;
+  const name=document.getElementById('ap-name').value.trim()||('Bed '+(bedCount+1));
+  const cols=parseInt(document.getElementById('ap-c').value);
+  const rows=parseInt(document.getElementById('ap-r').value);
+  const inter=document.getElementById('ap-inter').checked;
+  const pos=getDropPos(cols*46,rows*46);
+  createBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,cells:Array(rows*cols).fill(null),inter,intercells:inter?Array(rows*(cols-1)).fill(null):[]});
+  document.getElementById('ap-name').value='';closePanel('ap');toast('✓ '+name+' added!');scheduleSave();
+}
+function restoreBed(d){createBed(d);}
+function createBed(data){
+  bedCount++;
+  const bed={id:data.id||bedCount,name:data.name||'Bed '+bedCount,cols:data.cols,rows:data.rows,x:data.x||10,y:data.y||10,locked:!!data.locked,cells:[...(data.cells||[])],inter:!!data.inter,intercells:[...(data.intercells||[])],cellEls:[],interEls:[],el:null};
+  const wrap=document.createElement('div');wrap.className='bed-wrap';wrap.style.cssText=`left:${bed.x}px;top:${bed.y}px;`;
+  const card=document.createElement('div');card.className='bed-card';
+
+  // Floating name tag (shows on hover/select)
+  const nameTag=document.createElement('div');nameTag.className='bed-name-tag';
+  const ni=document.createElement('input');ni.className='bed-name-inp';ni.value=bed.name;ni.maxLength=28;
+  ni.onpointerdown=e=>e.stopPropagation();
+  ni.onchange=e=>{bed.name=e.target.value;scheduleSave();};
+  const lb=document.createElement('button');lb.className='bab'+(bed.locked?' lkd':'');lb.textContent=bed.locked?'🔒':'🔓';
+  lb.onclick=e=>{e.stopPropagation();if(isReadOnly)return;bed.locked=!bed.locked;lb.className='bab'+(bed.locked?' lkd':'');lb.textContent=bed.locked?'🔒':'🔓';toast(bed.locked?'🔒 Locked':'🔓 Unlocked');scheduleSave();};
+  lb.onpointerdown=e=>e.stopPropagation();
+  const db=document.createElement('button');db.className='bab';db.textContent='✕';db.title='Delete bed';
+  db.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(!confirm('Delete "'+bed.name+'"?'))return;wrap.remove();beds=beds.filter(b=>b.id!==bed.id);scheduleSave();};
+  db.onpointerdown=e=>e.stopPropagation();
+  nameTag.appendChild(ni);nameTag.appendChild(lb);nameTag.appendChild(db);
+  card.appendChild(nameTag);
+
+  const soil=document.createElement('div');soil.className='bed-soil';soil.style.gridTemplateColumns=`repeat(${bed.cols},44px)`;
+  for(let i=0;i<bed.rows*bed.cols;i++){
+    const cell=document.createElement('div');cell.className='bed-cell';
+    renderCell(cell,bed.cells[i]||null);bed.cellEls.push(cell);
+    let tt=null;
+    cell.onpointerdown=e=>{if(e.isPrimary)tt=setTimeout(()=>{tt=null;},400);};
+    cell.onpointerup=()=>{if(tt!==null){clearTimeout(tt);tt=null;onCellTap(bed,i,cell,false);}};
+    cell.onpointercancel=()=>{clearTimeout(tt);tt=null;};
+    soil.appendChild(cell);
+    if(bed.inter&&(i+1)%bed.cols===0&&Math.floor(i/bed.cols)<bed.rows-1){
+      const ir=document.createElement('div');ir.className='inter-row';
+      const iCount=bed.cols-1,rowNum=Math.floor(i/bed.cols);
+      for(let j=0;j<iCount;j++){
+        const ic=document.createElement('div');ic.className='ibed-cell';
+        const iIdx=rowNum*iCount+j;
+        while(bed.intercells.length<=iIdx)bed.intercells.push(null);
+        while(bed.interEls.length<=iIdx)bed.interEls.push(null);
+        bed.interEls[iIdx]=ic;
+        renderCell(ic,bed.intercells[iIdx]||null,true);
+        let tt2=null;
+        ic.onpointerdown=e=>{if(e.isPrimary)tt2=setTimeout(()=>{tt2=null;},400);};
+        ic.onpointerup=(iI=>()=>{if(tt2!==null){clearTimeout(tt2);tt2=null;onCellTap(bed,iI,ic,true);}})(iIdx);
+        ic.onpointercancel=()=>{clearTimeout(tt2);tt2=null;};
+        ir.appendChild(ic);
+      }
+      soil.appendChild(ir);
+    }
+  }
+  card.appendChild(soil);wrap.appendChild(card);
+  bed.el=wrap;document.getElementById('gc').appendChild(wrap);beds.push(bed);
+  // Drag on the whole card — cells stop propagation only for taps, not drags
+  setupDrag(card,{get el(){return wrap;},get locked(){return bed.locked;},get x(){return bed.x;},set x(v){bed.x=v;wrap.style.left=v+'px';},get y(){return bed.y;},set y(v){bed.y=v;wrap.style.top=v+'px';}});
+  expandCanvas();return bed;
+}
+
+// ── GROW BAG ──────────────────────────────────────────────────────────────────
+function addGrowBag(size='md'){
+  if(isReadOnly)return;
+  const szMap={sm:56,md:72,lg:96};
+  const sz=szMap[size]||72;
+  const pos=getDropPos(sz,sz);
+  createGrowBagEl({type:'growbag',x:pos.x,y:pos.y,plant_id:null,planted:null,id:'gb'+Date.now(),size:sz});
+  scheduleSave();
+}
+function createGrowBagEl(data){
+  const sz=data.size||72;
+  const wrap=document.createElement('div');wrap.className='growbag-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;`;
+  const body=document.createElement('div');body.className='growbag-body';
+  const circle=document.createElement('div');circle.className='growbag-circle';
+  circle.style.cssText=`width:${sz}px;height:${sz}px;`;
+
+  function rebuildCircleInner(){
+    // Keep x and resize handle, rebuild plant svg
+    circle.innerHTML='';
+    if(data.plant_id&&PM[data.plant_id]){
+      const svgWrap=document.createElement('div');
+      svgWrap.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;';
+      svgWrap.innerHTML=PM[data.plant_id].svg;
+      circle.appendChild(svgWrap);
+    }
+    circle.appendChild(xbtn);circle.appendChild(rh);
+  }
+
+  const lbl=document.createElement('div');lbl.className='growbag-lbl';
+  lbl.textContent=data.plant_id?(PM[data.plant_id]?.name||'Grow Bag'):'Tap to plant';
+
+  const xbtn=document.createElement('button');xbtn.className='growbag-x';xbtn.textContent='×';
+  xbtn.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(confirm('Remove grow bag?')){wrap.remove();scheduleSave();}};
+
+  const rh=document.createElement('div');rh.className='growbag-rh';
+  rh.onpointerdown=e=>{
+    e.stopPropagation();e.preventDefault();
+    const sx=e.clientX,ssz=data.size||72;
+    const mm=ev=>{const ns=Math.max(44,Math.min(140,ssz+(ev.clientX-sx)/scale));data.size=ns;circle.style.width=ns+'px';circle.style.height=ns+'px';saveSdata();};
+    const mu=()=>{document.removeEventListener('pointermove',mm);document.removeEventListener('pointerup',mu);scheduleSave();};
+    document.addEventListener('pointermove',mm);document.addEventListener('pointerup',mu);
+    rh.setPointerCapture(e.pointerId);
+  };
+
+  rebuildCircleInner();
+
+  circle.onclick=e=>{
+    if(isReadOnly)return;
+    if(e.target===xbtn||e.target===rh)return;
+    if(wrap.classList.contains('selected')){
+      if(data.plant_id){
+        // Show rich popup like bed cells
+        showGrowBagPopup(data,wrap,lbl,rebuildCircleInner,saveSdata);
+      } else {
+        openSheet();
+        window._plantPickCb=plant=>{
+          data.plant_id=plant.id;data.planted=TODAY;
+          lbl.textContent=plant.name;
+          rebuildCircleInner();saveSdata();scheduleSave();
+        };
+      }
+    } else {
+      deselectAll();wrap.classList.add('selected');
+    }
+  };
+
+  function saveSdata(){wrap.dataset.sdata=JSON.stringify({...data,x:parseFloat(wrap.style.left),y:parseFloat(wrap.style.top)});}
+  saveSdata();
+  body.appendChild(circle);body.appendChild(lbl);wrap.appendChild(body);
+  document.getElementById('gc').appendChild(wrap);
+  setupDrag(body,{get el(){return wrap;},locked:false,get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;saveSdata();}});
+}
+
+function showGrowBagPopup(data,wrap,lbl,rebuildFn,saveSdata){
+  const p=PM[data.plant_id];if(!p)return;
+  const existing=document.getElementById('gb-popup');if(existing)existing.remove();
+  const modal=document.createElement('div');modal.id='gb-popup';
+  modal.style.cssText='position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);';
+  const harvestEst=data.planted?hd(data.planted,p.days):'—';
+  const wateredStr=data.gb_watered||'—';
+  const noteStr=data.gb_note||'';
+  modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:0;width:280px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);overflow:hidden;">
+    <div style="background:var(--gb);padding:14px 16px;display:flex;align-items:center;gap:10px;position:relative;">
+      <div style="width:40px;height:40px;flex-shrink:0">${p.svg}</div>
+      <div><div style="font-size:16px;font-weight:700;color:#fff">${p.name}</div><div style="font-size:11px;color:rgba(255,255,255,.8)">Grow Bag</div></div>
+      <button onclick="document.getElementById('gb-popup').remove()" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>
+    <div style="padding:14px 16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div style="font-size:11px;color:#888">🌱 Planted</div><div style="font-size:11px;color:#888">🌾 Est. Harvest</div>
+        <div><input id="gbp-planted" type="date" value="${data.planted||''}" style="font-size:12px;border:1.5px solid #e0d8cf;border-radius:7px;padding:4px 6px;font-family:inherit;outline:none;width:100%;color:#333"></div>
+        <div><input id="gbp-harvest" type="date" value="${data.gb_harvest||harvestEst}" style="font-size:12px;border:1.5px solid #e0d8cf;border-radius:7px;padding:4px 6px;font-family:inherit;outline:none;width:100%;color:#333"></div>
+        <div style="font-size:11px;color:#888;grid-column:1/-1">💧 Last Watered</div>
+        <div style="grid-column:1/-1"><input id="gbp-watered" type="date" value="${data.gb_watered||''}" style="font-size:12px;border:1.5px solid #e0d8cf;border-radius:7px;padding:4px 6px;font-family:inherit;outline:none;width:100%;color:#333"></div>
+      </div>
+      <textarea id="gbp-note" placeholder="Notes…" style="width:100%;font-size:12px;border:1.5px solid #e0d8cf;border-radius:7px;padding:6px 8px;font-family:inherit;resize:none;height:48px;margin-bottom:10px;outline:none;color:#333">${noteStr}</textarea>
+      <div style="display:flex;gap:7px;">
+        <button onclick="gbRemovePlant()" style="background:#fde8e8;color:#c0392b;border:none;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit;">Remove</button>
+        <button onclick="gbChangePlant()" style="background:#f0ebe0;color:#555;border:none;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit;">Change</button>
+        <button onclick="gbSavePopup()" style="flex:1;background:var(--gb);color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Save</button>
+      </div>
+    </div>
+  </div>`;
+  modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  // Store callbacks on modal element
+  modal._data=data;modal._wrap=wrap;modal._lbl=lbl;modal._rebuild=rebuildFn;modal._save=saveSdata;
+  document.body.appendChild(modal);
+}
+window.gbSavePopup=function(){
+  const modal=document.getElementById('gb-popup');if(!modal)return;
+  const d=modal._data;
+  d.planted=document.getElementById('gbp-planted').value;
+  d.gb_watered=document.getElementById('gbp-watered').value;
+  d.gb_harvest=document.getElementById('gbp-harvest').value;
+  d.gb_note=document.getElementById('gbp-note').value;
+  modal._save();scheduleSave();modal.remove();toast('✓ Saved');
+};
+window.gbRemovePlant=function(){
+  const modal=document.getElementById('gb-popup');if(!modal)return;
+  const d=modal._data;
+  d.plant_id=null;d.planted=null;d.gb_watered=null;d.gb_harvest=null;d.gb_note=null;
+  modal._lbl.textContent='Tap to plant';
+  modal._rebuild();modal._save();scheduleSave();modal.remove();
+};
+window.gbChangePlant=function(){
+  const modal=document.getElementById('gb-popup');if(!modal)return;
+  const d=modal._data;const rebuild=modal._rebuild;const lbl=modal._lbl;const save=modal._save;
+  modal.remove();
+  openSheet();
+  window._plantPickCb=plant=>{
+    d.plant_id=plant.id;d.planted=TODAY;d.gb_harvest=hd(TODAY,plant.days);
+    lbl.textContent=plant.name;rebuild();save();scheduleSave();
+  };
+};
+function drawMulchPattern(canvas,type,w,h){
+  const ctx=canvas.getContext('2d');
+  canvas.width=w;canvas.height=h;ctx.clearRect(0,0,w,h);
+  if(type==='woodchip'||type==='bark'){
+    ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=1.5;
+    for(let y=4;y<h;y+=12){for(let x=0;x<w;x+=18){ctx.beginPath();const len=10+Math.random()*12,ang=(Math.random()-.5)*0.8;ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.moveTo(0,0);ctx.lineTo(len,0);ctx.stroke();ctx.restore();}}
+  } else if(type==='straw'){
+    ctx.strokeStyle='rgba(0,0,0,0.12)';ctx.lineWidth=1;
+    for(let i=0;i<w*h/30;i++){const x=Math.random()*w,y=Math.random()*h,l=8+Math.random()*16,a=Math.random()*Math.PI;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(a)*l,y+Math.sin(a)*l);ctx.stroke();}
+  } else if(type==='gravel'){
+    for(let i=0;i<w*h/16;i++){const x=Math.random()*w,y=Math.random()*h,r=2+Math.random()*3;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=`rgba(0,0,0,${0.06+Math.random()*.08})`;ctx.fill();}
+  } else if(type==='stone'){
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.fillStyle='rgba(0,0,0,0.08)';ctx.lineWidth=1.5;
+    const cols=Math.ceil(w/36),rows=Math.ceil(h/28);
+    for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){const ox=r%2?18:0,x=c*36+ox,y=r*28,sw=28+Math.random()*8,sh=20+Math.random()*6;ctx.beginPath();ctx.roundRect(x+2,y+2,sw,sh,4);ctx.fill();ctx.stroke();}}
+  } else if(type==='grass'){
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
+    for(let i=0;i<w*h/12;i++){const x=Math.random()*w,y=Math.random()*h,h2=4+Math.random()*8;ctx.beginPath();ctx.moveTo(x,y+h2);ctx.quadraticCurveTo(x+(Math.random()-.5)*4,y+h2/2,x+(Math.random()-.5)*2,y);ctx.stroke();}
+  }
+}
+function buildMulchTilePreview(){
+  const mg=document.getElementById('mulch-grid');mg.innerHTML='';
+  MULCHES.forEach(m=>{
+    const tile=document.createElement('div');tile.className='mtile';tile.style.background=m.color;
+    const cv=document.createElement('canvas');cv.style.cssText='position:absolute;inset:0;width:100%;height:100%;';
+    tile.appendChild(cv);
+    const sp=document.createElement('span');sp.textContent=m.name;tile.appendChild(sp);
+    tile.onclick=()=>{if(isReadOnly)return;addMulch(m);closePanel('mp');toast('✓ '+m.name+' added');};
+    mg.appendChild(tile);
+    // Draw after append so we have dimensions
+    setTimeout(()=>{drawMulchPattern(cv,m.type,tile.offsetWidth||120,52);},50);
+  });
+}
+function addMulch(m){
+  const pos=getDropPos(160,80);
+  const data={type:'mulch',mid:m.id,mtype:m.type,color:m.color,x:pos.x,y:pos.y,w:160,h:60,id:'m'+Date.now()};
+  createMulchEl(data,m);scheduleSave();
+}
+function createMulchEl(data,mDef){
+  if(!mDef)mDef=MULCHES.find(m=>m.id===data.mid)||MULCHES[0];
+  const el=document.createElement('div');el.className='mulch-strip';
+  el.style.cssText=`left:${data.x}px;top:${data.y}px;width:${data.w||160}px;height:${data.h||38}px;background:${mDef.color||data.color};`;
+  const cv=document.createElement('canvas');cv.style.cssText='position:absolute;inset:0;pointer-events:none;';
+  el.appendChild(cv);
+  const xbtn=document.createElement('button');xbtn.className='mulch-x';xbtn.textContent='×';
+  xbtn.onclick=e=>{e.stopPropagation();if(isReadOnly)return;el.remove();scheduleSave();};
+  el.appendChild(xbtn);
+  const rh=document.createElement('div');rh.className='mulch-rh';
+  rh.onpointerdown=e=>{
+    e.stopPropagation();e.preventDefault();
+    const sx=e.clientX,sy=e.clientY,sw=data.w,sh=data.h;
+    const mm=ev=>{data.w=Math.max(40,sw+(ev.clientX-sx)/scale);data.h=Math.max(16,sh+(ev.clientY-sy)/scale);el.style.width=data.w+'px';el.style.height=data.h+'px';cv.width=0;drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);saveSdata();};
+    const mu=()=>{document.removeEventListener('pointermove',mm);document.removeEventListener('pointerup',mu);scheduleSave();};
+    document.addEventListener('pointermove',mm);document.addEventListener('pointerup',mu);
+    rh.setPointerCapture(e.pointerId);
+  };
+  el.appendChild(rh);
+  el.onclick=e=>{if(e.target!==xbtn){deselectAll();el.classList.toggle('selected');}};
+  function saveSdata(){el.dataset.sdata=JSON.stringify({...data,x:parseFloat(el.style.left),y:parseFloat(el.style.top)});}
+  saveSdata();
+  document.getElementById('gc').appendChild(el);
+  drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);
+  setupDrag(el,{get el(){return el;},locked:false,get x(){return parseFloat(el.style.left);},set x(v){el.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(el.style.top);},set y(v){el.style.top=v+'px';data.y=v;saveSdata();}},true);
+}
+
+// ── STRUCTURES ────────────────────────────────────────────────────────────────
+function buildThingsPanel(){
+  const sg=document.getElementById('struct-grid');sg.innerHTML='';
+  STRUCTS.forEach(s=>{
+    const t=document.createElement('div');t.className='ttile';
+    t.innerHTML=`<span class="ttile-icon">${s.icon}</span><span class="ttile-name">${s.name}</span>`;
+    t.onclick=()=>{if(isReadOnly)return;addStructure(s);closePanel('tp');};
+    sg.appendChild(t);
+  });
+  const dg=document.getElementById('decor-grid');dg.innerHTML='';
+  DECORS.forEach(d=>{
+    const t=document.createElement('div');t.className='ttile';
+    t.innerHTML=`<span class="ttile-icon">${d.emoji}</span><span class="ttile-name">${d.name}</span>`;
+    t.onclick=()=>{if(isReadOnly)return;addDecor(d);closePanel('tp');};
+    dg.appendChild(t);
+  });
+  const ag=document.getElementById('animal-grid');ag.innerHTML='';
+  ANIMALS.forEach(a=>{
+    const t=document.createElement('div');t.className='ttile';
+    t.innerHTML=`<span class="ttile-icon">${a.emoji}</span><span class="ttile-name">${a.name}</span>`;
+    t.onclick=()=>{if(isReadOnly)return;addAnimal(a);closePanel('tp');};
+    ag.appendChild(t);
+  });
+}
+function addStructure(s){
+  const pos=getDropPos(s.w,s.h);
+  const data={type:'struct',sid:s.id,x:pos.x,y:pos.y,locked:false,id:'st'+Date.now()};
+  createStructEl(data,s);scheduleSave();toast('✓ '+s.name+' added — drag to position');
+}
+function createStructEl(data,sDef){
+  if(!sDef)sDef=STRUCTS.find(s=>s.id===data.sid)||STRUCTS[0];
+  const wrap=document.createElement('div');wrap.className='struct-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;`;
+  const card=document.createElement('div');card.className='struct-card';
+  const w=data.w||sDef.w, h=data.h||sDef.h;
+  card.style.cssText=`width:${w}px;height:${h}px;cursor:move;`;
+
+  const isFence=sDef.id==='fence';
+  if(isFence){
+    card.style.background='transparent';
+    card.style.overflow='visible';
+    function buildFenceSVG(fw,fh){
+      const picketW=14,gap=6,totalUnit=picketW+gap;
+      const count=Math.max(2,Math.round(fw/totalUnit));
+      const picketH=fh*0.85;const railY1=fh*0.3;const railY2=fh*0.65;
+      let rects='';
+      for(let i=0;i<count;i++){
+        const x=i*totalUnit;
+        rects+=`<rect x="${x}" y="0" width="${picketW}" height="${picketH}" rx="2" fill="#8D6E63" stroke="#5D4037" stroke-width="1"/>`;
+        rects+=`<polygon points="${x+picketW/2},${-8} ${x},0 ${x+picketW},0" fill="#A1887F"/>`;
+      }
+      const rails=`<rect x="0" y="${railY1-3}" width="${fw}" height="5" rx="2" fill="#6D4C41"/>
+        <rect x="0" y="${railY2-3}" width="${fw}" height="5" rx="2" fill="#6D4C41"/>`;
+      return `<svg viewBox="0 0 ${fw} ${picketH+8}" xmlns="http://www.w3.org/2000/svg" width="${fw}" height="${picketH+8}" overflow="visible" style="pointer-events:none">${rails}${rects}</svg>`;
+    }
+    card.insertAdjacentHTML('afterbegin',buildFenceSVG(w,h));
+    card._buildFence=buildFenceSVG;
+  } else {
+    card.style.background=`${sDef.color}22`;
+    card.insertAdjacentHTML('afterbegin',getStructIcon(sDef,w,h));
+  }
+
+  const xbtn=document.createElement('button');xbtn.className='struct-x';xbtn.textContent='×';
+  xbtn.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(confirm('Remove '+sDef.name+'?')){wrap.remove();scheduleSave();}};
+  const lkbtn=document.createElement('button');lkbtn.className='struct-lk';lkbtn.textContent=data.locked?'🔒':'🔓';
+  lkbtn.onclick=e=>{e.stopPropagation();data.locked=!data.locked;lkbtn.textContent=data.locked?'🔒':'🔓';saveSdata();scheduleSave();};
+  card.appendChild(xbtn);card.appendChild(lkbtn);
+
+  if(sDef.resizable){
+    const rh=document.createElement('div');rh.className='struct-rh';
+    rh.onpointerdown=e=>{
+      e.stopPropagation();e.preventDefault();
+      const sx=e.clientX,sy=e.clientY,sw=data.w||sDef.w,sh=data.h||sDef.h;
+      const mm=ev=>{
+        data.w=Math.max(40,sw+(ev.clientX-sx)/scale);
+        data.h=Math.max(20,sh+(ev.clientY-sy)/scale);
+        card.style.width=data.w+'px';card.style.height=data.h+'px';
+        if(isFence&&card._buildFence){
+          const oldSvg=card.querySelector('svg');if(oldSvg)oldSvg.remove();
+          card.insertAdjacentHTML('afterbegin',card._buildFence(data.w,data.h));
+        } else if(STRUCT_SVGS[sDef.icon]){
+          const oldDiv=card.querySelector('div');if(oldDiv&&!oldDiv.classList.contains('struct-x')&&!oldDiv.classList.contains('struct-lk'))oldDiv.remove();
+          card.insertAdjacentHTML('afterbegin',getStructIcon(sDef,data.w,data.h));
+        } else {
+          const iconEl=card.querySelector('.struct-icon');
+          if(iconEl)iconEl.style.fontSize=Math.min(data.w,data.h)*0.6+'px';
+        }
+        saveSdata();
+      };
+      const mu=()=>{document.removeEventListener('pointermove',mm);document.removeEventListener('pointerup',mu);scheduleSave();};
+      document.addEventListener('pointermove',mm);document.addEventListener('pointerup',mu);
+      rh.setPointerCapture(e.pointerId);
+    };
+    card.appendChild(rh);
+  }
+  wrap.appendChild(card);
+  wrap.onclick=e=>{if(!e.target.closest('button')){deselectAll();wrap.classList.toggle('selected');}};
+  function saveSdata(){wrap.dataset.sdata=JSON.stringify({...data,x:parseFloat(wrap.style.left),y:parseFloat(wrap.style.top)});}
+  saveSdata();
+  document.getElementById('gc').appendChild(wrap);
+  setupDrag(card,{get el(){return wrap;},get locked(){return data.locked;},get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;saveSdata();}});
+  expandCanvas();
+}
+function addDecor(d){
+  const pos=getDropPos(50,50);
+  const data={type:'decor',did:d.id,x:pos.x,y:pos.y,id:'dc'+Date.now()};
+  createDecorEl(data,d);scheduleSave();toast('✓ '+d.name+' added');
+}
+function createDecorEl(data,dDef){
+  if(!dDef)dDef=DECORS.find(d=>d.id===data.did)||DECORS[0];
+  const wrap=document.createElement('div');wrap.className='decor-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;position:absolute;`;
+  const icon=document.createElement('div');icon.className='decor-icon';icon.textContent=dDef.emoji;
+  const lbl=document.createElement('div');lbl.className='decor-lbl';lbl.textContent=dDef.name;
+  const xbtn=document.createElement('button');xbtn.className='decor-x';xbtn.textContent='×';
+  xbtn.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(confirm('Remove?')){wrap.remove();scheduleSave();}};
+  wrap.appendChild(icon);wrap.appendChild(lbl);wrap.appendChild(xbtn);
+  wrap.onclick=e=>{if(e.target!==xbtn){deselectAll();wrap.classList.toggle('selected');}};
+  function saveSdata(){wrap.dataset.sdata=JSON.stringify({...data,x:parseFloat(wrap.style.left),y:parseFloat(wrap.style.top)});}
+  saveSdata();
+  document.getElementById('gc').appendChild(wrap);
+  setupDrag(wrap,{get el(){return wrap;},locked:false,get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;saveSdata();}});
+}
+function restoreStructure(data){
+  if(data.type==='struct'){const s=STRUCTS.find(x=>x.id===data.sid);if(s)createStructEl(data,s);}
+  else if(data.type==='decor'){const d=DECORS.find(x=>x.id===data.did);if(d)createDecorEl(data,d);}
+  else if(data.type==='mulch'){const m=MULCHES.find(x=>x.id===data.mid);if(m)createMulchEl(data,m);}
+  else if(data.type==='growbag')createGrowBagEl(data);
+  else if(data.type==='animal'){const a=ANIMALS.find(x=>x.id===data.aid);if(a)createAnimalEl(data,a);}
+  else if(data.type==='farmer')createFarmerEl(data);
+}
+
+// ── ANIMALS ───────────────────────────────────────────────────────────────────
+function addAnimal(aDef){
+  const name=prompt(`Name your ${aDef.name}:`)||aDef.name;
+  const pos=getDropPos(40,40);
+  const data={type:'animal',aid:aDef.id,name,x:pos.x,y:pos.y,since:TODAY,id:'an'+Date.now()};
+  createAnimalEl(data,aDef);scheduleSave();toast('✓ '+name+' added!');
+}
+function createAnimalEl(data,aDef){
+  if(!aDef)aDef=ANIMALS.find(a=>a.id===data.aid);if(!aDef)return;
+  const wrap=document.createElement('div');wrap.className='animal-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;position:absolute;z-index:20;`;
+  const em=document.createElement('div');em.className='animal-emoji';em.textContent=aDef.emoji;
+  const nm=document.createElement('div');nm.className='animal-name';nm.textContent=data.name||aDef.name;
+  const xbtn=document.createElement('button');xbtn.className='animal-x';xbtn.textContent='×';
+  xbtn.onclick=e=>{e.stopPropagation();if(isReadOnly)return;const aObj=liveAnimals.find(a=>a.el===wrap);if(aObj){clearTimeout(aObj.timer);liveAnimals.splice(liveAnimals.indexOf(aObj),1);}wrap.remove();scheduleSave();};
+  wrap.appendChild(em);wrap.appendChild(nm);wrap.appendChild(xbtn);
+  wrap.onclick=e=>{
+    if(e.target===xbtn)return;
+    if(wrap.classList.contains('selected')){
+      const ds=daysSince(data.since);
+      showAnimalModal(aDef,data,ds);
+    } else {deselectAll();wrap.classList.add('selected');}
+  };
+  function saveSdata(){wrap.dataset.sdata=JSON.stringify({...data,x:parseFloat(wrap.style.left),y:parseFloat(wrap.style.top)});}
+  saveSdata();
+  document.getElementById('gc').appendChild(wrap);
+  const aObj={el:wrap,em,def:aDef,data,timer:null};
+  liveAnimals.push(aObj);
+  if(aDef.roam)startAnimalRoam(aObj);
+}
+function startAnimalRoam(a){
+  function roam(){
+    if(!a.el.isConnected){return;}
+    const gc=document.getElementById('gc');
+    const gw=parseInt(gc.style.width)||800,gh=parseInt(gc.style.height)||600;
+    const cx=parseFloat(a.el.style.left),cy=parseFloat(a.el.style.top);
+    const nx=Math.max(10,Math.min(gw-50,cx+(Math.random()-.5)*100));
+    const ny=Math.max(10,Math.min(gh-50,cy+(Math.random()-.5)*70));
+    const dx=nx-cx;
+    const dur=0.9+Math.random()*1.0;
+    a.el.style.transition=`left ${dur}s ease-in-out,top ${dur}s ease-in-out`;
+    a.el.style.left=nx+'px';a.el.style.top=ny+'px';
+    a.em.classList.toggle('flip',dx<0);
+    a.data.x=nx;a.data.y=ny;
+    a.timer=setTimeout(roam,1800+Math.random()*3200);
+  }
+  a.timer=setTimeout(roam,Math.random()*2000);
+}
+function stopAllAnimals(){liveAnimals.forEach(a=>clearTimeout(a.timer));liveAnimals.length=0;}
+
+// ── FARMER ────────────────────────────────────────────────────────────────────
+function addFarmerPrompt(){
+  const name=prompt('Name your farmer:')||'Farmer';
+  const data={type:'farmer',name,x:60,y:60,since:TODAY,id:'fr'+Date.now()};
+  createFarmerEl(data);scheduleSave();closePanel('tp');toast('✓ '+name+' is ready to work!');
+}
+function createFarmerEl(data){
+  if(farmerEl)return;// only one farmer
+  farmerEl=document.createElement('div');farmerEl.id='farmer';
+  farmerEl.style.cssText=`left:${data.x||60}px;top:${data.y||60}px;position:absolute;z-index:25;cursor:pointer;`;
+  farmerEl.dataset.sdata=JSON.stringify(data);
+  const em=document.createElement('div');em.className='farmer-emoji';em.textContent='🧑‍🌾';
+  const nm=document.createElement('div');nm.className='farmer-name';nm.textContent=data.name||'Farmer';
+  const bubble=document.createElement('div');bubble.className='farmer-bubble';bubble.id='farmer-bubble';
+  farmerEl.appendChild(bubble);farmerEl.appendChild(em);farmerEl.appendChild(nm);
+  // click to show farmer info
+  farmerEl.onclick=e=>{
+    e.stopPropagation();
+    const ds=data.since?daysSince(data.since):null;
+    const ageStr=ds!=null?(ds===0?'Started today':`${ds} day${ds===1?'':'s'} on the farm`):'Longtime farmer';
+    showFarmerModal(data.name||'Farmer',ageStr,farmerLog.slice(-8).reverse());
+  };
+  document.getElementById('gc').appendChild(farmerEl);
+  scheduleFarmer(em,data);
+}
+function startFarmer(){
+  // Farmer is restored via restoreStructure when type==='farmer'
+}
+function stopFarmer(){clearTimeout(farmerTimer);clearTimeout(farmerWalkTimer);farmerEl=null;}
+
+function showFarmerModal(name,ageStr,log){
+  let modal=document.getElementById('farmer-modal');
+  if(!modal){
+    modal=document.createElement('div');modal.id='farmer-modal';
+    modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+    modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:20px;width:290px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="font-size:38px">🧑‍🌾</span>
+        <div><div id="fm-name" style="font-size:17px;font-weight:700;color:#1B4A0A"></div><div id="fm-age" style="font-size:12px;color:#666"></div></div>
+        <button onclick="document.getElementById('farmer-modal').remove()" style="margin-left:auto;background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">×</button>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Recent Activity</div>
+      <div id="fm-log" style="font-size:13px;color:#333;line-height:1.7;max-height:180px;overflow-y:auto;"></div>
+    </div>`;
+    modal.onclick=e=>{if(e.target===modal)modal.remove();};
+    document.body.appendChild(modal);
+  }
+  document.getElementById('fm-name').textContent=name;
+  document.getElementById('fm-age').textContent=ageStr;
+  const logEl=document.getElementById('fm-log');
+  logEl.innerHTML=log.length?log.map(l=>`<div style="padding:3px 0;border-bottom:1px solid #f0f0f0">${l}</div>`).join(''):'<div style="color:#aaa;font-style:italic">Nothing logged yet — watch them work!</div>';
+}
+
+function showAnimalModal(aDef,data,ds){
+  const existing=document.getElementById('animal-modal');if(existing)existing.remove();
+  const modal=document.createElement('div');modal.id='animal-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+  const ageStr=ds!=null?(ds===0?'Arrived today':`${ds} day${ds===1?'':'s'} on the farm`):'Been here a while';
+  const facts={chicken:'Lays eggs and keeps bugs down.',goat:'Great at clearing weeds!',horse:'Helps with heavy hauling.',cow:'Provides milk and keeps grass trimmed.',rabbit:'Loves leafy greens from the garden.',duck:'Excellent slug patrol!',dog:'Guards the garden day and night.',cat:'Keeps rodents away from the shed.',bee:'Pollinates everything — essential!',rooster:'Wakes everyone up at dawn.'};
+  const fact=facts[aDef.id]||'A wonderful garden companion.';
+  modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:20px;width:260px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);text-align:center;">
+    <div style="font-size:48px;margin-bottom:6px">${aDef.emoji}</div>
+    <div style="font-size:18px;font-weight:700;color:#1B4A0A;margin-bottom:2px">${data.name||aDef.name}</div>
+    <div style="font-size:12px;color:#888;margin-bottom:10px">${ageStr}</div>
+    <div style="font-size:13px;color:#555;background:#f7f7f2;border-radius:10px;padding:10px;margin-bottom:14px;line-height:1.5">${fact}</div>
+    <button onclick="document.getElementById('animal-modal').remove()" style="background:#3A8C1C;color:#fff;border:none;border-radius:10px;padding:9px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Close</button>
+  </div>`;
+  modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  document.body.appendChild(modal);
+}
+
+
+function scheduleFarmer(em,data){
+  if(!farmerEl||!farmerEl.isConnected)return;
+  if(beds.length===0){farmerTimer=setTimeout(()=>scheduleFarmer(em,data),4000);return;}
+  const ACTIONS=['💧 Watered the tomatoes','🪣 Watered the raised beds','✂️ Pruned back the herbs','🌾 Checked on the seedlings','🔍 Inspected for pests','🌱 Planted some seeds','🧹 Tidied up the beds','🌿 Harvested some greens','🐛 Found a caterpillar','☀️ Checked the weather'];
+  const bed=beds[Math.floor(Math.random()*beds.length)];
+  const tx=bed.x+Math.random()*30,ty=bed.y+Math.random()*20;
+  const startX=parseFloat(farmerEl.style.left),startY=parseFloat(farmerEl.style.top);
+  const dist=Math.hypot(tx-startX,ty-startY);
+  const steps=Math.max(4,Math.floor(dist/30));
+  const dx=tx-startX,dy=ty-startY;
+  if(em)em.classList.toggle('flip',dx<0);
+  let step=0;
+  function walkStep(){
+    if(!farmerEl||!farmerEl.isConnected)return;
+    step++;
+    const t=step/steps;
+    const cx=startX+dx*t+Math.sin(t*Math.PI*2)*4;
+    const cy=startY+dy*t;
+    farmerEl.style.left=cx+'px';farmerEl.style.top=cy+'px';
+    if(step<steps){farmerWalkTimer=setTimeout(walkStep,80);}
+    else{
+      const action=ACTIONS[Math.floor(Math.random()*ACTIONS.length)];
+      const bubble=document.getElementById('farmer-bubble');
+      if(bubble){bubble.textContent=action.split(' ').slice(0,2).join(' ');bubble.classList.add('show');setTimeout(()=>bubble.classList.remove('show'),2500);}
+      // log it with timestamp
+      const now=new Date();
+      const timeStr=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+      farmerLog.push(`${timeStr} — ${action}`);
+      if(farmerLog.length>20)farmerLog.shift();
+      farmerTimer=setTimeout(()=>scheduleFarmer(em,data),3500+Math.random()*4000);
+    }
+  }
+  walkStep();
+}
+
+// ── DESELECT ALL ──────────────────────────────────────────────────────────────
+function deselectAll(){
+  document.querySelectorAll('.struct-wrap.selected,.decor-wrap.selected,.mulch-strip.selected,.growbag-wrap.selected,.animal-wrap.selected').forEach(el=>el.classList.remove('selected'));
+}
+
+// ── DRAG ──────────────────────────────────────────────────────────────────────
+function setupDrag(handle,obj,isMulch=false){
+  let pid=null;
+  handle.onpointerdown=e=>{
+    if(isReadOnly)return;
+    if(e.target.tagName==='INPUT'||e.target.closest('button'))return;
+    if(obj.locked)return;
+    e.preventDefault();
+    const sr=document.getElementById('gs');
+    const br=obj.el.getBoundingClientRect();
+    const wr=sr.getBoundingClientRect();
+    dragging={obj};
+    dragOff.x=e.clientX-br.left+sr.scrollLeft;
+    dragOff.y=e.clientY-br.top+sr.scrollTop;
+    obj.el.style.zIndex=999;
+    pid=e.pointerId;
+    try{handle.setPointerCapture(e.pointerId);}catch(ex){}
+  };
+  handle.onpointermove=e=>{
+    if(!dragging||dragging.obj!==obj)return;
+    const sr=document.getElementById('gs');const wr=sr.getBoundingClientRect();
+    const nx=Math.max(0,e.clientX-wr.left+sr.scrollLeft-dragOff.x);
+    const ny=Math.max(0,e.clientY-wr.top+sr.scrollTop-dragOff.y);
+    obj.x=nx;obj.y=ny;
+    expandCanvas();
+  };
+  handle.onpointerup=()=>{
+    if(dragging&&dragging.obj===obj){obj.el.style.zIndex='';dragging=null;scheduleSave();}
+  };
+  handle.onpointercancel=()=>{if(dragging&&dragging.obj===obj){obj.el.style.zIndex='';dragging=null;}};
+}
+
+// ── ZOOM ──────────────────────────────────────────────────────────────────────
+function setScale(s){scale=Math.max(0.3,Math.min(3,s));document.getElementById('gc').style.transform=`scale(${scale})`;}
+function zoomIn(){setScale(scale+0.2);}function zoomOut(){setScale(scale-0.2);}
+let pts={};
+const gscroll=document.getElementById('gs');
+gscroll.addEventListener('touchstart',e=>{[...e.touches].forEach(t=>pts[t.identifier]={x:t.clientX,y:t.clientY});},{passive:true});
+gscroll.addEventListener('touchmove',e=>{
+  if(e.touches.length===2){e.preventDefault();const a=e.touches[0],b2=e.touches[1];const dist=Math.hypot(a.clientX-b2.clientX,a.clientY-b2.clientY);const pa=pts[a.identifier]||{x:a.clientX,y:a.clientY},pb=pts[b2.identifier]||{x:b2.clientX,y:b2.clientY};const prev=Math.hypot(pa.x-pb.x,pa.y-pb.y);if(prev>0)setScale(scale*(dist/prev));}
+  [...e.touches].forEach(t=>pts[t.identifier]={x:t.clientX,y:t.clientY});
+},{passive:false});
+gscroll.addEventListener('touchend',e=>{[...e.changedTouches].forEach(t=>delete pts[t.identifier]);});
+function expandCanvas(){
+  let mx=2400,my=2000;
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.struct-wrap,.decor-wrap,.growbag-wrap').forEach(el=>{mx=Math.max(mx,parseInt(el.style.left)+(el.offsetWidth||80)+120);my=Math.max(my,parseInt(el.style.top)+(el.offsetHeight||80)+120);});
+  const gc=document.getElementById('gc');gc.style.width=mx+'px';gc.style.height=my+'px';
+}
+document.getElementById('gc').addEventListener('click',e=>{
+  if(['gc','bg-layer','grass-tex','grid-ov'].includes(e.target.id)){clearSel();closePopup();deselectAll();ALLPANELS.forEach(closePanel);}
+});
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+buildMulchTilePreview();
+(async()=>{
+  // First try to restore session
+  const{data:{session},error}=await sb.auth.getSession();
+  if(error)console.error('Session error:',error);
+  if(session?.user){
+    cUser=session.user;
+    showScreen('app-screen');
+    await loadGardens();
+  } else {
+    showScreen('auth-screen');
+  }
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user){
+      cUser=session.user;
+      showScreen('app-screen');
+      await loadGardens();
+    } else if(event==='SIGNED_OUT'){
+      showScreen('auth-screen');
+    }
+  });
+})();
+</script>
+</body>
+</html>
