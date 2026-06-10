@@ -94,10 +94,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .ibed-cell svg{width:32px;height:32px;pointer-events:none;}
 
 /* ── GROW BAG ── */
-.growbag-wrap{position:absolute;z-index:10;touch-action:none;}
+.growbag-wrap{position:absolute;z-index:15;touch-action:none;}
+.growbag-wrap.selected{z-index:30;}
 .growbag-body{display:flex;flex-direction:column;align-items:center;cursor:move;touch-action:none;}
-.growbag-circle{width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8B5E3C,#5C3010);border:3px solid #9B5E30;box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 2px 6px rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;}
-.growbag-circle svg{width:44px;height:44px;}
+.growbag-circle{border-radius:50%;background:radial-gradient(circle at 35% 35%,#8B5E3C,#5C3010);border:3px solid #9B5E30;box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 2px 6px rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;overflow:hidden;}
+.growbag-circle>div{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.growbag-circle>div svg,.growbag-circle>div>svg{width:65% !important;height:65% !important;}
 .growbag-lbl{font-size:10px;color:#DEB887;margin-top:3px;font-weight:600;text-align:center;}
 .growbag-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
 .growbag-rh{position:absolute;bottom:2px;right:2px;width:12px;height:12px;background:rgba(255,255,255,.3);cursor:ew-resize;border-radius:50%;display:none;z-index:3;}
@@ -105,7 +107,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .growbag-wrap.selected .growbag-rh{display:block;}
 
 /* ── STRUCTURES ── */
-.struct-wrap{position:absolute;z-index:8;touch-action:none;}
+.struct-wrap{position:absolute;z-index:15;touch-action:none;}
+.struct-wrap.selected{z-index:30;}
 .struct-card{border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
 .struct-icon{font-size:42px;line-height:1;pointer-events:none;}
 .struct-lbl{font-size:10px;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);margin-top:2px;pointer-events:none;}
@@ -116,7 +119,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .struct-wrap.selected .struct-rh{display:block;}
 
 /* ── DECOR ── */
-.decor-wrap{position:absolute;z-index:9;touch-action:none;display:flex;flex-direction:column;align-items:center;}
+.decor-wrap{position:absolute;z-index:15;touch-action:none;display:flex;flex-direction:column;align-items:center;}
+.decor-wrap.selected{z-index:30;}
 .decor-icon{font-size:30px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));cursor:move;}
 .decor-lbl{font-size:9px;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.5);font-weight:500;}
 .decor-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
@@ -133,12 +137,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .animal-wrap{position:absolute;z-index:20;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
 .animal-emoji{font-size:26px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));transition:transform .3s;}
 .animal-emoji.flip{transform:scaleX(-1);}
+.animal-emoji.large{font-size:36px;}
 .animal-name{font-size:9px;color:rgba(255,255,255,.9);text-shadow:0 1px 2px rgba(0,0,0,.6);font-weight:600;white-space:nowrap;}
 .animal-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
 .animal-wrap.selected .animal-x{display:flex;}
 
 /* ── FARMER ── */
-#farmer{position:absolute;z-index:25;pointer-events:auto;will-change:left,top;cursor:pointer;}
+#farmer,.farmer-el{position:absolute;z-index:25;pointer-events:auto;will-change:left,top;cursor:pointer;}
 .farmer-emoji{font-size:30px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));transition:transform .4s;}
 .farmer-emoji.flip{transform:scaleX(-1);}
 .farmer-name{font-size:9px;color:rgba(255,255,255,.95);text-shadow:0 1px 3px rgba(0,0,0,.7);font-weight:700;white-space:nowrap;text-align:center;}
@@ -484,105 +489,133 @@ const STRUCTS=[
   {id:'shed',name:'Shed',icon:'🏚',color:'#5D4037',w:90,h:80,resizable:true},
   {id:'house',name:'House',icon:'🏠',color:'#455A64',w:110,h:90,resizable:true},
   {id:'deck',name:'Deck/Porch',icon:'deck',color:'#8D6E63',w:120,h:80,resizable:true},
-  {id:'greenhouse',name:'Greenhouse',icon:'greenhouse',color:'#4CAF50',w:90,h:90,resizable:true},
+  {id:'greenhouse',name:'Greenhouse',icon:'greenhouse',color:'#4CAF50',w:90,h:90,resizable:true,plantable:'bed'},
   {id:'fence',name:'Fence',icon:'🪵',color:'#795548',w:180,h:28,resizable:true},
-  {id:'pond',name:'Pond',icon:'pond',color:'#1976D2',w:90,h:70,resizable:true},
+  {id:'pond',name:'Pond',icon:'pond',color:'#1976D2',w:90,h:70,resizable:true,plantable:'fish'},
   {id:'compost',name:'Compost',icon:'compost',color:'#558B2F',w:60,h:60},
   {id:'arch',name:'Garden Arch',icon:'arch',color:'#388E3C',w:70,h:90,resizable:true},
-  {id:'trellis',name:'Trellis',icon:'trellis',color:'#6D4C41',w:60,h:90,resizable:true},
+  {id:'trellis',name:'Trellis',icon:'trellis',color:'#6D4C41',w:60,h:90,resizable:true,highZ:true},
   {id:'wheelbarrow',name:'Wheelbarrow',icon:'wheelbarrow',color:'#795548',w:70,h:55},
   {id:'watering-can',name:'Watering Can',icon:'wateringcan',color:'#1976D2',w:60,h:55},
   {id:'bench',name:'Bench',icon:'bench',color:'#8D6E63',w:80,h:48},
   {id:'bfeeder',name:'Bird Feeder',icon:'birdfeeder',color:'#795548',w:52,h:68},
   {id:'lantern',name:'Lantern',icon:'lantern',color:'#F9A825',w:44,h:60},
-  {id:'gnome',name:'Garden Gnome',icon:'🧝',color:'#E53935',w:48,h:60},
 ];
 
 // SVG icon renderers for structs
 const STRUCT_SVGS={
   deck:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="${h*0.3}" width="${w-4}" height="${h*0.65}" rx="3" fill="#A1887F"/>
-    ${Array.from({length:Math.floor((w-4)/10)},(_,i)=>`<rect x="${4+i*10}" y="${h*0.3}" width="7" height="${h*0.65}" rx="1" fill="#8D6E63" opacity=".7"/>`).join('')}
-    <rect x="0" y="${h*0.25}" width="${w}" height="6" rx="2" fill="#6D4C41"/>
-    <rect x="4" y="0" width="8" height="${h*0.3}" rx="2" fill="#5D4037"/>
-    <rect x="${w-12}" y="0" width="8" height="${h*0.3}" rx="2" fill="#5D4037"/>
+    <rect x="0" y="${h*0.55}" width="${w}" height="${h*0.45}" fill="#8D6E63"/>
+    ${Array.from({length:Math.ceil(w/12)},(_,i)=>`<rect x="${i*12}" y="${h*0.55}" width="10" height="${h*0.45}" rx="1" fill="${i%2?'#A1887F':'#795548'}"/>`).join('')}
+    <rect x="0" y="${h*0.5}" width="${w}" height="${h*0.08}" rx="2" fill="#6D4C41"/>
+    <rect x="${w*0.08}" y="0" width="${w*0.1}" height="${h*0.55}" rx="3" fill="#5D4037"/>
+    <rect x="${w*0.82}" y="0" width="${w*0.1}" height="${h*0.55}" rx="3" fill="#5D4037"/>
+    <rect x="${w*0.08}" y="${h*0.2}" width="${w*0.84}" height="${h*0.06}" rx="2" fill="#795548"/>
+    <rect x="${w*0.08}" y="${h*0.38}" width="${w*0.84}" height="${h*0.06}" rx="2" fill="#795548"/>
   </svg>`,
   greenhouse:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="4" y="${h*0.35}" width="${w-8}" height="${h*0.6}" rx="2" fill="#B2DFDB" opacity=".7" stroke="#4CAF50" stroke-width="2"/>
-    <path d="M${w/2} 4 L${w-4} ${h*0.35} L4 ${h*0.35} Z" fill="#A5D6A7" stroke="#388E3C" stroke-width="2"/>
-    <line x1="${w/2}" y1="4" x2="${w/2}" y2="${h}" stroke="#4CAF50" stroke-width="1.5" opacity=".5"/>
-    <line x1="4" y1="${h*0.35}" x2="${w-4}" y2="${h*0.35}" stroke="#4CAF50" stroke-width="1.5" opacity=".5"/>
-    <line x1="4" y1="${h*0.6}" x2="${w-4}" y2="${h*0.6}" stroke="#4CAF50" stroke-width="1" opacity=".4"/>
+    <rect x="4" y="${h*0.4}" width="${w-8}" height="${h*0.56}" rx="2" fill="#B2DFDB" stroke="#4CAF50" stroke-width="2"/>
+    <path d="M${w/2} 4 L${w-4} ${h*0.42} L4 ${h*0.42} Z" fill="#A5D6A7" stroke="#388E3C" stroke-width="2"/>
+    <line x1="${w/2}" y1="4" x2="${w/2}" y2="${h}" stroke="#4CAF50" stroke-width="1.5" opacity=".6"/>
+    <line x1="4" y1="${h*0.42}" x2="${w-4}" y2="${h*0.42}" stroke="#4CAF50" stroke-width="1.5" opacity=".6"/>
+    <line x1="4" y1="${h*0.62}" x2="${w-4}" y2="${h*0.62}" stroke="#4CAF50" stroke-width="1" opacity=".4"/>
+    <line x1="4" y1="${h*0.82}" x2="${w-4}" y2="${h*0.82}" stroke="#4CAF50" stroke-width="1" opacity=".4"/>
+    <text x="${w/2}" y="${h*0.75}" text-anchor="middle" font-size="${Math.min(w,h)*0.2}">🌱</text>
   </svg>`,
   pond:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-2}" ry="${h/2-2}" fill="#1E88E5" opacity=".85"/>
-    <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-8}" ry="${h/2-8}" fill="#42A5F5" opacity=".6"/>
-    <ellipse cx="${w/2-6}" cy="${h/2-4}" rx="7" ry="4" fill="#66BB6A" opacity=".7"/>
-    <ellipse cx="${w/2+8}" cy="${h/2+5}" rx="5" ry="3" fill="#66BB6A" opacity=".5"/>
-    <text x="${w/2}" y="${h/2+4}" text-anchor="middle" font-size="14" opacity=".6">🐸</text>
+    <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-2}" ry="${h/2-2}" fill="#1565C0"/>
+    <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-5}" ry="${h/2-5}" fill="#1E88E5"/>
+    <ellipse cx="${w/2}" cy="${h/2+4}" rx="${w/2-10}" ry="${h/2-12}" fill="#42A5F5" opacity=".7"/>
+    <ellipse cx="${w*0.28}" cy="${h*0.38}" rx="${w*0.14}" ry="${h*0.1}" fill="#66BB6A" opacity=".9"/>
+    <ellipse cx="${w*0.68}" cy="${h*0.62}" rx="${w*0.11}" ry="${h*0.08}" fill="#66BB6A" opacity=".8"/>
+    <text x="${w*0.52}" y="${h*0.62}" text-anchor="middle" font-size="${Math.min(w,h)*0.26}">🐸</text>
   </svg>`,
   compost:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="6" y="${h*0.25}" width="${w-12}" height="${h*0.72}" rx="4" fill="#5D4037"/>
-    <rect x="8" y="${h*0.2}" width="${w-16}" height="8" rx="3" fill="#4E342E"/>
-    <rect x="10" y="${h*0.3}" width="${w-20}" height="${h*0.55}" rx="3" fill="#6D4C41"/>
-    <text x="${w/2}" y="${h*0.65}" text-anchor="middle" font-size="${h*0.3}">🍂</text>
-    <rect x="${w/2-4}" y="${h*0.12}" width="8" height="${h*0.15}" rx="2" fill="#5D4037"/>
+    <rect x="6" y="${h*0.18}" width="${w-12}" height="${h*0.78}" rx="4" fill="#2E7D32"/>
+    <rect x="8" y="${h*0.13}" width="${w-16}" height="${h*0.1}" rx="3" fill="#1B5E20"/>
+    <rect x="${w/2-8}" y="${h*0.06}" width="16" height="${h*0.12}" rx="3" fill="#1B5E20"/>
+    <rect x="10" y="${h*0.25}" width="${w-20}" height="${h*0.64}" rx="3" fill="#388E3C"/>
+    <text x="${w/2}" y="${h*0.68}" text-anchor="middle" font-size="${Math.min(w,h)*0.3}">♻️</text>
+    <line x1="10" y1="${h*0.44}" x2="${w-10}" y2="${h*0.44}" stroke="#2E7D32" stroke-width="2"/>
   </svg>`,
   arch:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="4" y="${h*0.35}" width="10" height="${h*0.65}" rx="3" fill="#6D4C41"/>
-    <rect x="${w-14}" y="${h*0.35}" width="10" height="${h*0.65}" rx="3" fill="#6D4C41"/>
-    <path d="M4 ${h*0.38} Q${w/2} -8 ${w-4} ${h*0.38}" stroke="#5D4037" stroke-width="9" fill="none" stroke-linecap="round"/>
-    <path d="M4 ${h*0.38} Q${w/2} -8 ${w-4} ${h*0.38}" stroke="#8D6E63" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <text x="${w/2-8}" y="${h*0.28}" font-size="13">🌸</text>
-    <text x="${w/2+2}" y="${h*0.18}" font-size="10">🌿</text>
+    <rect x="2" y="${h*0.35}" width="${w*0.17}" height="${h*0.65}" rx="4" fill="#6D4C41"/>
+    <rect x="${w*0.83}" y="${h*0.35}" width="${w*0.17}" height="${h*0.65}" rx="4" fill="#6D4C41"/>
+    <path d="M${w*0.09} ${h*0.38} Q${w/2} -${h*0.1} ${w*0.91} ${h*0.38}" stroke="#5D4037" stroke-width="11" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.09} ${h*0.38} Q${w/2} -${h*0.1} ${w*0.91} ${h*0.38}" stroke="#8D6E63" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <text x="${w*0.18}" y="${h*0.55}" font-size="${Math.min(w,h)*0.22}">🌸</text>
+    <text x="${w*0.6}" y="${h*0.38}" font-size="${Math.min(w,h)*0.18}">🌿</text>
+    <text x="${w*0.35}" y="${h*0.28}" font-size="${Math.min(w,h)*0.18}">🌹</text>
   </svg>`,
   trellis:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="2" width="6" height="${h-4}" rx="2" fill="#8D6E63"/>
-    <rect x="${w-9}" y="2" width="6" height="${h-4}" rx="2" fill="#8D6E63"/>
-    ${[0.15,0.35,0.55,0.75,0.9].map(r=>`<rect x="3" y="${h*r}" width="${w-6}" height="4" rx="1" fill="#A1887F"/>`).join('')}
-    ${[0.3,0.6].map(c=>`<rect x="${w*c-2}" y="2" width="4" height="${h-4}" rx="1" fill="#795548" opacity=".6"/>`).join('')}
-    <text x="${w/2}" y="${h*0.5}" text-anchor="middle" font-size="11">🌿</text>
+    <rect x="2" y="2" width="7" height="${h-4}" rx="2" fill="#8D6E63"/>
+    <rect x="${w-9}" y="2" width="7" height="${h-4}" rx="2" fill="#8D6E63"/>
+    ${[0.1,0.28,0.46,0.64,0.82].map(r=>`<rect x="2" y="${h*r}" width="${w-4}" height="5" rx="1.5" fill="#A1887F"/>`).join('')}
+    ${[0.28,0.56].map(c=>`<rect x="${w*c}" y="2" width="5" height="${h-4}" rx="1.5" fill="#795548" opacity=".7"/>`).join('')}
+    <text x="${w*0.2}" y="${h*0.52}" font-size="${Math.min(w,h)*0.2}">🌿</text>
+    <text x="${w*0.55}" y="${h*0.35}" font-size="${Math.min(w,h)*0.2}">🍃</text>
   </svg>`,
   wheelbarrow:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="${w*0.25}" cy="${h*0.82}" r="${h*0.16}" fill="none" stroke="#5D4037" stroke-width="3"/>
-    <circle cx="${w*0.25}" cy="${h*0.82}" r="${h*0.05}" fill="#5D4037"/>
-    <path d="M${w*0.2} ${h*0.78} L${w*0.55} ${h*0.55} L${w*0.85} ${h*0.45} L${w*0.82} ${h*0.7} L${w*0.45} ${h*0.75} Z" fill="#8D6E63"/>
-    <rect x="${w*0.82}" y="${h*0.28}" width="5" height="${h*0.2}" rx="2" fill="#6D4C41" transform="rotate(-15,${w*0.84},${h*0.38})"/>
-    <rect x="${w*0.7}" y="${h*0.28}" width="5" height="${h*0.2}" rx="2" fill="#6D4C41" transform="rotate(-10,${w*0.72},${h*0.38})"/>
-    <text x="${w*0.6}" y="${h*0.6}" font-size="12" text-anchor="middle">🌱</text>
+    <circle cx="${w*0.22}" cy="${h*0.78}" r="${h*0.18}" fill="none" stroke="#5D4037" stroke-width="4"/>
+    <circle cx="${w*0.22}" cy="${h*0.78}" r="${h*0.06}" fill="#5D4037"/>
+    <line x1="${w*0.22}" y1="${h*0.6}" x2="${w*0.22}" y2="${h*0.96}" stroke="#5D4037" stroke-width="1.5" opacity=".4"/>
+    <line x1="${w*0.04}" y1="${h*0.78}" x2="${w*0.4}" y2="${h*0.78}" stroke="#5D4037" stroke-width="1.5" opacity=".4"/>
+    <path d="M${w*0.18} ${h*0.72} L${w*0.5} ${h*0.5} L${w*0.88} ${h*0.38} L${w*0.85} ${h*0.65} L${w*0.42} ${h*0.72} Z" fill="#8D6E63"/>
+    <path d="M${w*0.5} ${h*0.5} L${w*0.42} ${h*0.72} L${w*0.18} ${h*0.72} Z" fill="#795548"/>
+    <rect x="${w*0.8}" y="${h*0.22}" width="5" height="${h*0.22}" rx="2" fill="#6D4C41" transform="rotate(-18,${w*0.82},${h*0.33})"/>
+    <rect x="${w*0.7}" y="${h*0.2}" width="5" height="${h*0.22}" rx="2" fill="#6D4C41" transform="rotate(-12,${w*0.72},${h*0.31})"/>
+    <ellipse cx="${w*0.66}" cy="${h*0.52}" rx="${w*0.15}" ry="${h*0.1}" fill="#558B2F" opacity=".9"/>
   </svg>`,
   wateringcan:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="${w*0.42}" cy="${h*0.55}" rx="${w*0.28}" ry="${h*0.28}" fill="#1976D2"/>
-    <rect x="${w*0.14}" y="${h*0.42}" width="${w*0.56}" height="${h*0.36}" rx="8" fill="#1E88E5"/>
-    <path d="M${w*0.7} ${h*0.48} L${w*0.95} ${h*0.35} L${w*0.85} ${h*0.25}" stroke="#0D47A1" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M${w*0.14} ${h*0.52} Q${w*0.04} ${h*0.42} ${w*0.1} ${h*0.32}" stroke="#1565C0" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    ${[0,1,2].map(i=>`<circle cx="${w*(0.82+i*0.06)}" cy="${h*(0.18+i*0.06)}" r="2" fill="#42A5F5" opacity=".8"/>`).join('')}
-    <ellipse cx="${w*0.42}" cy="${h*0.42}" rx="${w*0.28}" ry="5" fill="#1565C0" opacity=".6"/>
+    <rect x="${w*0.15}" y="${h*0.38}" width="${w*0.55}" height="${h*0.42}" rx="8" fill="#1E88E5"/>
+    <rect x="${w*0.15}" y="${h*0.38}" width="${w*0.55}" height="${h*0.12}" rx="4" fill="#1565C0"/>
+    <path d="M${w*0.7} ${h*0.48} Q${w*0.88} ${h*0.38} ${w*0.96} ${h*0.24}" stroke="#0D47A1" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.96} ${h*0.24} L${w*0.82} ${h*0.18}" stroke="#0D47A1" stroke-width="3" stroke-linecap="round"/>
+    <path d="M${w*0.15} ${h*0.52} Q${w*0.04} ${h*0.44} ${w*0.08} ${h*0.3}" stroke="#1565C0" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="${w*0.08}" y="${h*0.26}" width="${w*0.14}" height="${h*0.08}" rx="3" fill="#0D47A1"/>
+    ${[0,1,2,3].map(i=>`<line x1="${w*(0.05+i*0.04)}" y1="${h*0.18}" x2="${w*(0.04+i*0.04)}" y2="${h*0.1}" stroke="#42A5F5" stroke-width="2" stroke-linecap="round" opacity=".8"/>`).join('')}
+    <ellipse cx="${w*0.42}" cy="${h*0.38}" rx="${w*0.28}" ry="${h*0.06}" fill="#1565C0" opacity=".5"/>
   </svg>`,
   bench:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="4" y="${h*0.3}" width="${w-8}" height="${h*0.22}" rx="3" fill="#A1887F"/>
-    <rect x="6" y="${h*0.3}" width="${(w-14)/2}" height="${h*0.22}" rx="2" fill="#8D6E63"/>
-    <rect x="${(w-14)/2+10}" y="${h*0.3}" width="${(w-14)/2}" height="${h*0.22}" rx="2" fill="#8D6E63"/>
-    <rect x="${w*0.12}" y="${h*0.52}" width="8" height="${h*0.44}" rx="2" fill="#795548"/>
-    <rect x="${w*0.5}" y="${h*0.52}" width="8" height="${h*0.44}" rx="2" fill="#795548"/>
-    <rect x="${w*0.77}" y="${h*0.52}" width="8" height="${h*0.44}" rx="2" fill="#795548"/>
+    <rect x="4" y="${h*0.28}" width="${w-8}" height="${h*0.14}" rx="3" fill="#A1887F"/>
+    <rect x="4" y="${h*0.42}" width="${w-8}" height="${h*0.14}" rx="3" fill="#8D6E63"/>
+    <rect x="4" y="${h*0.28}" width="${(w-8)*0.48}" height="${h*0.28}" rx="2" fill="#9E7B66" opacity=".6"/>
+    <rect x="${w*0.1}" y="${h*0.56}" width="9" height="${h*0.4}" rx="3" fill="#795548"/>
+    <rect x="${w*0.44}" y="${h*0.56}" width="9" height="${h*0.4}" rx="3" fill="#795548"/>
+    <rect x="${w*0.76}" y="${h*0.56}" width="9" height="${h*0.4}" rx="3" fill="#795548"/>
+    <rect x="${w*0.08}" y="${h*0.56}" width="${w*0.84}" height="4" rx="2" fill="#6D4C41"/>
   </svg>`,
   birdfeeder:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w/2-3}" y="${h*0.45}" width="6" height="${h*0.52}" rx="2" fill="#6D4C41"/>
-    <path d="M${w*0.1} ${h*0.48} L${w*0.9} ${h*0.48} L${w*0.75} ${h*0.25} L${w*0.25} ${h*0.25} Z" fill="#8D6E63"/>
-    <rect x="${w*0.1}" y="${h*0.44}" width="${w*0.8}" height="${h*0.18}" rx="3" fill="#A1887F"/>
-    <path d="M${w*0.2} ${h*0.25} L${w/2} ${h*0.04} L${w*0.8} ${h*0.25}" fill="#795548"/>
-    <text x="${w/2}" y="${h*0.42}" text-anchor="middle" font-size="11">🐦</text>
+    <rect x="${w/2-3}" y="${h*0.52}" width="6" height="${h*0.46}" rx="2" fill="#6D4C41"/>
+    <rect x="${w*0.08}" y="${h*0.46}" width="${w*0.84}" height="${h*0.12}" rx="3" fill="#A1887F"/>
+    <rect x="${w*0.12}" y="${h*0.32}" width="${w*0.76}" height="${h*0.16}" rx="2" fill="#D7CCC8" stroke="#8D6E63" stroke-width="1"/>
+    <path d="M${w*0.06} ${h*0.32} L${w/2} ${h*0.06} L${w*0.94} ${h*0.32} Z" fill="#795548"/>
+    <path d="M${w*0.12} ${h*0.32} L${w/2} ${h*0.1} L${w*0.88} ${h*0.32} Z" fill="#8D6E63"/>
+    <text x="${w*0.38}" y="${h*0.44}" font-size="${Math.min(w,h)*0.22}">🐦</text>
+    <circle cx="${w*0.78}" cy="${h*0.38}" r="3" fill="#FFCC02" opacity=".9"/>
   </svg>`,
   lantern:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w/2-3}" y="0" width="6" height="${h*0.15}" rx="2" fill="#F9A825"/>
-    <rect x="${w/2-6}" y="${h*0.12}" width="12" height="6" rx="2" fill="#F57F17"/>
-    <rect x="${w*0.15}" y="${h*0.18}" width="${w*0.7}" height="${h*0.65}" rx="4" fill="#FFF9C4" stroke="#F9A825" stroke-width="2" opacity=".9"/>
-    <ellipse cx="${w/2}" cy="${h*0.5}" rx="${w*0.18}" ry="${h*0.22}" fill="#FFEE58" opacity=".9"/>
+    <rect x="${w/2-4}" y="0" width="8" height="${h*0.14}" rx="3" fill="#FFA000"/>
+    <rect x="${w/2-8}" y="${h*0.12}" width="16" height="7" rx="3" fill="#E65100"/>
+    <rect x="${w*0.18}" y="${h*0.19}" width="${w*0.64}" height="${h*0.62}" rx="6" fill="#FFF9C4" stroke="#FFA000" stroke-width="2.5"/>
+    <ellipse cx="${w/2}" cy="${h*0.5}" rx="${w*0.2}" ry="${h*0.24}" fill="#FFEE58" opacity=".9"/>
     <circle cx="${w/2}" cy="${h*0.5}" r="${h*0.1}" fill="#FFF176"/>
-    <rect x="${w*0.15}" y="${h*0.83}" width="${w*0.7}" height="6" rx="2" fill="#F57F17"/>
-    <rect x="${w*0.25}" y="${h*0.89}" width="${w*0.5}" height="${h*0.1}" rx="2" fill="#E65100"/>
-    ${[0.25,0.5,0.75].map(x=>`<line x1="${w*x}" y1="${h*0.18}" x2="${w*x}" y2="${h*0.83}" stroke="#F9A825" stroke-width="1" opacity=".5"/>`).join('')}
+    ${[0.32,0.52,0.72].map(x=>`<line x1="${w*x}" y1="${h*0.19}" x2="${w*x}" y2="${h*0.81}" stroke="#FFA000" stroke-width="1.5" opacity=".5"/>`).join('')}
+    <rect x="${w*0.18}" y="${h*0.81}" width="${w*0.64}" height="7" rx="3" fill="#E65100"/>
+    <rect x="${w*0.28}" y="${h*0.88}" width="${w*0.44}" height="${h*0.1}" rx="3" fill="#BF360C"/>
+  </svg>`,
+  shed:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <path d="M${w*0.05} ${h*0.42} L${w/2} ${h*0.06} L${w*0.95} ${h*0.42} Z" fill="#5D4037"/>
+    <path d="M${w*0.1} ${h*0.42} L${w/2} ${h*0.1} L${w*0.9} ${h*0.42} Z" fill="#795548"/>
+    <rect x="${w*0.08}" y="${h*0.4}" width="${w*0.84}" height="${h*0.56}" fill="#8D6E63"/>
+    <rect x="${w*0.08}" y="${h*0.4}" width="${w*0.84}" height="${h*0.1}" fill="#6D4C41"/>
+    <rect x="${w*0.12}" y="${h*0.5}" width="${w*0.35}" height="${h*0.46}" rx="2" fill="#5D4037"/>
+    <rect x="${w*0.14}" y="${h*0.52}" width="${w*0.15}" height="${h*0.44}" rx="1" fill="#4E342E"/>
+    <rect x="${w*0.31}" y="${h*0.52}" width="${w*0.15}" height="${h*0.44}" rx="1" fill="#4E342E"/>
+    <circle cx="${w*0.48}" cy="${h*0.74}" r="3" fill="#FFD54F"/>
+    <rect x="${w*0.55}" y="${h*0.52}" width="${w*0.34}" height="${h*0.3}" rx="2" fill="#A1887F"/>
+    <line x1="${w*0.72}" y1="${h*0.52}" x2="${w*0.72}" y2="${h*0.82}" stroke="#8D6E63" stroke-width="1"/>
+    <line x1="${w*0.55}" y1="${h*0.67}" x2="${w*0.89}" y2="${h*0.67}" stroke="#8D6E63" stroke-width="1"/>
   </svg>`,
 };
 function getStructIcon(sDef,w,h){
@@ -593,19 +626,69 @@ function getStructIcon(sDef,w,h){
   return `<span class="struct-icon" style="font-size:${iconSize}px">${sDef.icon}</span><span class="struct-lbl" style="font-size:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);margin-top:2px">${sDef.name}</span>`;
 }
 const DECORS=[
-  {id:'scarecrow',name:'Scarecrow',emoji:'🪆'},
+  {id:'scarecrow',name:'Scarecrow',svg:true},
+  {id:'gnome',name:'Garden Gnome',svg:true},
+  {id:'beehive',name:'Bee Hive',svg:true},
+  {id:'flag',name:'Garden Flag',svg:true},
   {id:'windchime',name:'Wind Chime',emoji:'🎐'},
   {id:'mushroom',name:'Mushrooms',emoji:'🍄'},
   {id:'stones',name:'Garden Stones',emoji:'🪨'},
-  {id:'flag',name:'Garden Flag',emoji:'🏴'},
-  {id:'beehive',name:'Bee Hive',emoji:'🪵'},
-  {id:'cat',name:'Cat',emoji:'🐈'},
+  {id:'pebbles',name:'Garden Pebbles',emoji:'⚪'},
+  {id:'windmill',name:'Windmill',emoji:'🎑'},
 ];
+const DECOR_SVGS={
+  scarecrow:(sz)=>`<svg viewBox="0 0 40 56" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="18" y="22" width="4" height="28" rx="2" fill="#795548"/>
+    <rect x="8" y="26" width="24" height="4" rx="2" fill="#795548"/>
+    <circle cx="20" cy="14" r="9" fill="#FFCC80"/>
+    <circle cx="20" cy="14" r="9" fill="none" stroke="#FF8F00" stroke-width="1.5"/>
+    <circle cx="16" cy="12" r="2" fill="#5D4037"/>
+    <circle cx="24" cy="12" r="2" fill="#5D4037"/>
+    <path d="M15 18 Q20 22 25 18" stroke="#5D4037" stroke-width="1.5" fill="none"/>
+    <path d="M11 4 Q20 0 29 4 Q26 10 14 10 Z" fill="#FF8F00"/>
+    <rect x="5" y="28" width="8" height="12" rx="2" fill="#1565C0" transform="rotate(-15,9,34)"/>
+    <rect x="27" y="28" width="8" height="12" rx="2" fill="#1565C0" transform="rotate(15,31,34)"/>
+    <rect x="14" y="26" width="12" height="18" rx="2" fill="#E53935"/>
+    <text x="20" y="42" text-anchor="middle" font-size="8" fill="#fff">▪▪▪</text>
+  </svg>`,
+  gnome:(sz)=>`<svg viewBox="0 0 40 58" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 2 L35 28 L5 28 Z" fill="#E53935"/>
+    <path d="M13 28 Q10 40 10 56 L30 56 Q30 40 27 28 Z" fill="#1565C0"/>
+    <circle cx="20" cy="30" r="9" fill="#FFCC80"/>
+    <ellipse cx="20" cy="35" rx="6" ry="5" fill="#FFCC80"/>
+    <path d="M14 34 Q20 28 26 34" stroke="#FF8F00" stroke-width="1.5" fill="#FFF9C4"/>
+    <circle cx="17" cy="29" r="1.5" fill="#5D4037"/>
+    <circle cx="23" cy="29" r="1.5" fill="#5D4037"/>
+    <rect x="18" y="52" width="10" height="4" rx="2" fill="#795548"/>
+    <path d="M12 50 Q16 48 20 50" stroke="#A1887F" stroke-width="2" fill="none"/>
+    <circle cx="11" cy="40" r="3" fill="#388E3C"/>
+    <circle cx="29" cy="40" r="3" fill="#388E3C"/>
+  </svg>`,
+  beehive:(sz)=>`<svg viewBox="0 0 44 50" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="22" cy="40" rx="16" ry="6" fill="#E65100"/>
+    <rect x="8" y="36" width="28" height="8" rx="4" fill="#F57F17"/>
+    <rect x="10" y="28" width="24" height="10" rx="5" fill="#FFA000"/>
+    <rect x="12" y="20" width="20" height="10" rx="5" fill="#FFB300"/>
+    <ellipse cx="22" cy="20" rx="10" ry="6" fill="#FFC107"/>
+    <ellipse cx="22" cy="20" rx="6" ry="3" fill="#FFD54F"/>
+    <line x1="10" y1="33" x2="34" y2="33" stroke="#E65100" stroke-width="1" opacity=".5"/>
+    <line x1="12" y1="25" x2="32" y2="25" stroke="#F57F17" stroke-width="1" opacity=".5"/>
+    <circle cx="19" cy="36" r="2.5" fill="#E65100" opacity=".7"/>
+    <text x="22" y="16" text-anchor="middle" font-size="8">🐝</text>
+  </svg>`,
+  flag:(sz)=>`<svg viewBox="0 0 36 52" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="4" width="3" height="46" rx="1.5" fill="#5D4037"/>
+    <rect x="9" y="6" width="24" height="18" rx="2" fill="#2E7D32"/>
+    <rect x="9" y="6" width="24" height="18" rx="2" fill="none" stroke="#1B5E20" stroke-width="1"/>
+    <circle cx="21" cy="15" r="5" fill="#FFF9C4"/>
+    <text x="21" y="18" text-anchor="middle" font-size="7">🌻</text>
+  </svg>`,
+};
 const ANIMALS=[
   {id:'chicken',name:'Chicken',emoji:'🐓',roam:true},
   {id:'goat',name:'Goat',emoji:'🐐',roam:true},
-  {id:'horse',name:'Horse',emoji:'🐴',roam:false},
-  {id:'cow',name:'Cow',emoji:'🐄',roam:false},
+  {id:'horse',name:'Horse',emoji:'🐴',roam:true,large:true},
+  {id:'cow',name:'Cow',emoji:'🐄',roam:true,large:true},
   {id:'rabbit',name:'Rabbit',emoji:'🐇',roam:true},
   {id:'duck',name:'Duck',emoji:'🦆',roam:true},
   {id:'dog',name:'Dog',emoji:'🐕',roam:true},
@@ -954,10 +1037,17 @@ function createBed(data){
   db.onpointerdown=e=>e.stopPropagation();
   nameTag.appendChild(ni);nameTag.appendChild(lb);nameTag.appendChild(db);
   card.appendChild(nameTag);
-  // Tap the bed border area (soil background) to toggle bed-sel
+  // Tap the bed (not a cell) to toggle bed-sel — but only on clean tap, not drag
+  let bedTapStart=null;
   card.addEventListener('pointerdown',e=>{
-    if(e.target===card||e.target===soil){
-      // toggle selection
+    if(e.target===card||e.target===soil){bedTapStart={x:e.clientX,y:e.clientY};}
+  });
+  card.addEventListener('pointerup',e=>{
+    if(!bedTapStart)return;
+    const moved=Math.hypot(e.clientX-bedTapStart.x,e.clientY-bedTapStart.y);
+    bedTapStart=null;
+    if(moved>8)return;// was a drag, not a tap
+    if(e.target===card||e.target===soil||e.target===wrap){
       const wasSel=wrap.classList.contains('bed-sel');
       document.querySelectorAll('.bed-wrap.bed-sel').forEach(b=>b.classList.remove('bed-sel'));
       if(!wasSel)wrap.classList.add('bed-sel');
@@ -1217,7 +1307,15 @@ function buildThingsPanel(){
   const dg=document.getElementById('decor-grid');dg.innerHTML='';
   DECORS.forEach(d=>{
     const t=document.createElement('div');t.className='ttile';
-    t.innerHTML=`<span class="ttile-icon">${d.emoji}</span><span class="ttile-name">${d.name}</span>`;
+    let iconHtml;
+    if(d.svg&&DECOR_SVGS[d.id]){
+      iconHtml=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;width:44px;height:38px">${DECOR_SVGS[d.id](38)}</span>`;
+    } else if(d.id==='pebbles'){
+      iconHtml=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;font-size:20px">⬜⬜⬜</span>`;
+    } else {
+      iconHtml=`<span class="ttile-icon">${d.emoji}</span>`;
+    }
+    t.innerHTML=iconHtml+`<span class="ttile-name">${d.name}</span>`;
     t.onclick=()=>{if(isReadOnly)return;addDecor(d);closePanel('tp');};
     dg.appendChild(t);
   });
@@ -1247,6 +1345,7 @@ function addStructure(s){
 function createStructEl(data,sDef){
   if(!sDef)sDef=STRUCTS.find(s=>s.id===data.sid)||STRUCTS[0];
   const wrap=document.createElement('div');wrap.className='struct-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;`;
+  if(sDef.highZ)wrap.style.zIndex='30';
   const card=document.createElement('div');card.className='struct-card';
   const w=data.w||sDef.w, h=data.h||sDef.h;
   card.style.cssText=`width:${w}px;height:${h}px;cursor:move;`;
@@ -1272,7 +1371,7 @@ function createStructEl(data,sDef){
     card.insertAdjacentHTML('afterbegin',buildFenceSVG(w,h));
     card._buildFence=buildFenceSVG;
   } else {
-    card.style.background=`${sDef.color}22`;
+    card.style.background='transparent';
     card.insertAdjacentHTML('afterbegin',getStructIcon(sDef,w,h));
   }
 
@@ -1310,10 +1409,19 @@ function createStructEl(data,sDef){
     card.appendChild(rh);
   }
   wrap.appendChild(card);
-  wrap.onclick=e=>{if(!e.target.closest('button')){deselectAll();wrap.classList.toggle('selected');}};
+  wrap.onclick=e=>{
+    if(e.target.closest('button'))return;
+    if(wrap.classList.contains('selected')){
+      if(sDef.plantable==='fish')showPondModal(data,card,saveSdata);
+      else if(sDef.plantable==='bed')showGreenhouseModal(data,wrap);
+    }
+    deselectAll();wrap.classList.toggle('selected');
+  };
   function saveSdata(){wrap.dataset.sdata=JSON.stringify({...data,x:parseFloat(wrap.style.left),y:parseFloat(wrap.style.top)});}
   saveSdata();
   document.getElementById('gc').appendChild(wrap);
+  // Restore fish in ponds
+  if(sDef.id==='pond')restoreFish(card,data);
   setupDrag(card,{get el(){return wrap;},get locked(){return data.locked;},get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;saveSdata();}});
   expandCanvas();
 }
@@ -1325,16 +1433,55 @@ function addDecor(d){
 function createDecorEl(data,dDef){
   if(!dDef)dDef=DECORS.find(d=>d.id===data.did)||DECORS[0];
   const wrap=document.createElement('div');wrap.className='decor-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;position:absolute;`;
-  const icon=document.createElement('div');icon.className='decor-icon';icon.textContent=dDef.emoji;
+  const iconEl=document.createElement('div');iconEl.className='decor-icon';
+  const sz=dDef.id==='scarecrow'?48:dDef.id==='gnome'?44:dDef.id==='beehive'?44:dDef.id==='flag'?36:32;
+  if(dDef.svg&&DECOR_SVGS[dDef.id]){
+    iconEl.innerHTML=DECOR_SVGS[dDef.id](sz);
+    iconEl.style.cssText='display:flex;align-items:center;justify-content:center;';
+  } else {
+    iconEl.style.cssText='font-size:32px;text-align:center;line-height:1;';
+    iconEl.textContent=dDef.emoji||'🌿';
+  }
+  if(dDef.id==='pebbles'){
+    // render as small scattered stones
+    iconEl.innerHTML='<svg viewBox="0 0 40 28" width="40" height="28" xmlns="http://www.w3.org/2000/svg">'+
+      ['#B0BEC5','#90A4AE','#CFD8DC','#B0BEC5','#78909C','#90A4AE','#B0BEC5','#CFD8DC'].map((c,i)=>{
+        const x=4+i*4.5,y=6+Math.sin(i*1.3)*6,rx=3+Math.cos(i)*1.5,ry=2+Math.sin(i)*1;
+        return `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${c}"/>`;
+      }).join('')+'</svg>';
+  }
   const lbl=document.createElement('div');lbl.className='decor-lbl';lbl.textContent=dDef.name;
   const xbtn=document.createElement('button');xbtn.className='decor-x';xbtn.textContent='×';
   xbtn.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(confirm('Remove?')){wrap.remove();scheduleSave();}};
-  wrap.appendChild(icon);wrap.appendChild(lbl);wrap.appendChild(xbtn);
+  wrap.appendChild(iconEl);wrap.appendChild(lbl);wrap.appendChild(xbtn);
   wrap.onclick=e=>{if(e.target!==xbtn){deselectAll();wrap.classList.toggle('selected');}};
   function saveSdata(){wrap.dataset.sdata=JSON.stringify({...data,x:parseFloat(wrap.style.left),y:parseFloat(wrap.style.top)});}
   saveSdata();
   document.getElementById('gc').appendChild(wrap);
   setupDrag(wrap,{get el(){return wrap;},locked:false,get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;saveSdata();}});
+  // Beehive: animate nearby bees buzzing
+  if(dDef.id==='beehive')startHiveBuzz(wrap);
+}
+function startHiveBuzz(hiveEl){
+  // Create 2 animated bee dots that orbit the hive
+  function makeBee(){
+    const bee=document.createElement('div');
+    bee.style.cssText='position:absolute;font-size:10px;pointer-events:none;z-index:2;transition:none;';
+    bee.textContent='🐝';
+    hiveEl.style.position='absolute';
+    hiveEl.style.overflow='visible';
+    hiveEl.appendChild(bee);
+    let angle=Math.random()*Math.PI*2,r=28+Math.random()*10,speed=0.04+Math.random()*0.03;
+    function orbit(){
+      if(!hiveEl.isConnected)return;
+      angle+=speed;
+      const x=Math.cos(angle)*r-5;const y=Math.sin(angle)*r*0.5-5;
+      bee.style.left=x+'px';bee.style.top=y+'px';
+      requestAnimationFrame(orbit);
+    }
+    orbit();
+  }
+  makeBee();makeBee();
 }
 function restoreStructure(data){
   if(data.type==='struct'){const s=STRUCTS.find(x=>x.id===data.sid);if(s)createStructEl(data,s);}
@@ -1342,7 +1489,7 @@ function restoreStructure(data){
   else if(data.type==='mulch'){const m=MULCHES.find(x=>x.id===data.mid);if(m)createMulchEl(data,m);}
   else if(data.type==='growbag')createGrowBagEl(data);
   else if(data.type==='animal'){const a=ANIMALS.find(x=>x.id===data.aid);if(a)createAnimalEl(data,a);}
-  else if(data.type==='farmer')createFarmerEl(data);
+  else if(data.type==='farmer'){farmerEl=null;createFarmerEl(data);}// reset so each restores
 }
 
 // ── ANIMALS ───────────────────────────────────────────────────────────────────
@@ -1355,7 +1502,7 @@ function addAnimal(aDef){
 function createAnimalEl(data,aDef){
   if(!aDef)aDef=ANIMALS.find(a=>a.id===data.aid);if(!aDef)return;
   const wrap=document.createElement('div');wrap.className='animal-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;position:absolute;z-index:20;`;
-  const em=document.createElement('div');em.className='animal-emoji';em.textContent=aDef.emoji;
+  const em=document.createElement('div');em.className='animal-emoji'+(aDef.large?' large':'');em.textContent=aDef.emoji;
   const nm=document.createElement('div');nm.className='animal-name';nm.textContent=data.name||aDef.name;
   const xbtn=document.createElement('button');xbtn.className='animal-x';xbtn.textContent='×';
   xbtn.onclick=e=>{e.stopPropagation();if(isReadOnly)return;const aObj=liveAnimals.find(a=>a.el===wrap);if(aObj){clearTimeout(aObj.timer);liveAnimals.splice(liveAnimals.indexOf(aObj),1);}wrap.remove();scheduleSave();};
@@ -1396,55 +1543,59 @@ function stopAllAnimals(){liveAnimals.forEach(a=>clearTimeout(a.timer));liveAnim
 
 // ── FARMER ────────────────────────────────────────────────────────────────────
 function addFarmerPrompt(){
+  const gender=confirm('Add a female farmer?\n\nOK = Female 👩‍🌾   Cancel = Male 👨‍🌾') ? 'female' : 'male';
   const name=prompt('Name your farmer:')||'Farmer';
-  const data={type:'farmer',name,x:60,y:60,since:TODAY,id:'fr'+Date.now()};
+  const pos=getDropPos(40,50);
+  const data={type:'farmer',name,gender,x:pos.x,y:pos.y,since:TODAY,id:'fr'+Date.now()};
   createFarmerEl(data);scheduleSave();closePanel('tp');toast('✓ '+name+' is ready to work!');
 }
 function createFarmerEl(data){
-  if(farmerEl)return;// only one farmer
-  farmerEl=document.createElement('div');farmerEl.id='farmer';
-  farmerEl.style.cssText=`left:${data.x||60}px;top:${data.y||60}px;position:absolute;z-index:25;cursor:pointer;`;
-  farmerEl.dataset.sdata=JSON.stringify(data);
-  const em=document.createElement('div');em.className='farmer-emoji';em.textContent='🧑‍🌾';
+  // Allow multiple farmers — no singleton guard
+  const el=document.createElement('div');el.className='farmer-el';
+  el.style.cssText=`left:${data.x||60}px;top:${data.y||60}px;position:absolute;z-index:25;cursor:pointer;`;
+  el.dataset.sdata=JSON.stringify(data);
+  const emoji=data.gender==='female'?'👩‍🌾':'🧑‍🌾';
+  const em=document.createElement('div');em.className='farmer-emoji';em.textContent=emoji;
   const nm=document.createElement('div');nm.className='farmer-name';nm.textContent=data.name||'Farmer';
-  const bubble=document.createElement('div');bubble.className='farmer-bubble';bubble.id='farmer-bubble';
-  farmerEl.appendChild(bubble);farmerEl.appendChild(em);farmerEl.appendChild(nm);
-  // click to show farmer info
-  farmerEl.onclick=e=>{
+  const bubble=document.createElement('div');bubble.className='farmer-bubble';
+  // Large tap target overlay
+  const tapTarget=document.createElement('div');
+  tapTarget.style.cssText='position:absolute;inset:-14px;z-index:1;cursor:pointer;';
+  el.appendChild(bubble);el.appendChild(em);el.appendChild(nm);el.appendChild(tapTarget);
+  el.onclick=e=>{
     e.stopPropagation();
     const ds=data.since?daysSince(data.since):null;
     const ageStr=ds!=null?(ds===0?'Started today':`${ds} day${ds===1?'':'s'} on the farm`):'Longtime farmer';
-    showFarmerModal(data.name||'Farmer',ageStr,farmerLog.slice(-8).reverse());
+    showFarmerModal(data,ageStr,farmerLog.slice(-8).reverse(),emoji);
   };
-  document.getElementById('gc').appendChild(farmerEl);
-  scheduleFarmer(em,data);
+  document.getElementById('gc').appendChild(el);
+  // Track for multi-farmer support
+  if(!farmerEl)farmerEl=el;// keep first ref for scheduleFarmer compat
+  scheduleFarmer(em,data,el);
 }
 function startFarmer(){
   // Farmer is restored via restoreStructure when type==='farmer'
 }
 function stopFarmer(){clearTimeout(farmerTimer);clearTimeout(farmerWalkTimer);farmerEl=null;}
 
-function showFarmerModal(name,ageStr,log){
+function showFarmerModal(data,ageStr,log,emoji){
+  const name=data.name||'Farmer';
+  emoji=emoji||(data.gender==='female'?'👩‍🌾':'🧑‍🌾');
   let modal=document.getElementById('farmer-modal');
-  if(!modal){
-    modal=document.createElement('div');modal.id='farmer-modal';
-    modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
-    modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:20px;width:290px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        <span style="font-size:38px">🧑‍🌾</span>
-        <div><div id="fm-name" style="font-size:17px;font-weight:700;color:#1B4A0A"></div><div id="fm-age" style="font-size:12px;color:#666"></div></div>
-        <button onclick="document.getElementById('farmer-modal').remove()" style="margin-left:auto;background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">×</button>
-      </div>
-      <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Recent Activity</div>
-      <div id="fm-log" style="font-size:13px;color:#333;line-height:1.7;max-height:180px;overflow-y:auto;"></div>
-    </div>`;
-    modal.onclick=e=>{if(e.target===modal)modal.remove();};
-    document.body.appendChild(modal);
-  }
-  document.getElementById('fm-name').textContent=name;
-  document.getElementById('fm-age').textContent=ageStr;
-  const logEl=document.getElementById('fm-log');
-  logEl.innerHTML=log.length?log.map(l=>`<div style="padding:3px 0;border-bottom:1px solid #f0f0f0">${l}</div>`).join(''):'<div style="color:#aaa;font-style:italic">Nothing logged yet — watch them work!</div>';
+  if(modal)modal.remove();
+  modal=document.createElement('div');modal.id='farmer-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+  modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:20px;width:290px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <span style="font-size:38px">${emoji}</span>
+      <div><div style="font-size:17px;font-weight:700;color:#1B4A0A">${name}</div><div style="font-size:12px;color:#666">${ageStr}</div></div>
+      <button onclick="document.getElementById('farmer-modal').remove()" style="margin-left:auto;background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">×</button>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Recent Activity</div>
+    <div style="font-size:13px;color:#333;line-height:1.7;max-height:180px;overflow-y:auto;">${log.length?log.map(l=>`<div style="padding:3px 0;border-bottom:1px solid #f0f0f0">${l}</div>`).join(''):'<div style="color:#aaa;font-style:italic">Nothing logged yet — watch them work!</div>'}</div>
+  </div>`;
+  modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  document.body.appendChild(modal);
 }
 
 function showAnimalModal(aDef,data,ds){
@@ -1465,37 +1616,129 @@ function showAnimalModal(aDef,data,ds){
   document.body.appendChild(modal);
 }
 
+const FISH_TYPES=[
+  {id:'goldfish',name:'Goldfish',emoji:'🐡'},
+  {id:'koi',name:'Koi',emoji:'🐠'},
+  {id:'trout',name:'Trout',emoji:'🐟'},
+  {id:'frog',name:'Frog',emoji:'🐸'},
+];
+function showPondModal(data,card,saveSdata){
+  const ex=document.getElementById('pond-modal');if(ex)ex.remove();
+  const fish=data.fish||[];
+  const modal=document.createElement('div');modal.id='pond-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+  modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:20px;width:280px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-size:17px;font-weight:700;color:#1565C0">🐸 Pond</div>
+      <button onclick="document.getElementById('pond-modal').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;">×</button>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Add to pond</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+      ${FISH_TYPES.map(f=>`<button onclick="window._pondAdd('${f.id}')" style="background:#E3F2FD;border:1.5px solid #90CAF9;border-radius:10px;padding:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#1565C0;">${f.emoji} ${f.name}</button>`).join('')}
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">In this pond (${fish.length})</div>
+    <div style="font-size:13px;color:#333;max-height:100px;overflow-y:auto;">
+      ${fish.length?fish.map((f,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #f0f0f0">${f.emoji} ${f.name} <button onclick="window._pondRemove(${i})" style="background:none;border:none;color:#e57373;cursor:pointer;font-size:16px;">×</button></div>`).join(''):'<span style="color:#aaa;font-style:italic">Empty — add some fish!</span>'}
+    </div>
+  </div>`;
+  modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  document.body.appendChild(modal);
+  window._pondAdd=fid=>{
+    const fDef=FISH_TYPES.find(f=>f.id===fid);if(!fDef)return;
+    if(!data.fish)data.fish=[];
+    data.fish.push({id:fid,name:fDef.name,emoji:fDef.emoji,added:TODAY});
+    saveSdata();scheduleSave();spawnFish(card,fDef);
+    modal.remove();showPondModal(data,card,saveSdata);
+  };
+  window._pondRemove=idx=>{
+    data.fish.splice(idx,1);saveSdata();scheduleSave();
+    modal.remove();showPondModal(data,card,saveSdata);
+  };
+}
+function spawnFish(card,fDef){
+  const f=document.createElement('div');f.style.cssText='position:absolute;font-size:13px;pointer-events:none;z-index:3;';
+  f.textContent=fDef.emoji;card.style.overflow='hidden';card.appendChild(f);
+  let x=10+Math.random()*30,y=15+Math.random()*15,dx=(Math.random()-.5)*.7,dy=(Math.random()-.5)*.3;
+  function swim(){
+    if(!card.isConnected)return;
+    x+=dx;y+=dy;
+    const cw=parseFloat(card.style.width)||90,ch=parseFloat(card.style.height)||70;
+    if(x<2||x>cw-16){dx*=-1;f.style.transform=dx>0?'':'scaleX(-1)';}
+    if(y<2||y>ch-16)dy*=-1;
+    f.style.left=x+'px';f.style.top=y+'px';
+    requestAnimationFrame(swim);
+  }
+  swim();
+}
+function restoreFish(card,data){
+  (data.fish||[]).forEach(f=>{spawnFish(card,FISH_TYPES.find(x=>x.id===f.id)||f);});
+}
+function showGreenhouseModal(data,wrap){
+  const ex=document.getElementById('gh-modal');if(ex)ex.remove();
+  const modal=document.createElement('div');modal.id='gh-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+  const plants=data.gh_plants||[];
+  function saveGH(){const sd=JSON.parse(wrap.dataset.sdata||'{}');Object.assign(sd,{gh_plants:data.gh_plants});wrap.dataset.sdata=JSON.stringify(sd);scheduleSave();}
+  modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:0;width:290px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);overflow:hidden;">
+    <div style="background:#388E3C;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:17px;font-weight:700;color:#fff">🌿 Greenhouse Plants</div>
+      <button onclick="document.getElementById('gh-modal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:24px;height:24px;font-size:16px;cursor:pointer;">×</button>
+    </div>
+    <div style="padding:14px 16px;">
+      <div style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Growing (${plants.length}/8 slots)</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;" id="gh-slots">
+        ${plants.map((p,i)=>`<div style="background:#E8F5E9;border-radius:8px;padding:4px;text-align:center;position:relative;">
+          <div style="width:28px;height:28px;margin:0 auto;">${PM[p.plant_id]?.svg||'🌱'}</div>
+          <div style="font-size:9px;color:#388E3C;line-height:1.1;margin-top:2px">${PM[p.plant_id]?.name||'?'}</div>
+          <button onclick="window._ghRemove(${i})" style="position:absolute;top:-5px;right:-5px;background:#e57373;color:#fff;border:none;border-radius:50%;width:15px;height:15px;font-size:9px;cursor:pointer;line-height:1;">×</button>
+        </div>`).join('')}
+        ${plants.length<8?`<div onclick="window._ghAdd()" style="background:#F1F8E9;border:1.5px dashed #A5D6A7;border-radius:8px;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:48px;color:#81C784;font-size:24px;font-weight:300;">+</div>`:''}
+      </div>
+    </div>
+  </div>`;
+  modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  document.body.appendChild(modal);
+  window._ghAdd=()=>{
+    if((data.gh_plants||[]).length>=8)return;
+    modal.remove();openSheet();
+    window._plantPickCb=plant=>{
+      if(!data.gh_plants)data.gh_plants=[];
+      data.gh_plants.push({plant_id:plant.id,planted:TODAY});
+      saveGH();showGreenhouseModal(data,wrap);
+    };
+  };
+  window._ghRemove=idx=>{
+    data.gh_plants.splice(idx,1);saveGH();
+    modal.remove();showGreenhouseModal(data,wrap);
+  };
+}
 
-function scheduleFarmer(em,data){
-  if(!farmerEl||!farmerEl.isConnected)return;
-  if(beds.length===0){farmerTimer=setTimeout(()=>scheduleFarmer(em,data),4000);return;}
+function scheduleFarmer(em,data,el){
+  if(!el)el=farmerEl;
+  if(!el||!el.isConnected)return;
+  const bubble=el.querySelector('.farmer-bubble');
+  if(beds.length===0){setTimeout(()=>scheduleFarmer(em,data,el),4000);return;}
   const ACTIONS=['💧 Watered the tomatoes','🪣 Watered the raised beds','✂️ Pruned back the herbs','🌾 Checked on the seedlings','🔍 Inspected for pests','🌱 Planted some seeds','🧹 Tidied up the beds','🌿 Harvested some greens','🐛 Found a caterpillar','☀️ Checked the weather'];
   const bed=beds[Math.floor(Math.random()*beds.length)];
   const tx=bed.x+Math.random()*30,ty=bed.y+Math.random()*20;
-  const startX=parseFloat(farmerEl.style.left),startY=parseFloat(farmerEl.style.top);
+  const startX=parseFloat(el.style.left),startY=parseFloat(el.style.top);
   const dist=Math.hypot(tx-startX,ty-startY);
   const steps=Math.max(4,Math.floor(dist/30));
   const dx=tx-startX,dy=ty-startY;
   if(em)em.classList.toggle('flip',dx<0);
   let step=0;
   function walkStep(){
-    if(!farmerEl||!farmerEl.isConnected)return;
-    step++;
-    const t=step/steps;
-    const cx=startX+dx*t+Math.sin(t*Math.PI*2)*4;
-    const cy=startY+dy*t;
-    farmerEl.style.left=cx+'px';farmerEl.style.top=cy+'px';
-    if(step<steps){farmerWalkTimer=setTimeout(walkStep,80);}
+    if(!el||!el.isConnected)return;
+    step++;const t=step/steps;
+    el.style.left=(startX+dx*t+Math.sin(t*Math.PI*2)*4)+'px';
+    el.style.top=(startY+dy*t)+'px';
+    if(step<steps){setTimeout(walkStep,80);}
     else{
       const action=ACTIONS[Math.floor(Math.random()*ACTIONS.length)];
-      const bubble=document.getElementById('farmer-bubble');
-      if(bubble){bubble.textContent=action.split(' ').slice(0,2).join(' ');bubble.classList.add('show');setTimeout(()=>bubble.classList.remove('show'),2500);}
-      // log it with timestamp
-      const now=new Date();
-      const timeStr=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-      farmerLog.push(`${timeStr} — ${action}`);
+      if(bubble){bubble.textContent=action.split(' ').slice(0,3).join(' ');bubble.classList.add('show');setTimeout(()=>bubble.classList.remove('show'),2500);}
+      const now=new Date();farmerLog.push(`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} — ${action}`);
       if(farmerLog.length>20)farmerLog.shift();
-      farmerTimer=setTimeout(()=>scheduleFarmer(em,data),3500+Math.random()*4000);
+      setTimeout(()=>scheduleFarmer(em,data,el),3500+Math.random()*4000);
     }
   }
   walkStep();
