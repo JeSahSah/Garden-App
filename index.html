@@ -55,9 +55,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 
 /* ── CANVAS ── */
 #garden-wrap{flex:1;overflow:hidden;position:relative;}
-#gs{width:100%;height:100%;overflow:auto;}
+#gs{width:100%;height:100%;overflow:auto;position:relative;}
 #gs::-webkit-scrollbar{display:none;}
-#gc{position:relative;width:2400px;min-height:2000px;transform-origin:top left;}
+#gc-scale-wrap{transform-origin:top left;display:inline-block;}
+#gc{position:relative;width:2400px;min-height:2000px;}
 #bg-layer{position:absolute;inset:0;background:#5A9E30;}
 #grass-tex{position:absolute;inset:0;pointer-events:none;z-index:1;
   background-image:radial-gradient(ellipse 3px 6px at 12% 22%,rgba(255,255,255,.08) 0%,transparent 100%),
@@ -72,8 +73,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 /* ── BEDS ── */
 .bed-wrap{position:absolute;z-index:10;touch-action:none;cursor:move;}
 .bed-card{border-radius:10px;overflow:visible;box-shadow:0 6px 20px rgba(0,0,0,.35);}
-.bed-name-tag{position:absolute;top:-24px;left:0;background:var(--sd);color:#DEB887;font-size:11px;font-weight:600;border-radius:6px 6px 0 0;padding:2px 8px;white-space:nowrap;display:flex;align-items:center;gap:4px;opacity:0;transition:opacity .15s;pointer-events:none;}
-.bed-wrap:hover .bed-name-tag,.bed-wrap.bed-sel .bed-name-tag{opacity:1;pointer-events:auto;}
+.bed-name-tag{position:absolute;top:-28px;left:0;background:var(--sd);color:#DEB887;font-size:11px;font-weight:600;border-radius:6px 6px 0 0;padding:3px 8px;white-space:nowrap;display:flex;align-items:center;gap:4px;opacity:0;transition:opacity .15s;pointer-events:none;z-index:20;}
+.bed-wrap.bed-sel .bed-name-tag{opacity:1;pointer-events:auto;}
 .bed-name-inp{background:transparent;border:none;color:#DEB887;font-size:11px;font-weight:600;font-family:inherit;outline:none;width:80px;cursor:text;}
 .bed-name-inp:focus{border-bottom:1px solid #DEB887;}
 .bab{background:rgba(255,255,255,.15);border:none;color:#DEB887;border-radius:4px;width:20px;height:20px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -137,7 +138,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .animal-wrap.selected .animal-x{display:flex;}
 
 /* ── FARMER ── */
-#farmer{position:absolute;z-index:25;pointer-events:none;will-change:left,top;}
+#farmer{position:absolute;z-index:25;pointer-events:auto;will-change:left,top;cursor:pointer;}
 .farmer-emoji{font-size:30px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));transition:transform .4s;}
 .farmer-emoji.flip{transform:scaleX(-1);}
 .farmer-name{font-size:9px;color:rgba(255,255,255,.95);text-shadow:0 1px 3px rgba(0,0,0,.7);font-weight:700;white-space:nowrap;text-align:center;}
@@ -211,7 +212,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .thing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:4px;}
 .ttile{display:flex;flex-direction:column;align-items:center;padding:9px 5px;border-radius:10px;border:1.5px solid var(--br);cursor:pointer;background:#FAFAF8;gap:3px;}
 .ttile:active{border-color:var(--gb);background:#EDF8E2;}
-.ttile-icon{font-size:26px;}
+.ttile-icon{font-size:26px;display:flex;align-items:center;justify-content:center;width:44px;height:38px;overflow:visible;}
+.ttile-icon svg{max-width:44px;max-height:38px;overflow:visible;}
 .ttile-name{font-size:10px;text-align:center;color:var(--tm);font-weight:500;line-height:1.2;}
 
 /* mulch panel */
@@ -310,9 +312,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
   </div>
 
   <div id="garden-wrap">
-    <div id="gs"><div id="gc">
+    <div id="gs"><div id="gc-scale-wrap"><div id="gc">
       <div id="bg-layer"></div><div id="grass-tex"></div><div id="grid-ov"></div>
-    </div></div>
+    </div></div></div>
 
     <!-- PANEL BACKDROPS -->
     <div class="pbd" id="bd-gp" onclick="closePanel('gp')"></div>
@@ -359,15 +361,21 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
     <!-- ADD THINGS -->
     <div class="panel" id="tp">
       <h3>Add to Garden</h3>
-      <div class="sec-hdr">Structures &amp; Features</div>
+      <div class="sec-hdr">🌿 Structures &amp; Features</div>
       <div class="thing-grid" id="struct-grid"></div>
-      <div class="sec-hdr">Decorations</div>
+      <div class="sec-hdr">🪵 Fences</div>
+      <div class="thing-grid">
+        <div class="ttile" onclick="addFenceSegment('h');closePanel('tp')"><span class="ttile-icon">━━━</span><span class="ttile-name">Fence (horizontal)</span></div>
+        <div class="ttile" onclick="addFenceSegment('v');closePanel('tp')"><span class="ttile-icon">┃</span><span class="ttile-name">Fence (vertical)</span></div>
+        <div class="ttile" onclick="addFenceSegment('corner');closePanel('tp')"><span class="ttile-icon">┐</span><span class="ttile-name">Fence (corner post)</span></div>
+      </div>
+      <div class="sec-hdr">🎨 Decorations</div>
       <div class="thing-grid" id="decor-grid"></div>
-      <div class="sec-hdr">Animals</div>
+      <div class="sec-hdr">🐾 Animals</div>
       <div class="thing-grid" id="animal-grid"></div>
-      <div class="sec-hdr">Farmer</div>
+      <div class="sec-hdr">👨‍🌾 Farmer</div>
       <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addFarmerPrompt()">🧑‍🌾 Add Farmer</button>
-      <div class="sec-hdr">Grow Bags</div>
+      <div class="sec-hdr">🪣 Grow Bags</div>
       <div class="thing-grid">
         <div class="ttile" onclick="addGrowBag('sm');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Small (6")</span></div>
         <div class="ttile" onclick="addGrowBag('md');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Medium (10")</span></div>
@@ -730,52 +738,47 @@ async function loadShared(token){
   gardens=[data];loadGarden(data);
 }
 async function createGarden(name){
-  const isDefault=(name==='My Garden');
-  // Pre-plant some cells: {plant_id, planted, watered, harvest, note}
+  // Every garden starts with the same default template — users can customize freely
   function cell(id){return {plant_id:id,planted:TODAY,watered:TODAY,harvest:hd(TODAY,PM[id]?.days||60),note:''};}
   const vegCells=[cell('tomato'),cell('tomato'),cell('pepper'),null,null,
                   null,cell('cucumber'),cell('cucumber'),cell('lettuce'),cell('lettuce'),
                   cell('carrot'),cell('carrot'),null,cell('lettuce'),null];
   const herbCells=[cell('basil'),cell('basil'),cell('parsley'),cell('thyme'),cell('rosemary'),cell('chives')];
   const flowerCells=[cell('sunflower'),cell('sunflower'),null,null,cell('marigold'),cell('marigold'),null,null];
-  const defaultBeds=isDefault?JSON.stringify([
+  const ts=Date.now();
+  const defaultBeds=JSON.stringify([
     {id:1,name:'Veggie Bed',cols:5,rows:3,x:180,y:200,locked:false,cells:vegCells,inter:false,intercells:[]},
     {id:2,name:'Herb Garden',cols:3,rows:2,x:180,y:460,locked:false,cells:herbCells,inter:false,intercells:[]},
     {id:3,name:'Flower Bed',cols:4,rows:2,x:520,y:260,locked:false,cells:flowerCells,inter:false,intercells:[]},
-  ]):'[]';
-  const defaultStructs=isDefault?JSON.stringify([
-    // Structures
-    {type:'struct',sid:'shed',x:760,y:90,locked:false,id:'st_def1'},
-    {type:'struct',sid:'compost',x:740,y:310,locked:false,id:'st_def2'},
-    {type:'struct',sid:'bench',x:430,y:480,locked:false,id:'st_def3'},
-    {type:'struct',sid:'watering-can',x:350,y:490,locked:false,id:'st_def4'},
-    {type:'struct',sid:'arch',x:490,y:160,locked:false,id:'st_def5'},
-    {type:'struct',sid:'bfeeder',x:660,y:200,locked:false,id:'st_def6'},
-    // Fences along top and left edge
-    {type:'struct',sid:'fence',x:170,y:140,w:420,h:32,locked:false,id:'st_def_f1'},
-    {type:'struct',sid:'fence',x:150,y:140,w:32,h:380,locked:false,id:'st_def_f2'},
-    // Ground cover patches
-    {type:'mulch',mid:'woodchip',mtype:'woodchip',color:'#8D6E63',x:155,y:380,w:220,h:60,id:'m_def1'},
-    {type:'mulch',mid:'grass',mtype:'grass',color:'#7CB342',x:450,y:160,w:100,h:80,id:'m_def2'},
-    {type:'mulch',mid:'straw',mtype:'straw',color:'#D4A017',x:155,y:155,w:420,h:38,id:'m_def3'},
-    // Grow bags
-    {type:'growbag',x:530,y:450,plant_id:'pumpkin',planted:TODAY,gb_harvest:hd(TODAY,PM['pumpkin']?.days||90),id:'gb_def1',size:80},
-    {type:'growbag',x:630,y:450,plant_id:'strawberry',planted:TODAY,gb_harvest:hd(TODAY,PM['strawberry']?.days||60),id:'gb_def2',size:72},
-    {type:'growbag',x:530,y:560,plant_id:null,planted:null,id:'gb_def3',size:56},
-    // Animals
-    {type:'animal',aid:'chicken',name:'Henrietta',x:280,y:330,since:TODAY,id:'an_def1'},
-    {type:'animal',aid:'chicken',name:'Cluck',x:320,y:370,since:TODAY,id:'an_def2'},
-    {type:'animal',aid:'rabbit',name:'Biscuit',x:490,y:200,since:TODAY,id:'an_def3'},
-    {type:'animal',aid:'bee',name:'The Bees',x:650,y:170,since:TODAY,id:'an_def4'},
-    // Farmer
-    {type:'farmer',name:'The Gardener',x:360,y:280,since:TODAY,id:'fr_def1'},
-  ]):'[]';
+  ]);
+  const defaultStructs=JSON.stringify([
+    {type:'struct',sid:'shed',x:760,y:90,locked:false,id:'sd1_'+ts},
+    {type:'struct',sid:'compost',x:740,y:310,locked:false,id:'sd2_'+ts},
+    {type:'struct',sid:'bench',x:430,y:480,locked:false,id:'sd3_'+ts},
+    {type:'struct',sid:'watering-can',x:350,y:490,locked:false,id:'sd4_'+ts},
+    {type:'struct',sid:'arch',x:490,y:160,locked:false,id:'sd5_'+ts},
+    {type:'struct',sid:'bfeeder',x:660,y:200,locked:false,id:'sd6_'+ts},
+    {type:'struct',sid:'fence',x:170,y:142,w:420,h:32,locked:false,id:'sf1_'+ts},
+    {type:'struct',sid:'fence',x:152,y:142,w:32,h:380,locked:false,id:'sf2_'+ts},
+    {type:'mulch',mid:'woodchip',mtype:'woodchip',color:'#8D6E63',x:155,y:380,w:220,h:60,id:'md1_'+ts},
+    {type:'mulch',mid:'grass',mtype:'grass',color:'#7CB342',x:450,y:160,w:100,h:80,id:'md2_'+ts},
+    {type:'mulch',mid:'straw',mtype:'straw',color:'#D4A017',x:155,y:155,w:420,h:38,id:'md3_'+ts},
+    {type:'growbag',x:530,y:450,plant_id:'pumpkin',planted:TODAY,gb_harvest:hd(TODAY,PM['pumpkin']?.days||90),id:'gb1_'+ts,size:80},
+    {type:'growbag',x:630,y:450,plant_id:'strawberry',planted:TODAY,gb_harvest:hd(TODAY,PM['strawberry']?.days||60),id:'gb2_'+ts,size:72},
+    {type:'growbag',x:530,y:560,plant_id:null,planted:null,id:'gb3_'+ts,size:56},
+    {type:'animal',aid:'chicken',name:'Henrietta',x:280,y:330,since:TODAY,id:'an1_'+ts},
+    {type:'animal',aid:'chicken',name:'Cluck',x:320,y:370,since:TODAY,id:'an2_'+ts},
+    {type:'animal',aid:'rabbit',name:'Biscuit',x:490,y:200,since:TODAY,id:'an3_'+ts},
+    {type:'animal',aid:'bee',name:'The Bees',x:650,y:170,since:TODAY,id:'an4_'+ts},
+    {type:'farmer',name:'The Gardener',x:360,y:280,since:TODAY,id:'fr1_'+ts},
+  ]);
   const{data,error}=await sb.from('gardens').insert({user_id:cUser.id,name,bg:'lush',beds_json:defaultBeds,structures_json:defaultStructs}).select().single();
   if(error){console.error('Create garden error:',error.message);toast('⚠️ Could not create garden: '+error.message);return;}
   gardens.push(data);renderGardensList();
   await loadGarden(data);
-  if(isDefault)toast('🌱 Welcome! Your garden is ready to grow.',3500);
+  toast('🌱 '+name+' is ready! Customize it however you like.',3500);
 }
+
 async function loadGarden(g){
   cGardenId=g.id;
   document.getElementById('gsel-btn').textContent=(g.name||'Garden')+' ▾';
@@ -915,10 +918,10 @@ function removeFromPopup(){
 
 // ── BEDS ──────────────────────────────────────────────────────────────────────
 function getDropPos(w=60,h=60){
-  // Find an open position in the visible scroll area
   const gs=document.getElementById('gs');
-  const cx=(gs.scrollLeft+gs.clientWidth*0.6)/scale;
-  const cy=(gs.scrollTop+gs.clientHeight*0.55)/scale;
+  // Convert screen center to canvas coords (account for scale)
+  const cx=(gs.scrollLeft/scale)+((gs.clientWidth/scale)*0.55);
+  const cy=(gs.scrollTop/scale)+((gs.clientHeight/scale)*0.45);
   return {x:Math.max(10,cx+Math.random()*40-20),y:Math.max(10,cy+Math.random()*40-20)};
 }
 function createBedFromPanel(){
@@ -951,6 +954,15 @@ function createBed(data){
   db.onpointerdown=e=>e.stopPropagation();
   nameTag.appendChild(ni);nameTag.appendChild(lb);nameTag.appendChild(db);
   card.appendChild(nameTag);
+  // Tap the bed border area (soil background) to toggle bed-sel
+  card.addEventListener('pointerdown',e=>{
+    if(e.target===card||e.target===soil){
+      // toggle selection
+      const wasSel=wrap.classList.contains('bed-sel');
+      document.querySelectorAll('.bed-wrap.bed-sel').forEach(b=>b.classList.remove('bed-sel'));
+      if(!wasSel)wrap.classList.add('bed-sel');
+    }
+  });
 
   const soil=document.createElement('div');soil.className='bed-soil';soil.style.gridTemplateColumns=`repeat(${bed.cols},44px)`;
   for(let i=0;i<bed.rows*bed.cols;i++){
@@ -1189,9 +1201,16 @@ function createMulchEl(data,mDef){
 // ── STRUCTURES ────────────────────────────────────────────────────────────────
 function buildThingsPanel(){
   const sg=document.getElementById('struct-grid');sg.innerHTML='';
-  STRUCTS.forEach(s=>{
+  STRUCTS.filter(s=>s.id!=='fence').forEach(s=>{
     const t=document.createElement('div');t.className='ttile';
-    t.innerHTML=`<span class="ttile-icon">${s.icon}</span><span class="ttile-name">${s.name}</span>`;
+    // Use a small inline SVG preview if available, else emoji
+    let iconHtml;
+    if(STRUCT_SVGS[s.icon]){
+      iconHtml=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;width:44px;height:36px">${STRUCT_SVGS[s.icon](44,36)}</span>`;
+    } else {
+      iconHtml=`<span class="ttile-icon">${s.icon}</span>`;
+    }
+    t.innerHTML=iconHtml+`<span class="ttile-name">${s.name}</span>`;
     t.onclick=()=>{if(isReadOnly)return;addStructure(s);closePanel('tp');};
     sg.appendChild(t);
   });
@@ -1209,6 +1228,16 @@ function buildThingsPanel(){
     t.onclick=()=>{if(isReadOnly)return;addAnimal(a);closePanel('tp');};
     ag.appendChild(t);
   });
+}
+function addFenceSegment(dir){
+  if(isReadOnly)return;
+  const fDef=STRUCTS.find(s=>s.id==='fence');
+  const pos=getDropPos(180,32);
+  let w=220,h=32;
+  if(dir==='v'){w=32;h=220;}
+  else if(dir==='corner'){w=32;h=32;}
+  const data={type:'struct',sid:'fence',x:pos.x,y:pos.y,w,h,locked:false,id:'st'+Date.now()};
+  createStructEl(data,fDef);scheduleSave();toast('✓ Fence added — drag to position, drag corner to resize');
 }
 function addStructure(s){
   const pos=getDropPos(s.w,s.h);
@@ -1479,54 +1508,88 @@ function deselectAll(){
 
 // ── DRAG ──────────────────────────────────────────────────────────────────────
 function setupDrag(handle,obj,isMulch=false){
-  let pid=null;
+  let isDragging=false,startPointerX=0,startPointerY=0,startObjX=0,startObjY=0;
   handle.onpointerdown=e=>{
     if(isReadOnly)return;
     if(e.target.tagName==='INPUT'||e.target.closest('button'))return;
     if(obj.locked)return;
     e.preventDefault();
-    const sr=document.getElementById('gs');
-    const br=obj.el.getBoundingClientRect();
-    const wr=sr.getBoundingClientRect();
-    dragging={obj};
-    dragOff.x=e.clientX-br.left+sr.scrollLeft;
-    dragOff.y=e.clientY-br.top+sr.scrollTop;
-    obj.el.style.zIndex=999;
-    pid=e.pointerId;
+    isDragging=false;// don't mark as dragging yet — need movement threshold
+    startPointerX=e.clientX;
+    startPointerY=e.clientY;
+    startObjX=obj.x;
+    startObjY=obj.y;
     try{handle.setPointerCapture(e.pointerId);}catch(ex){}
   };
   handle.onpointermove=e=>{
-    if(!dragging||dragging.obj!==obj)return;
-    const sr=document.getElementById('gs');const wr=sr.getBoundingClientRect();
-    const nx=Math.max(0,e.clientX-wr.left+sr.scrollLeft-dragOff.x);
-    const ny=Math.max(0,e.clientY-wr.top+sr.scrollTop-dragOff.y);
+    if(e.buttons===0)return;// no button held — not a drag
+    const dx=(e.clientX-startPointerX)/scale;
+    const dy=(e.clientY-startPointerY)/scale;
+    if(!isDragging&&Math.hypot(dx,dy)<4)return;// movement threshold
+    if(!isDragging){
+      isDragging=true;
+      obj.el.style.zIndex=999;
+      dragging={obj};
+    }
+    const nx=Math.max(0,startObjX+dx);
+    const ny=Math.max(0,startObjY+dy);
     obj.x=nx;obj.y=ny;
     expandCanvas();
   };
   handle.onpointerup=()=>{
-    if(dragging&&dragging.obj===obj){obj.el.style.zIndex='';dragging=null;scheduleSave();}
+    if(isDragging){obj.el.style.zIndex='';dragging=null;scheduleSave();}
+    isDragging=false;
   };
-  handle.onpointercancel=()=>{if(dragging&&dragging.obj===obj){obj.el.style.zIndex='';dragging=null;}};
+  handle.onpointercancel=()=>{
+    if(isDragging){obj.el.style.zIndex='';dragging=null;}
+    isDragging=false;
+  };
 }
 
 // ── ZOOM ──────────────────────────────────────────────────────────────────────
-function setScale(s){scale=Math.max(0.3,Math.min(3,s));document.getElementById('gc').style.transform=`scale(${scale})`;}
-function zoomIn(){setScale(scale+0.2);}function zoomOut(){setScale(scale-0.2);}
+function setScale(s){
+  scale=Math.max(0.3,Math.min(2,s));
+  const wrap=document.getElementById('gc-scale-wrap');
+  wrap.style.transform=`scale(${scale})`;
+  // Update the wrapper's layout size so scroll works correctly
+  const gc=document.getElementById('gc');
+  wrap.style.width=gc.offsetWidth*scale+'px';
+  wrap.style.height=gc.offsetHeight*scale+'px';
+}
+function zoomIn(){setScale(scale+0.15);}
+function zoomOut(){setScale(scale-0.15);}
 let pts={};
 const gscroll=document.getElementById('gs');
 gscroll.addEventListener('touchstart',e=>{[...e.touches].forEach(t=>pts[t.identifier]={x:t.clientX,y:t.clientY});},{passive:true});
 gscroll.addEventListener('touchmove',e=>{
-  if(e.touches.length===2){e.preventDefault();const a=e.touches[0],b2=e.touches[1];const dist=Math.hypot(a.clientX-b2.clientX,a.clientY-b2.clientY);const pa=pts[a.identifier]||{x:a.clientX,y:a.clientY},pb=pts[b2.identifier]||{x:b2.clientX,y:b2.clientY};const prev=Math.hypot(pa.x-pb.x,pa.y-pb.y);if(prev>0)setScale(scale*(dist/prev));}
+  if(e.touches.length===2){
+    e.preventDefault();
+    const a=e.touches[0],b2=e.touches[1];
+    const dist=Math.hypot(a.clientX-b2.clientX,a.clientY-b2.clientY);
+    const pa=pts[a.identifier]||{x:a.clientX,y:a.clientY},pb=pts[b2.identifier]||{x:b2.clientX,y:b2.clientY};
+    const prev=Math.hypot(pa.x-pb.x,pa.y-pb.y);
+    if(prev>0)setScale(scale*(dist/prev));
+  }
   [...e.touches].forEach(t=>pts[t.identifier]={x:t.clientX,y:t.clientY});
 },{passive:false});
 gscroll.addEventListener('touchend',e=>{[...e.changedTouches].forEach(t=>delete pts[t.identifier]);});
 function expandCanvas(){
   let mx=2400,my=2000;
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.struct-wrap,.decor-wrap,.growbag-wrap').forEach(el=>{mx=Math.max(mx,parseInt(el.style.left)+(el.offsetWidth||80)+120);my=Math.max(my,parseInt(el.style.top)+(el.offsetHeight||80)+120);});
-  const gc=document.getElementById('gc');gc.style.width=mx+'px';gc.style.height=my+'px';
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.struct-wrap,.decor-wrap,.growbag-wrap').forEach(el=>{
+    mx=Math.max(mx,parseInt(el.style.left)+(el.offsetWidth||80)+120);
+    my=Math.max(my,parseInt(el.style.top)+(el.offsetHeight||80)+120);
+  });
+  const gc=document.getElementById('gc');
+  gc.style.width=mx+'px';gc.style.height=my+'px';
+  const wrap=document.getElementById('gc-scale-wrap');
+  if(wrap){wrap.style.width=mx*scale+'px';wrap.style.height=my*scale+'px';}
 }
 document.getElementById('gc').addEventListener('click',e=>{
-  if(['gc','bg-layer','grass-tex','grid-ov'].includes(e.target.id)){clearSel();closePopup();deselectAll();ALLPANELS.forEach(closePanel);}
+  if(['gc','bg-layer','grass-tex','grid-ov'].includes(e.target.id)){
+    clearSel();closePopup();deselectAll();
+    document.querySelectorAll('.bed-wrap.bed-sel').forEach(b=>b.classList.remove('bed-sel'));
+    ALLPANELS.forEach(closePanel);
+  }
 });
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
