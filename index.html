@@ -51,7 +51,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .ta{display:flex;gap:4px;align-items:center;}
 .tbb{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:5px 8px;font-size:13px;cursor:pointer;}
 .tbb:active{background:rgba(255,255,255,.28);}
-.ro-badge{background:#F5C542;color:#333;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;}
+.ro-badge{display:none !important;}
 
 /* ── CANVAS ── */
 #garden-wrap{flex:1;overflow:hidden;position:relative;}
@@ -127,11 +127,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .decor-wrap.selected .decor-x{display:flex;}
 
 /* ── MULCH — styled patterns ── */
-.mulch-strip{position:absolute;z-index:5;touch-action:none;border-radius:4px;cursor:move;overflow:hidden;border:2px solid rgba(255,255,255,.15);}
+.mulch-strip{position:absolute;z-index:5;border-radius:4px;overflow:hidden;border:2px solid rgba(255,255,255,.15);}
 .mulch-strip canvas{position:absolute;inset:0;pointer-events:none;}
+.mulch-strip.selected{cursor:grab;z-index:15;}
+.mulch-strip.selected:active{cursor:grabbing;}
 .mulch-x{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
 .mulch-strip.selected .mulch-x{display:flex;}
-.mulch-rh{position:absolute;bottom:0;right:0;width:14px;height:14px;background:rgba(255,255,255,.3);cursor:se-resize;border-radius:3px 0 3px 0;}
+.mulch-rh{position:absolute;bottom:-4px;right:-4px;width:24px;height:24px;background:rgba(255,255,255,.5);cursor:se-resize;border-radius:50%;touch-action:none;border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.3);}
 
 /* ── ANIMALS ── */
 .animal-wrap{position:absolute;z-index:20;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
@@ -228,6 +230,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .mtile canvas{position:absolute;inset:0;pointer-events:none;}
 .mtile span{position:relative;z-index:1;}
 
+/* ── LOCK PANEL ── */
+.lock-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0ebe0;}
+.lock-item:last-child{border-bottom:none;}
+.lock-item-name{font-size:13px;color:var(--td);flex:1;}
+.lock-item-type{font-size:11px;color:var(--tl);margin-right:8px;}
+.lock-toggle{width:44px;height:26px;background:#ddd;border-radius:13px;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
+.lock-toggle.on{background:var(--gb);}
+.lock-toggle::after{content:'';position:absolute;width:22px;height:22px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.lock-toggle.on::after{left:20px;}
+/* ── HANGING PLANTER ── */
+.hplanter-wrap{position:absolute;z-index:15;touch-action:none;display:flex;flex-direction:column;align-items:center;}
+.hplanter-wrap.selected{z-index:30;}
+.hplanter-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
+.hplanter-wrap.selected .hplanter-x{display:flex;}
 /* ── BOTTOM SHEET ── */
 #bsheet{background:#fff;border-radius:20px 20px 0 0;position:absolute;bottom:0;left:0;right:0;max-height:72%;display:flex;flex-direction:column;box-shadow:0 -6px 28px rgba(0,0,0,.2);z-index:400;transform:translateY(102%);transition:transform .28s cubic-bezier(.4,0,.2,1);padding-bottom:var(--sbot);}
 #bsheet.open{transform:translateY(0);}
@@ -308,8 +324,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       <button class="gsel" id="gsel-btn" onclick="togglePanel('gp')">My Garden ▾</button>
     </div>
     <div class="ta">
-      <span class="ro-badge hidden" id="ro-badge">👁 View Only</span>
       <button class="tbb" onclick="togglePanel('bgp')">🎨</button>
+      <button class="tbb" onclick="openLockPanel()">🔒</button>
       <button class="tbb" onclick="zoomIn()">＋</button>
       <button class="tbb" onclick="zoomOut()">－</button>
       <button class="tbb" onclick="doSignOut()">↩</button>
@@ -321,8 +337,19 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       <div id="bg-layer"></div><div id="grass-tex"></div><div id="grid-ov"></div>
     </div></div></div>
 
-    <!-- PANEL BACKDROPS -->
-    <div class="pbd" id="bd-gp" onclick="closePanel('gp')"></div>
+    <div class="pbd" id="bd-lkp" onclick="closePanel('lkp')"></div>
+
+    <!-- LOCK PANEL -->
+    <div class="panel" id="lkp">
+      <h3>🔒 Lock / Unlock Items</h3>
+      <p style="font-size:12px;color:var(--tl);margin-bottom:10px">Lock items to prevent accidental moving. Locked items can still have plants added or removed.</p>
+      <div style="display:flex;gap:7px;margin-bottom:12px;">
+        <button class="apgo" style="flex:1;font-size:12px" onclick="lockAll(true)">Lock All</button>
+        <button class="apgo" style="flex:1;font-size:12px;background:#F0EBE0;color:var(--tm)" onclick="lockAll(false)">Unlock All</button>
+      </div>
+      <div id="lock-list"></div>
+      <button class="closebtn" onclick="closePanel('lkp')">Done</button>
+    </div>
     <div class="pbd" id="bd-bgp" onclick="closePanel('bgp')"></div>
     <div class="pbd" id="bd-ap" onclick="closePanel('ap')"></div>
     <div class="pbd" id="bd-tp" onclick="closePanel('tp')"></div>
@@ -354,9 +381,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
     <div class="panel" id="ap">
       <h3>New Raised Bed</h3>
       <input class="ap-inp" id="ap-name" placeholder="Bed name (e.g. East Bed)" maxlength="28">
-      <div class="ap-row"><label>Columns</label><input type="range" id="ap-c" min="1" max="12" value="5" oninput="document.getElementById('ap-cv').textContent=this.value"><span class="vv" id="ap-cv">5</span></div>
-      <div class="ap-row"><label>Rows</label><input type="range" id="ap-r" min="1" max="10" value="3" oninput="document.getElementById('ap-rv').textContent=this.value"><span class="vv" id="ap-rv">3</span></div>
-      <label style="font-size:12px;color:var(--tm);display:flex;align-items:center;gap:6px;margin-bottom:10px;cursor:pointer;"><input type="checkbox" id="ap-inter" style="width:16px;height:16px;accent-color:var(--gb)"> Include intersection row planting</label>
+      <div class="ap-row"><label>Columns</label><input type="range" id="ap-c" min="1" max="20" value="5" oninput="document.getElementById('ap-cv').textContent=this.value"><span class="vv" id="ap-cv">5</span></div>
+      <div class="ap-row"><label>Rows</label><input type="range" id="ap-r" min="1" max="20" value="3" oninput="document.getElementById('ap-rv').textContent=this.value"><span class="vv" id="ap-rv">3</span></div>
       <div class="ap-btns">
         <button class="apcanc" onclick="closePanel('ap')">Cancel</button>
         <button class="apgo" onclick="createBedFromPanel()">+ Create Bed</button>
@@ -385,6 +411,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
         <div class="ttile" onclick="addGrowBag('sm');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Small (6")</span></div>
         <div class="ttile" onclick="addGrowBag('md');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Medium (10")</span></div>
         <div class="ttile" onclick="addGrowBag('lg');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Large (15")</span></div>
+      </div>
+      <div class="sec-hdr">🌸 Hanging Planters</div>
+      <div class="thing-grid">
+        <div class="ttile" onclick="addHangingPlanter('sm');closePanel('tp')"><span class="ttile-icon" style="font-size:22px">🪴</span><span class="ttile-name">Small</span></div>
+        <div class="ttile" onclick="addHangingPlanter('md');closePanel('tp')"><span class="ttile-icon" style="font-size:26px">🪴</span><span class="ttile-name">Medium</span></div>
+        <div class="ttile" onclick="addHangingPlanter('lg');closePanel('tp')"><span class="ttile-icon" style="font-size:30px">🪴</span><span class="ttile-name">Large</span></div>
       </div>
       <button class="closebtn" onclick="closePanel('tp')">Close</button>
     </div>
@@ -447,7 +479,7 @@ const PLANTS=[
   {id:'pepper',name:'Pepper',cat:'vegetable',per:1,days:70,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="28" rx="8" ry="13" fill="#43A047"/><ellipse cx="22" cy="28" rx="6" ry="11" fill="#66BB6A"/><rect x="20" y="12" width="4" height="8" rx="2" fill="#2E7D32"/></svg>`},
   {id:'hotpepper',name:'Hot Pepper',cat:'vegetable',per:1,days:80,svg:`<svg viewBox="0 0 44 44"><path d="M22 14 Q30 20 30 30 Q26 40 22 40 Q18 40 14 30 Q14 20 22 14Z" fill="#E53935"/><rect x="20" y="8" width="4" height="8" rx="2" fill="#2E7D32"/></svg>`},
   {id:'corn',name:'Corn',cat:'vegetable',per:1,days:90,svg:`<svg viewBox="0 0 44 44"><rect x="17" y="14" width="10" height="22" rx="5" fill="#FDD835"/><rect x="17" y="14" width="6" height="22" rx="3" fill="#FFEE58"/><rect x="14" y="10" width="4" height="14" rx="2" transform="rotate(-15 14 10)" fill="#43A047"/><rect x="26" y="10" width="4" height="14" rx="2" transform="rotate(15 26 10)" fill="#388E3C"/></svg>`},
-  {id:'zucchini',name:'Zucchini',cat:'vegetable',per:1,days:50,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="26" rx="7" ry="13" fill="#558B2F"/><ellipse cx="22" cy="26" rx="5" ry="11" fill="#7CB342"/><circle cx="22" cy="14" r="5" fill="#43A047"/></svg>`},
+  {id:'zucchini',name:'Zucchini',cat:'vegetable',per:1,days:50,svg:`<svg viewBox="0 0 44 44"><rect x="19" y="28" width="6" height="12" rx="3" fill="#2E7D32"/><ellipse cx="22" cy="26" rx="7" ry="13" fill="#558B2F" transform="rotate(-12 22 26)"/><ellipse cx="22" cy="26" rx="5" ry="11" fill="#7CB342" transform="rotate(-12 22 26)"/><ellipse cx="20" cy="24" rx="1.5" ry="7" fill="#9CCC65" opacity=".4" transform="rotate(-12 20 24)"/><ellipse cx="26" cy="13" rx="5" ry="4" fill="#FFA000"/><line x1="22" y1="13" x2="18" y2="7" stroke="#33691E" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="7" x2="14" y2="5" stroke="#388E3C" stroke-width="1.5" stroke-linecap="round"/><line x1="18" y1="7" x2="20" y2="3" stroke="#388E3C" stroke-width="1.5" stroke-linecap="round"/></svg>`},
   {id:'cucumber',name:'Cucumber',cat:'vegetable',per:2,days:55,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="24" rx="8" ry="14" fill="#388E3C"/><ellipse cx="22" cy="24" rx="6" ry="12" fill="#66BB6A"/><ellipse cx="22" cy="22" rx="2" ry="8" fill="#A5D6A7" opacity=".6"/></svg>`},
   {id:'carrot',name:'Carrot',cat:'vegetable',per:9,days:75,svg:`<svg viewBox="0 0 44 44"><path d="M22 14 L28 36 Q22 40 16 36 Z" fill="#FF6F00"/><path d="M22 14 L26 34 Q22 38 18 34 Z" fill="#FF8F00"/><rect x="18" y="8" width="3" height="10" rx="1.5" transform="rotate(-15 18 8)" fill="#43A047"/><rect x="22" y="6" width="3" height="12" rx="1.5" fill="#388E3C"/><rect x="26" y="8" width="3" height="10" rx="1.5" transform="rotate(15 26 8)" fill="#2E7D32"/></svg>`},
   {id:'potato',name:'Potato',cat:'vegetable',per:1,days:80,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="26" rx="13" ry="11" fill="#C8A96E"/><ellipse cx="22" cy="26" rx="10" ry="9" fill="#D4B87A"/><circle cx="16" cy="22" r="2" fill="#A08040"/><circle cx="26" cy="28" r="2" fill="#A08040"/><rect x="20" y="12" width="4" height="8" rx="2" fill="#2E7D32"/></svg>`},
@@ -463,7 +495,11 @@ const PLANTS=[
   {id:'strawberry',name:'Strawberry',cat:'vegetable',per:4,days:60,svg:`<svg viewBox="0 0 44 44"><path d="M22 36 Q12 26 12 20 Q12 14 22 14 Q32 14 32 20 Q32 26 22 36Z" fill="#E53935"/><circle cx="17" cy="22" r="1.5" fill="#fff" opacity=".7"/><circle cx="27" cy="23" r="1.5" fill="#fff" opacity=".7"/><rect x="18" y="8" width="3" height="8" rx="1.5" transform="rotate(-15 18 8)" fill="#43A047"/><rect x="22" y="6" width="3" height="9" rx="1.5" fill="#388E3C"/></svg>`},
   {id:'broccoli',name:'Broccoli',cat:'vegetable',per:1,days:70,svg:`<svg viewBox="0 0 44 44"><rect x="19" y="26" width="6" height="14" rx="3" fill="#2E7D32"/><circle cx="22" cy="22" r="10" fill="#388E3C"/><circle cx="16" cy="20" r="6" fill="#43A047"/><circle cx="28" cy="20" r="6" fill="#2E7D32"/><circle cx="22" cy="14" r="6" fill="#4CAF50"/></svg>`},
   {id:'spinach',name:'Spinach',cat:'vegetable',per:9,days:40,svg:`<svg viewBox="0 0 44 44"><ellipse cx="16" cy="26" rx="7" ry="11" fill="#2E7D32" transform="rotate(-20 16 26)"/><ellipse cx="28" cy="26" rx="7" ry="11" fill="#388E3C" transform="rotate(20 28 26)"/><ellipse cx="22" cy="22" rx="6" ry="12" fill="#43A047"/></svg>`},
-  {id:'peas',name:'Sugar Peas',cat:'vegetable',per:8,days:65,svg:`<svg viewBox="0 0 44 44"><rect x="18" y="10" width="8" height="28" rx="4" fill="#388E3C"/><rect x="18" y="10" width="5" height="28" rx="3" fill="#66BB6A"/><circle cx="22" cy="18" r="4" fill="#A5D6A7"/><circle cx="22" cy="28" r="4" fill="#C8E6C9"/></svg>`},
+  {id:'peas',name:'Peas',cat:'vegetable',per:8,days:65,svg:`<svg viewBox="0 0 44 44"><rect x="18" y="10" width="8" height="28" rx="4" fill="#388E3C"/><rect x="18" y="10" width="5" height="28" rx="3" fill="#66BB6A"/><circle cx="22" cy="18" r="4" fill="#A5D6A7"/><circle cx="22" cy="28" r="4" fill="#C8E6C9"/></svg>`},
+  {id:'peanut',name:'Peanuts',cat:'vegetable',per:1,days:120,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="28" rx="10" ry="9" fill="#C8A96E"/><ellipse cx="22" cy="28" rx="8" ry="7" fill="#D4B87A"/><ellipse cx="22" cy="16" rx="8" ry="7" fill="#C8A96E"/><ellipse cx="22" cy="16" rx="6" ry="5" fill="#D4B87A"/><rect x="20" y="21" width="4" height="9" rx="2" fill="#BC9A5A"/><circle cx="18" cy="26" r="2" fill="#A08040" opacity=".6"/><circle cx="26" cy="30" r="2" fill="#A08040" opacity=".6"/><rect x="20" y="8" width="4" height="6" rx="2" fill="#2E7D32"/></svg>`},
+  {id:'luffa',name:'Luffa',cat:'vegetable',per:1,days:150,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="24" rx="8" ry="15" fill="#8BC34A"/><ellipse cx="22" cy="24" rx="6" ry="13" fill="#AED581"/><line x1="16" y1="12" x2="28" y2="36" stroke="#558B2F" stroke-width="1.5" opacity=".5"/><line x1="22" y1="9" x2="22" y2="39" stroke="#689F38" stroke-width="1" opacity=".4"/><line x1="28" y1="12" x2="16" y2="36" stroke="#558B2F" stroke-width="1.5" opacity=".5"/><rect x="20" y="7" width="4" height="5" rx="2" fill="#2E7D32"/></svg>`},
+  {id:'giant-pumpkin',name:'Giant Pumpkin',cat:'vegetable',per:1,days:130,svg:`<svg viewBox="0 0 44 44"><ellipse cx="22" cy="28" rx="18" ry="13" fill="#E65100"/><ellipse cx="10" cy="28" rx="9" ry="12" fill="#F4511E"/><ellipse cx="34" cy="28" rx="9" ry="12" fill="#BF360C"/><ellipse cx="22" cy="28" rx="7" ry="13" fill="#FF6D00"/><ellipse cx="16" cy="28" rx="5" ry="11" fill="#FF7043" opacity=".5"/><rect x="20" y="12" width="4" height="7" rx="2" fill="#2E7D32"/><line x1="22" y1="12" x2="26" y2="7" stroke="#388E3C" stroke-width="1.5"/></svg>`},
+  {id:'magic-beans',name:'Magic Beans',cat:'vegetable',per:9,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="6" width="3" height="32" rx="1.5" fill="#2E7D32"/><ellipse cx="16" cy="18" rx="7" ry="5" fill="#66BB6A" transform="rotate(-20 16 18)"/><ellipse cx="28" cy="14" rx="7" ry="5" fill="#4CAF50" transform="rotate(20 28 14)"/><ellipse cx="14" cy="28" rx="7" ry="5" fill="#81C784" transform="rotate(-15 14 28)"/><circle cx="16" cy="18" r="3" fill="#A5D6A7" opacity=".7"/><circle cx="28" cy="14" r="3" fill="#C8E6C9" opacity=".7"/><circle cx="14" cy="28" r="3" fill="#E8F5E9" opacity=".7"/><circle cx="22" cy="8" r="4" fill="#FFD600"/></svg>`},
   // FLOWERS
   {id:'sunflower',name:'Sunflower',cat:'flower',per:1,days:80,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="24" width="4" height="18" rx="2" fill="#558B2F"/><circle cx="22" cy="20" r="8" fill="#5D4037"/><circle cx="22" cy="20" r="6" fill="#4E342E"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600" transform="rotate(45 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFCA28" transform="rotate(90 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600" transform="rotate(135 22 20)"/></svg>`},
   {id:'dwarf-sun',name:'Dwarf Sunflower',cat:'flower',per:4,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#558B2F"/><circle cx="22" cy="24" r="6" fill="#5D4037"/><circle cx="22" cy="24" r="4" fill="#4E342E"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600" transform="rotate(45 22 24)"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFCA28" transform="rotate(90 22 24)"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600" transform="rotate(135 22 24)"/></svg>`},
@@ -504,16 +540,30 @@ const STRUCTS=[
 
 // SVG icon renderers for structs
 const STRUCT_SVGS={
-  deck:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="${h*0.55}" width="${w}" height="${h*0.45}" fill="#8D6E63"/>
-    ${Array.from({length:Math.ceil(w/12)},(_,i)=>`<rect x="${i*12}" y="${h*0.55}" width="10" height="${h*0.45}" rx="1" fill="${i%2?'#A1887F':'#795548'}"/>`).join('')}
-    <rect x="0" y="${h*0.5}" width="${w}" height="${h*0.08}" rx="2" fill="#6D4C41"/>
-    <rect x="${w*0.08}" y="0" width="${w*0.1}" height="${h*0.55}" rx="3" fill="#5D4037"/>
-    <rect x="${w*0.82}" y="0" width="${w*0.1}" height="${h*0.55}" rx="3" fill="#5D4037"/>
-    <rect x="${w*0.08}" y="${h*0.2}" width="${w*0.84}" height="${h*0.06}" rx="2" fill="#795548"/>
-    <rect x="${w*0.08}" y="${h*0.38}" width="${w*0.84}" height="${h*0.06}" rx="2" fill="#795548"/>
-  </svg>`,
-  greenhouse:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+  deck:(w,h)=>{
+    const planks=[];
+    const numPlanks=Math.ceil(h*0.82/13);
+    for(let i=0;i<numPlanks;i++){
+      const fill=i%2===0?'#D7CCC8':'#C8BDB8';
+      planks.push('<rect x="2" y="'+(h*0.12+i*13)+'" width="'+(w-4)+'" height="11" fill="'+fill+'" rx="1"/>');
+      planks.push('<circle cx="'+(w*0.25)+'" cy="'+(h*0.12+i*13+5.5)+'" r="2" fill="#A1887F" opacity=".3"/>');
+      planks.push('<circle cx="'+(w*0.75)+'" cy="'+(h*0.12+i*13+5.5)+'" r="2" fill="#A1887F" opacity=".3"/>');
+    }
+    const numPosts=Math.floor((w-8)/18)+1;
+    const posts=[];
+    for(let i=0;i<numPosts;i++){
+      posts.push('<rect x="'+(4+i*18)+'" y="'+(h*0.06)+'" width="5" height="'+(h*0.82)+'" fill="#6D4C41" rx="1" opacity=".55"/>');
+    }
+    return '<svg viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg">'
+      +'<rect x="2" y="'+(h*0.12)+'" width="'+(w-4)+'" height="'+(h*0.82)+'" fill="#BCAAA4" rx="3"/>'
+      +planks.join('')
+      +'<rect x="2" y="'+(h*0.06)+'" width="'+(w-4)+'" height="'+(h*0.09)+'" fill="#8D6E63" rx="3"/>'
+      +posts.join('')
+      +'<rect x="2" y="'+(h*0.9)+'" width="'+(w-4)+'" height="'+(h*0.07)+'" fill="#6D4C41" rx="2"/>'
+      +'<rect x="2" y="'+(h*0.14)+'" width="'+(w-4)+'" height="5" fill="rgba(0,0,0,0.1)"/>'
+      +'</svg>';
+  },
+    greenhouse:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="4" y="${h*0.4}" width="${w-8}" height="${h*0.56}" rx="2" fill="#B2DFDB" stroke="#4CAF50" stroke-width="2"/>
     <path d="M${w/2} 4 L${w-4} ${h*0.42} L4 ${h*0.42} Z" fill="#A5D6A7" stroke="#388E3C" stroke-width="2"/>
     <line x1="${w/2}" y1="4" x2="${w/2}" y2="${h}" stroke="#4CAF50" stroke-width="1.5" opacity=".6"/>
@@ -550,8 +600,8 @@ const STRUCT_SVGS={
   trellis:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="2" width="7" height="${h-4}" rx="2" fill="#8D6E63"/>
     <rect x="${w-9}" y="2" width="7" height="${h-4}" rx="2" fill="#8D6E63"/>
-    ${[0.1,0.28,0.46,0.64,0.82].map(r=>`<rect x="2" y="${h*r}" width="${w-4}" height="5" rx="1.5" fill="#A1887F"/>`).join('')}
-    ${[0.28,0.56].map(c=>`<rect x="${w*c}" y="2" width="5" height="${h-4}" rx="1.5" fill="#795548" opacity=".7"/>`).join('')}
+    ${[0.1,0.28,0.46,0.64,0.82].map(r=>'<rect x="2" y="'+(h*r)+'" width="'+(w-4)+'" height="5" rx="1.5" fill="#A1887F"/>').join('')}
+    ${[0.28,0.56].map(c=>'<rect x="'+(w*c)+'" y="2" width="5" height="'+(h-4)+'" rx="1.5" fill="#795548" opacity=".7"/>').join('')}
     <text x="${w*0.2}" y="${h*0.52}" font-size="${Math.min(w,h)*0.2}">🌿</text>
     <text x="${w*0.55}" y="${h*0.35}" font-size="${Math.min(w,h)*0.2}">🍃</text>
   </svg>`,
@@ -573,7 +623,7 @@ const STRUCT_SVGS={
     <path d="M${w*0.96} ${h*0.24} L${w*0.82} ${h*0.18}" stroke="#0D47A1" stroke-width="3" stroke-linecap="round"/>
     <path d="M${w*0.15} ${h*0.52} Q${w*0.04} ${h*0.44} ${w*0.08} ${h*0.3}" stroke="#1565C0" stroke-width="4" fill="none" stroke-linecap="round"/>
     <rect x="${w*0.08}" y="${h*0.26}" width="${w*0.14}" height="${h*0.08}" rx="3" fill="#0D47A1"/>
-    ${[0,1,2,3].map(i=>`<line x1="${w*(0.05+i*0.04)}" y1="${h*0.18}" x2="${w*(0.04+i*0.04)}" y2="${h*0.1}" stroke="#42A5F5" stroke-width="2" stroke-linecap="round" opacity=".8"/>`).join('')}
+    ${[0,1,2,3].map(i=>'<line x1="'+(w*(0.05+i*0.04))+'" y1="'+(h*0.18)+'" x2="'+(w*(0.04+i*0.04))+'" y2="'+(h*0.1)+'" stroke="#42A5F5" stroke-width="2" stroke-linecap="round" opacity=".8"/>').join('')}
     <ellipse cx="${w*0.42}" cy="${h*0.38}" rx="${w*0.28}" ry="${h*0.06}" fill="#1565C0" opacity=".5"/>
   </svg>`,
   bench:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
@@ -600,7 +650,7 @@ const STRUCT_SVGS={
     <rect x="${w*0.18}" y="${h*0.19}" width="${w*0.64}" height="${h*0.62}" rx="6" fill="#FFF9C4" stroke="#FFA000" stroke-width="2.5"/>
     <ellipse cx="${w/2}" cy="${h*0.5}" rx="${w*0.2}" ry="${h*0.24}" fill="#FFEE58" opacity=".9"/>
     <circle cx="${w/2}" cy="${h*0.5}" r="${h*0.1}" fill="#FFF176"/>
-    ${[0.32,0.52,0.72].map(x=>`<line x1="${w*x}" y1="${h*0.19}" x2="${w*x}" y2="${h*0.81}" stroke="#FFA000" stroke-width="1.5" opacity=".5"/>`).join('')}
+    ${[0.32,0.52,0.72].map(x=>'<line x1="'+(w*x)+'" y1="'+(h*0.19)+'" x2="'+(w*x)+'" y2="'+(h*0.81)+'" stroke="#FFA000" stroke-width="1.5" opacity=".5"/>').join('')}
     <rect x="${w*0.18}" y="${h*0.81}" width="${w*0.64}" height="7" rx="3" fill="#E65100"/>
     <rect x="${w*0.28}" y="${h*0.88}" width="${w*0.44}" height="${h*0.1}" rx="3" fill="#BF360C"/>
   </svg>`,
@@ -793,7 +843,7 @@ function applyBg(n){
 function setBg(el){applyBg(el.dataset.bg);closePanel('bgp');scheduleSave();}
 
 // ── PANELS ────────────────────────────────────────────────────────────────────
-const ALLPANELS=['gp','bgp','ap','tp','mp'];
+const ALLPANELS=['gp','bgp','ap','tp','mp','lkp'];
 function togglePanel(id){
   const el=document.getElementById(id),was=el.classList.contains('open');
   ALLPANELS.forEach(p=>{document.getElementById(p).classList.remove('open');document.getElementById('bd-'+p)?.classList.remove('show');});
@@ -809,8 +859,12 @@ async function loadGardens(){
   const{data,error}=await sb.from('gardens').select('*').eq('user_id',cUser.id).order('created_at');
   if(error){console.error('Load gardens error:',error.message);toast('⚠️ '+error.message);return;}
   gardens=data||[];
-  if(gardens.length===0)await createGarden('My Garden');
-  else{await loadGarden(gardens[0]);renderGardensList();}
+  if(gardens.length===0){await createGarden('My Garden');return;}
+  // Restore last-used garden
+  const lastId=localStorage.getItem('lastGardenId_'+cUser.id);
+  const lastGarden=lastId?gardens.find(g=>g.id===lastId):null;
+  await loadGarden(lastGarden||gardens[0]);
+  renderGardensList();
 }
 async function loadShared(token){
   const{data,error}=await sb.from('gardens').select('*').eq('share_token',token).single();
@@ -864,6 +918,7 @@ async function createGarden(name){
 
 async function loadGarden(g){
   cGardenId=g.id;
+  if(cUser)localStorage.setItem('lastGardenId_'+cUser.id,g.id);
   document.getElementById('gsel-btn').textContent=(g.name||'Garden')+' ▾';
   document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap').forEach(e=>e.remove());
   document.getElementById('farmer')?.remove();farmerEl=null;
@@ -875,19 +930,26 @@ async function loadGarden(g){
 }
 function renderGardensList(){
   const list=document.getElementById('glist');list.innerHTML='';
+  const starredId=localStorage.getItem('starredGarden_'+cUser?.id);
   gardens.forEach(g=>{
     const item=document.createElement('div');item.className='gi'+(g.id===cGardenId?' ag':'');
-    const bc=()=>{try{return JSON.parse(g.beds_json||'[]').length;}catch(e){return 0;}};
+    const isStarred=g.id===starredId;
     const nameDiv=document.createElement('div');
-    nameDiv.innerHTML=`<div class="gi-name">🌿 ${g.name}</div><div class="gi-meta">${bc()} bed${bc()===1?'':'s'}</div>`;
     nameDiv.style.flex='1';
+    nameDiv.innerHTML=`<div class="gi-name">${isStarred?'⭐ ':'🌿 '}<span class="gi-name-txt">${g.name}</span></div><div class="gi-meta">${(()=>{try{return JSON.parse(g.beds_json||'[]').length;}catch(e){return 0;}})() } beds</div>`;
     item.appendChild(nameDiv);
     if(g.user_id===cUser?.id){
+      // Star button
+      const st=document.createElement('button');st.className='gi-share';st.title='Star this garden';st.textContent=isStarred?'⭐':'☆';
+      st.onclick=e=>{e.stopPropagation();const cur=localStorage.getItem('starredGarden_'+cUser.id);localStorage.setItem('starredGarden_'+cUser.id,cur===g.id?'':g.id);renderGardensList();};
+      // Rename button
+      const rn=document.createElement('button');rn.className='gi-share';rn.title='Rename';rn.textContent='✏️';
+      rn.onclick=async e=>{e.stopPropagation();const newName=prompt('Rename garden:',g.name);if(!newName||!newName.trim())return;await sb.from('gardens').update({name:newName.trim()}).eq('id',g.id);g.name=newName.trim();if(g.id===cGardenId)document.getElementById('gsel-btn').textContent=g.name+' ▾';renderGardensList();};
       const sh=document.createElement('button');sh.className='gi-share';sh.textContent='🔗';sh.title='Share read-only';
       sh.onclick=async e=>{e.stopPropagation();await shareGarden(g);};
       const dl=document.createElement('button');dl.className='gi-del';dl.textContent='×';
       dl.onclick=async e=>{e.stopPropagation();if(!confirm('Delete "'+g.name+'"?'))return;await sb.from('gardens').delete().eq('id',g.id);gardens=gardens.filter(x=>x.id!==g.id);if(g.id===cGardenId){if(gardens.length)await loadGarden(gardens[0]);else await createGarden('My Garden');}renderGardensList();};
-      item.appendChild(sh);item.appendChild(dl);
+      item.appendChild(st);item.appendChild(rn);item.appendChild(sh);item.appendChild(dl);
     }
     item.onclick=async()=>{await loadGarden(g);renderGardensList();closePanel('gp');};
     list.appendChild(item);
@@ -1012,9 +1074,8 @@ function createBedFromPanel(){
   const name=document.getElementById('ap-name').value.trim()||('Bed '+(bedCount+1));
   const cols=parseInt(document.getElementById('ap-c').value);
   const rows=parseInt(document.getElementById('ap-r').value);
-  const inter=document.getElementById('ap-inter').checked;
   const pos=getDropPos(cols*46,rows*46);
-  createBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,cells:Array(rows*cols).fill(null),inter,intercells:inter?Array(rows*(cols-1)).fill(null):[]});
+  createBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,cells:Array(rows*cols).fill(null),inter:false,intercells:[]});
   document.getElementById('ap-name').value='';closePanel('ap');toast('✓ '+name+' added!');scheduleSave();
 }
 function restoreBed(d){createBed(d);}
@@ -1273,19 +1334,39 @@ function createMulchEl(data,mDef){
   const rh=document.createElement('div');rh.className='mulch-rh';
   rh.onpointerdown=e=>{
     e.stopPropagation();e.preventDefault();
-    const sx=e.clientX,sy=e.clientY,sw=data.w,sh=data.h;
-    const mm=ev=>{data.w=Math.max(40,sw+(ev.clientX-sx)/scale);data.h=Math.max(16,sh+(ev.clientY-sy)/scale);el.style.width=data.w+'px';el.style.height=data.h+'px';cv.width=0;drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);saveSdata();};
-    const mu=()=>{document.removeEventListener('pointermove',mm);document.removeEventListener('pointerup',mu);scheduleSave();};
+    const startX=e.clientX,startY=e.clientY,sw=data.w,sh=data.h;
+    // Record initial pointer position relative to canvas coords
+    const mm=ev=>{
+      const dw=(ev.clientX-startX)/scale;
+      const dh=(ev.clientY-startY)/scale;
+      data.w=Math.max(40,sw+dw);
+      data.h=Math.max(16,sh+dh);
+      el.style.width=data.w+'px';
+      el.style.height=data.h+'px';
+      // Resize canvas properly without resetting to 0
+      cv.style.width=data.w+'px';
+      cv.style.height=data.h+'px';
+      saveSdata();
+    };
+    const mu=()=>{
+      document.removeEventListener('pointermove',mm);
+      document.removeEventListener('pointerup',mu);
+      // Full redraw at new size
+      drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);
+      scheduleSave();
+    };
     document.addEventListener('pointermove',mm);document.addEventListener('pointerup',mu);
     rh.setPointerCapture(e.pointerId);
   };
   el.appendChild(rh);
-  el.onclick=e=>{if(e.target!==xbtn){deselectAll();el.classList.toggle('selected');}};
+  el.onclick=e=>{if(e.target!==xbtn&&e.target!==rh){deselectAll();el.classList.toggle('selected');}};
   function saveSdata(){el.dataset.sdata=JSON.stringify({...data,x:parseFloat(el.style.left),y:parseFloat(el.style.top)});}
   saveSdata();
   document.getElementById('gc').appendChild(el);
   drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);
-  setupDrag(el,{get el(){return el;},locked:false,get x(){return parseFloat(el.style.left);},set x(v){el.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(el.style.top);},set y(v){el.style.top=v+'px';data.y=v;saveSdata();}},true);
+  // Only draggable when selected
+  const dragObj={get el(){return el;},get locked(){return!el.classList.contains('selected');},get x(){return parseFloat(el.style.left);},set x(v){el.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(el.style.top);},set y(v){el.style.top=v+'px';data.y=v;saveSdata();}};
+  setupDrag(el,dragObj,true);
 }
 
 // ── STRUCTURES ────────────────────────────────────────────────────────────────
@@ -1488,8 +1569,9 @@ function restoreStructure(data){
   else if(data.type==='decor'){const d=DECORS.find(x=>x.id===data.did);if(d)createDecorEl(data,d);}
   else if(data.type==='mulch'){const m=MULCHES.find(x=>x.id===data.mid);if(m)createMulchEl(data,m);}
   else if(data.type==='growbag')createGrowBagEl(data);
+  else if(data.type==='hplanter')createHangingPlanterEl(data);
   else if(data.type==='animal'){const a=ANIMALS.find(x=>x.id===data.aid);if(a)createAnimalEl(data,a);}
-  else if(data.type==='farmer'){farmerEl=null;createFarmerEl(data);}// reset so each restores
+  else if(data.type==='farmer'){farmerEl=null;createFarmerEl(data);}
 }
 
 // ── ANIMALS ───────────────────────────────────────────────────────────────────
@@ -1521,16 +1603,44 @@ function createAnimalEl(data,aDef){
   liveAnimals.push(aObj);
   if(aDef.roam)startAnimalRoam(aObj);
 }
-function startAnimalRoam(a){
-  function roam(){
-    if(!a.el.isConnected){return;}
+function getGardenActivityBounds(){
+  // Returns a bounding box that encompasses all beds and structures with padding
+  let minX=9999,minY=9999,maxX=0,maxY=0;
+  const items=document.getElementById('gc').querySelectorAll('.bed-wrap,.struct-wrap,.decor-wrap,.growbag-wrap');
+  items.forEach(el=>{
+    const lx=parseInt(el.style.left)||0,ty=parseInt(el.style.top)||0;
+    const w=el.offsetWidth||60,h=el.offsetHeight||60;
+    minX=Math.min(minX,lx);minY=Math.min(minY,ty);
+    maxX=Math.max(maxX,lx+w);maxY=Math.max(maxY,ty+h);
+  });
+  if(maxX===0){// no items, use canvas
     const gc=document.getElementById('gc');
-    const gw=parseInt(gc.style.width)||800,gh=parseInt(gc.style.height)||600;
+    return{minX:0,minY:0,maxX:parseInt(gc.style.width)||800,maxY:parseInt(gc.style.height)||600};
+  }
+  const pad=80;
+  return{minX:Math.max(0,minX-pad),minY:Math.max(0,minY-pad),maxX:maxX+pad,maxY:maxY+pad};
+}
+function isPond(x,y){
+  // Check if position overlaps any pond structure
+  let inPond=false;
+  document.getElementById('gc').querySelectorAll('.struct-wrap[data-sdata]').forEach(el=>{
+    try{const d=JSON.parse(el.dataset.sdata);if(d.sid==='pond'){const lx=parseInt(el.style.left),ty=parseInt(el.style.top),w=el.offsetWidth,h=el.offsetHeight;if(x>lx&&x<lx+w&&y>ty&&y<ty+h)inPond=true;}}catch(e){}
+  });
+  return inPond;
+}
+function startAnimalRoam(a){
+  const canFly=a.def.id==='bee'||a.def.id==='duck';
+  function roam(){
+    if(!a.el.isConnected)return;
+    const bounds=getGardenActivityBounds();
     const cx=parseFloat(a.el.style.left),cy=parseFloat(a.el.style.top);
-    const nx=Math.max(10,Math.min(gw-50,cx+(Math.random()-.5)*100));
-    const ny=Math.max(10,Math.min(gh-50,cy+(Math.random()-.5)*70));
-    const dx=nx-cx;
-    const dur=0.9+Math.random()*1.0;
+    let nx,ny,attempts=0;
+    do{
+      nx=Math.max(bounds.minX,Math.min(bounds.maxX-50,cx+(Math.random()-.5)*120));
+      ny=Math.max(bounds.minY,Math.min(bounds.maxY-50,cy+(Math.random()-.5)*80));
+      attempts++;
+    }while(!canFly&&isPond(nx,ny)&&attempts<8);
+    const dx=nx-cx,dur=0.9+Math.random()*1.0;
     a.el.style.transition=`left ${dur}s ease-in-out,top ${dur}s ease-in-out`;
     a.el.style.left=nx+'px';a.el.style.top=ny+'px';
     a.em.classList.toggle('flip',dx<0);
@@ -1592,12 +1702,20 @@ function showFarmerModal(data,ageStr,log,emoji){
       <button onclick="document.getElementById('farmer-modal').remove()" style="margin-left:auto;background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">×</button>
     </div>
     <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Recent Activity</div>
-    <div style="font-size:13px;color:#333;line-height:1.7;max-height:180px;overflow-y:auto;">${log.length?log.map(l=>`<div style="padding:3px 0;border-bottom:1px solid #f0f0f0">${l}</div>`).join(''):'<div style="color:#aaa;font-style:italic">Nothing logged yet — watch them work!</div>'}</div>
+    <div style="font-size:13px;color:#333;line-height:1.7;max-height:160px;overflow-y:auto;">${log.length?log.map(l=>'<div style="padding:3px 0;border-bottom:1px solid #f0f0f0">'+l+'</div>').join(''):'<div style="color:#aaa;font-style:italic">Nothing logged yet — watch them work!</div>'}</div>
+    <button onclick="window._removeFarmer('${data.id}')" style="width:100%;margin-top:12px;background:#FDE8E8;color:#C0392B;border:none;border-radius:10px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Remove ${name}</button>
   </div>`;
   modal.onclick=e=>{if(e.target===modal)modal.remove();};
   document.body.appendChild(modal);
 }
-
+window._removeFarmer=function(farmerId){
+  if(!confirm('Remove this farmer from the garden?'))return;
+  document.getElementById('farmer-modal')?.remove();
+  document.getElementById('gc').querySelectorAll('.farmer-el,[data-sdata]').forEach(el=>{
+    try{const d=JSON.parse(el.dataset.sdata||'{}');if(d.type==='farmer'&&d.id===farmerId){el.remove();}}catch(e){}
+  });
+  scheduleSave();toast('Farmer removed');
+};
 function showAnimalModal(aDef,data,ds){
   const existing=document.getElementById('animal-modal');if(existing)existing.remove();
   const modal=document.createElement('div');modal.id='animal-modal';
@@ -1634,11 +1752,11 @@ function showPondModal(data,card,saveSdata){
     </div>
     <div style="font-size:12px;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Add to pond</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-      ${FISH_TYPES.map(f=>`<button onclick="window._pondAdd('${f.id}')" style="background:#E3F2FD;border:1.5px solid #90CAF9;border-radius:10px;padding:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#1565C0;">${f.emoji} ${f.name}</button>`).join('')}
+      ${FISH_TYPES.map(f=>'<button onclick="window._pondAdd(\''+f.id+'\')" style="background:#E3F2FD;border:1.5px solid #90CAF9;border-radius:10px;padding:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#1565C0;">'+f.emoji+' '+f.name+'</button>').join('')}
     </div>
     <div style="font-size:12px;color:#888;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">In this pond (${fish.length})</div>
     <div style="font-size:13px;color:#333;max-height:100px;overflow-y:auto;">
-      ${fish.length?fish.map((f,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #f0f0f0">${f.emoji} ${f.name} <button onclick="window._pondRemove(${i})" style="background:none;border:none;color:#e57373;cursor:pointer;font-size:16px;">×</button></div>`).join(''):'<span style="color:#aaa;font-style:italic">Empty — add some fish!</span>'}
+      ${fish.length?fish.map((f,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #f0f0f0">'+f.emoji+' '+f.name+' <button onclick="window._pondRemove('+i+')" style="background:none;border:none;color:#e57373;cursor:pointer;font-size:16px;">×</button></div>').join(''):'<span style="color:#aaa;font-style:italic">Empty — add some fish!</span>'}
     </div>
   </div>`;
   modal.onclick=e=>{if(e.target===modal)modal.remove();};
@@ -1745,6 +1863,77 @@ function scheduleFarmer(em,data,el){
 }
 
 // ── DESELECT ALL ──────────────────────────────────────────────────────────────
+// ── LOCK PANEL ────────────────────────────────────────────────────────────────
+function openLockPanel(){
+  togglePanel('lkp');
+  const list=document.getElementById('lock-list');list.innerHTML='';
+  // Beds
+  beds.forEach(b=>{
+    const row=document.createElement('div');row.className='lock-item';
+    row.innerHTML=`<span class="lock-item-name">🌱 ${b.name}</span><span class="lock-item-type">Bed</span>`;
+    const btn=document.createElement('button');btn.className='lock-toggle'+(b.locked?' on':'');
+    btn.onclick=()=>{b.locked=!b.locked;btn.className='lock-toggle'+(b.locked?' on':'');scheduleSave();};
+    row.appendChild(btn);list.appendChild(row);
+  });
+  // Structures / mulch / growbags
+  document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{
+    try{
+      const d=JSON.parse(el.dataset.sdata);
+      const label=d.type==='mulch'?'🟫 '+d.mid:d.type==='growbag'?'🪣 Grow Bag':d.type==='struct'?'🏠 '+(d.sid||'Structure'):d.type==='decor'?'🌸 '+(d.did||'Decor'):d.type==='animal'?('🐾 '+(d.name||'Animal')):'Item';
+      const row=document.createElement('div');row.className='lock-item';
+      row.innerHTML=`<span class="lock-item-name">${label}</span>`;
+      const btn=document.createElement('button');btn.className='lock-toggle'+(d.locked?' on':'');
+      btn.onclick=()=>{d.locked=!d.locked;btn.className='lock-toggle'+(d.locked?' on':'');el.dataset.sdata=JSON.stringify(d);scheduleSave();};
+      row.appendChild(btn);list.appendChild(row);
+    }catch(e){}
+  });
+}
+function lockAll(locked){
+  beds.forEach(b=>b.locked=locked);
+  document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{
+    try{const d=JSON.parse(el.dataset.sdata);d.locked=locked;el.dataset.sdata=JSON.stringify(d);}catch(e){}
+  });
+  openLockPanel();scheduleSave();toast(locked?'🔒 Everything locked':'🔓 Everything unlocked');
+}
+
+// ── HANGING PLANTER ───────────────────────────────────────────────────────────
+function addHangingPlanter(size='md'){
+  if(isReadOnly)return;
+  const szMap={sm:60,md:80,lg:100};const sz=szMap[size]||80;
+  const pos=getDropPos(sz,sz+30);
+  const data={type:'hplanter',x:pos.x,y:pos.y,size:sz,plant_id:null,planted:null,id:'hp'+Date.now()};
+  createHangingPlanterEl(data);scheduleSave();
+}
+function createHangingPlanterEl(data){
+  const sz=data.size||80;
+  const wrap=document.createElement('div');wrap.className='hplanter-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;position:absolute;`;
+  // Hanging chains
+  const chains=document.createElement('div');chains.style.cssText=`display:flex;justify-content:space-between;width:${sz}px;padding:0 8px;`;
+  chains.innerHTML=`<div style="width:2px;height:18px;background:#A0522D;border-radius:1px"></div><div style="width:2px;height:18px;background:#A0522D;border-radius:1px"></div><div style="width:2px;height:18px;background:#A0522D;border-radius:1px"></div>`;
+  // Box
+  const box=document.createElement('div');
+  box.style.cssText=`width:${sz}px;height:${Math.round(sz*0.65)}px;background:linear-gradient(160deg,#8D6E63,#5D4037);border-radius:6px 6px 10px 10px;box-shadow:0 4px 12px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;overflow:hidden;border:2px solid #795548;`;
+  const plantDiv=document.createElement('div');plantDiv.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+  if(data.plant_id&&PM[data.plant_id])plantDiv.innerHTML=`<div style="width:${sz*0.6}px;height:${sz*0.6}px">${PM[data.plant_id].svg}</div>`;
+  else plantDiv.innerHTML=`<span style="font-size:${sz*0.25}px;color:rgba(255,255,255,.4)">🌱</span>`;
+  const lbl=document.createElement('div');lbl.style.cssText='font-size:9px;color:#DEB887;font-weight:600;text-align:center;margin-top:2px;';lbl.textContent=data.plant_id?(PM[data.plant_id]?.name||'Planter'):'Tap to plant';
+  const xbtn=document.createElement('button');xbtn.className='hplanter-x';xbtn.textContent='×';
+  xbtn.addEventListener('click',e=>{e.stopPropagation();if(isReadOnly)return;if(confirm('Remove planter?')){wrap.remove();scheduleSave();}});
+  box.appendChild(plantDiv);box.appendChild(xbtn);
+  wrap.appendChild(chains);wrap.appendChild(box);wrap.appendChild(lbl);
+  box.addEventListener('click',e=>{
+    if(e.target===xbtn)return;
+    if(wrap.classList.contains('selected')){
+      if(data.plant_id){toast((PM[data.plant_id]?.name||'Plant')+(data.planted?' — planted '+data.planted:''),2500);}
+      else{openSheet();window._plantPickCb=p=>{data.plant_id=p.id;data.planted=TODAY;plantDiv.innerHTML=`<div style="width:${sz*0.6}px;height:${sz*0.6}px">${p.svg}</div>`;lbl.textContent=p.name;saveSdata();scheduleSave();};}
+    }else{document.querySelectorAll('.hplanter-wrap.selected').forEach(el=>el.classList.remove('selected'));wrap.classList.add('selected');}
+  });
+  function saveSdata(){wrap.dataset.sdata=JSON.stringify({...data,x:parseFloat(wrap.style.left),y:parseFloat(wrap.style.top)});}
+  saveSdata();
+  document.getElementById('gc').appendChild(wrap);
+  setupDrag(wrap,{get el(){return wrap;},locked:false,get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;saveSdata();}});
+}
+
 function deselectAll(){
   document.querySelectorAll('.struct-wrap.selected,.decor-wrap.selected,.mulch-strip.selected,.growbag-wrap.selected,.animal-wrap.selected').forEach(el=>el.classList.remove('selected'));
 }
