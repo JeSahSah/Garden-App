@@ -73,8 +73,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 /* ── BEDS ── */
 .bed-wrap{position:absolute;z-index:10;touch-action:none;cursor:move;}
 .bed-card{border-radius:10px;overflow:visible;box-shadow:0 6px 20px rgba(0,0,0,.35);}
-.bed-name-tag{position:absolute;top:-28px;left:0;background:var(--sd);color:#DEB887;font-size:11px;font-weight:600;border-radius:6px 6px 0 0;padding:3px 8px;white-space:nowrap;display:flex;align-items:center;gap:4px;opacity:0;transition:opacity .15s;pointer-events:none;z-index:20;}
-.bed-wrap.bed-sel .bed-name-tag{opacity:1;pointer-events:auto;}
+.bed-name-tag{position:absolute;top:-28px;left:0;background:var(--sd);color:#DEB887;font-size:11px;font-weight:600;border-radius:6px 6px 0 0;padding:3px 8px;white-space:nowrap;display:flex;align-items:center;gap:4px;opacity:0.7;transition:opacity .15s;z-index:20;}
+.bed-wrap:hover .bed-name-tag,.bed-wrap.bed-sel .bed-name-tag{opacity:1;}
 .bed-name-inp{background:transparent;border:none;color:#DEB887;font-size:11px;font-weight:600;font-family:inherit;outline:none;width:80px;cursor:text;}
 .bed-name-inp:focus{border-bottom:1px solid #DEB887;}
 .bab{background:rgba(255,255,255,.15);border:none;color:#DEB887;border-radius:4px;width:20px;height:20px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -240,7 +240,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .lock-toggle::after{content:'';position:absolute;width:22px;height:22px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
 .lock-toggle.on::after{left:20px;}
 /* ── HANGING PLANTER ── */
-.hplanter-wrap{position:absolute;z-index:15;touch-action:none;display:flex;flex-direction:column;align-items:center;}
+.hplanter-wrap{position:absolute;z-index:18;touch-action:none;display:flex;flex-direction:column;align-items:center;}
 .hplanter-wrap.selected{z-index:30;}
 .hplanter-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
 .hplanter-wrap.selected .hplanter-x{display:flex;}
@@ -360,6 +360,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       <h3>My Gardens</h3>
       <div id="glist"></div>
       <button class="apgo" style="width:100%;margin-bottom:6px" onclick="newGarden()">+ New Garden</button>
+      <button class="apgo" style="width:100%;margin-bottom:6px;background:#E65100" onclick="resetCurrentGarden()">🔄 Reset to Default Layout</button>
+      <button class="apgo" style="width:100%;margin-bottom:6px;background:var(--dn)" onclick="clearCurrentGarden()">🗑️ Clear Everything</button>
       <button class="closebtn" onclick="closePanel('gp')">Close</button>
     </div>
 
@@ -578,7 +580,8 @@ const STRUCT_SVGS={
     <ellipse cx="${w/2}" cy="${h/2+4}" rx="${w/2-10}" ry="${h/2-12}" fill="#42A5F5" opacity=".7"/>
     <ellipse cx="${w*0.28}" cy="${h*0.38}" rx="${w*0.14}" ry="${h*0.1}" fill="#66BB6A" opacity=".9"/>
     <ellipse cx="${w*0.68}" cy="${h*0.62}" rx="${w*0.11}" ry="${h*0.08}" fill="#66BB6A" opacity=".8"/>
-    <text x="${w*0.52}" y="${h*0.62}" text-anchor="middle" font-size="${Math.min(w,h)*0.26}">🐸</text>
+    <ellipse cx="${w*0.55}" cy="${h*0.5}" rx="${w*0.08}" ry="${h*0.055}" fill="#FFF9C4" opacity=".5"/>
+    <ellipse cx="${w*0.38}" cy="${h*0.62}" rx="${w*0.06}" ry="${h*0.04}" fill="#FFF9C4" opacity=".4"/>
   </svg>`,
   compost:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="6" y="${h*0.18}" width="${w-12}" height="${h*0.78}" rx="4" fill="#2E7D32"/>
@@ -875,45 +878,56 @@ async function loadShared(token){
   gardens=[data];loadGarden(data);
 }
 async function createGarden(name){
-  // Every garden starts with the same default template — users can customize freely
-  function cell(id){return {plant_id:id,planted:TODAY,watered:TODAY,harvest:hd(TODAY,PM[id]?.days||60),note:''};}
-  const vegCells=[cell('tomato'),cell('tomato'),cell('pepper'),null,null,
-                  null,cell('cucumber'),cell('cucumber'),cell('lettuce'),cell('lettuce'),
-                  cell('carrot'),cell('carrot'),null,cell('lettuce'),null];
-  const herbCells=[cell('basil'),cell('basil'),cell('parsley'),cell('thyme'),cell('rosemary'),cell('chives')];
-  const flowerCells=[cell('sunflower'),cell('sunflower'),null,null,cell('marigold'),cell('marigold'),null,null];
-  const ts=Date.now();
-  const defaultBeds=JSON.stringify([
-    {id:1,name:'Veggie Bed',cols:5,rows:3,x:180,y:200,locked:false,cells:vegCells,inter:false,intercells:[]},
-    {id:2,name:'Herb Garden',cols:3,rows:2,x:180,y:460,locked:false,cells:herbCells,inter:false,intercells:[]},
-    {id:3,name:'Flower Bed',cols:4,rows:2,x:520,y:260,locked:false,cells:flowerCells,inter:false,intercells:[]},
-  ]);
-  const defaultStructs=JSON.stringify([
-    {type:'struct',sid:'shed',x:760,y:90,locked:false,id:'sd1_'+ts},
-    {type:'struct',sid:'compost',x:740,y:310,locked:false,id:'sd2_'+ts},
-    {type:'struct',sid:'bench',x:430,y:480,locked:false,id:'sd3_'+ts},
-    {type:'struct',sid:'watering-can',x:350,y:490,locked:false,id:'sd4_'+ts},
-    {type:'struct',sid:'arch',x:490,y:160,locked:false,id:'sd5_'+ts},
-    {type:'struct',sid:'bfeeder',x:660,y:200,locked:false,id:'sd6_'+ts},
-    {type:'struct',sid:'fence',x:170,y:142,w:420,h:32,locked:false,id:'sf1_'+ts},
-    {type:'struct',sid:'fence',x:152,y:142,w:32,h:380,locked:false,id:'sf2_'+ts},
-    {type:'mulch',mid:'woodchip',mtype:'woodchip',color:'#8D6E63',x:155,y:380,w:220,h:60,id:'md1_'+ts},
-    {type:'mulch',mid:'grass',mtype:'grass',color:'#7CB342',x:450,y:160,w:100,h:80,id:'md2_'+ts},
-    {type:'mulch',mid:'straw',mtype:'straw',color:'#D4A017',x:155,y:155,w:420,h:38,id:'md3_'+ts},
-    {type:'growbag',x:530,y:450,plant_id:'pumpkin',planted:TODAY,gb_harvest:hd(TODAY,PM['pumpkin']?.days||90),id:'gb1_'+ts,size:80},
-    {type:'growbag',x:630,y:450,plant_id:'strawberry',planted:TODAY,gb_harvest:hd(TODAY,PM['strawberry']?.days||60),id:'gb2_'+ts,size:72},
-    {type:'growbag',x:530,y:560,plant_id:null,planted:null,id:'gb3_'+ts,size:56},
-    {type:'animal',aid:'chicken',name:'Henrietta',x:280,y:330,since:TODAY,id:'an1_'+ts},
-    {type:'animal',aid:'chicken',name:'Cluck',x:320,y:370,since:TODAY,id:'an2_'+ts},
-    {type:'animal',aid:'rabbit',name:'Biscuit',x:490,y:200,since:TODAY,id:'an3_'+ts},
-    {type:'animal',aid:'bee',name:'The Bees',x:650,y:170,since:TODAY,id:'an4_'+ts},
-    {type:'farmer',name:'The Gardener',x:360,y:280,since:TODAY,id:'fr1_'+ts},
-  ]);
-  const{data,error}=await sb.from('gardens').insert({user_id:cUser.id,name,bg:'lush',beds_json:defaultBeds,structures_json:defaultStructs}).select().single();
+  const{bedsJson,structsJson}=buildDefaultContent();
+  const{data,error}=await sb.from('gardens').insert({user_id:cUser.id,name,bg:'lush',beds_json:bedsJson,structures_json:structsJson}).select().single();
   if(error){console.error('Create garden error:',error.message);toast('⚠️ Could not create garden: '+error.message);return;}
   gardens.push(data);renderGardensList();
   await loadGarden(data);
   toast('🌱 '+name+' is ready! Customize it however you like.',3500);
+}
+function buildDefaultContent(){
+  function cell(id){return{plant_id:id,planted:TODAY,watered:TODAY,harvest:hd(TODAY,PM[id]?.days||60),note:''};}
+  const vegCells=[cell('tomato'),cell('tomato'),cell('pepper'),null,null,
+                  null,cell('cucumber'),cell('cucumber'),cell('lettuce'),cell('lettuce'),
+                  cell('carrot'),cell('carrot'),null,cell('lettuce'),null];
+  const herbCells=[cell('basil'),cell('basil'),cell('rosemary'),cell('chives'),cell('mint'),cell('dill')];
+  const flowerCells=[cell('sunflower'),cell('sunflower'),null,null,cell('marigold'),cell('marigold'),cell('lavender'),null];
+  const ts=Date.now();
+  const fenceTop   ={type:'struct',sid:'fence',x:130,y:140,w:552,h:28,locked:false,id:'sft_'+ts};
+  const fenceBottom={type:'struct',sid:'fence',x:130,y:575,w:552,h:28,locked:false,id:'sfb_'+ts};
+  const fenceLeft  ={type:'struct',sid:'fence',x:130,y:140,w:28,h:463,locked:false,id:'sfl_'+ts};
+  const fenceRight ={type:'struct',sid:'fence',x:682,y:140,w:28,h:463,locked:false,id:'sfr_'+ts};
+  const bedsJson=JSON.stringify([
+    {id:1,name:'Veggie Bed',cols:5,rows:3,x:180,y:200,locked:false,cells:vegCells,inter:false,intercells:[]},
+    {id:2,name:'Herb Garden',cols:3,rows:2,x:180,y:460,locked:false,cells:herbCells,inter:false,intercells:[]},
+    {id:3,name:'Flower Bed',cols:4,rows:2,x:430,y:200,locked:false,cells:flowerCells,inter:false,intercells:[]},
+  ]);
+  const structsJson=JSON.stringify([
+    fenceTop,fenceBottom,fenceLeft,fenceRight,
+    {type:'struct',sid:'shed',x:730,y:160,locked:false,id:'sd1_'+ts},
+    {type:'struct',sid:'compost',x:730,y:310,locked:false,id:'sd2_'+ts},
+    {type:'struct',sid:'arch',x:380,y:145,locked:false,id:'sd5_'+ts},
+    {type:'struct',sid:'pond',x:460,y:420,w:100,h:90,locked:false,id:'sd7_'+ts,pondFish:[{id:'goldfish',emoji:'🐠',name:'Goldie'},{id:'koi',emoji:'🐟',name:'Koi 1'},{id:'koi',emoji:'🐟',name:'Koi 2'}]},
+    {type:'mulch',mid:'stonepath',mtype:'stone',color:'#78909C',x:160,y:380,w:500,h:32,id:'ms1_'+ts},
+    {type:'mulch',mid:'woodchip',mtype:'woodchip',color:'#8D6E63',x:160,y:160,w:500,h:28,id:'ms2_'+ts},
+    {type:'mulch',mid:'straw',mtype:'straw',color:'#D4A017',x:410,y:162,w:260,h:26,id:'ms3_'+ts},
+    {type:'mulch',mid:'grass',mtype:'grass',color:'#7CB342',x:415,y:340,w:245,h:60,id:'ms4_'+ts},
+    {type:'mulch',mid:'woodchip',mtype:'woodchip',color:'#8D6E63',x:160,y:430,w:220,h:120,id:'ms5_'+ts},
+    {type:'decor',did:'bfeeder',x:620,y:180,id:'dc1_'+ts,w:54,h:60},
+    {type:'decor',did:'bench',x:610,y:360,id:'dc2_'+ts,w:60,h:50},
+    {type:'decor',did:'scarecrow',x:330,y:195,id:'dc3_'+ts,w:52,h:70},
+    {type:'decor',did:'gnome',x:620,y:280,id:'dc4_'+ts,w:42,h:62},
+    {type:'decor',did:'wcan',x:165,y:345,id:'dc5_'+ts,w:44,h:40},
+    {type:'decor',did:'windchime',x:570,y:460,id:'dc6_'+ts,w:40,h:48},
+    {type:'growbag',x:435,y:435,plant_id:'pumpkin',planted:TODAY,id:'gb1_'+ts,size:80},
+    {type:'growbag',x:335,y:455,plant_id:'strawberry',planted:TODAY,id:'gb2_'+ts,size:72},
+    {type:'growbag',x:335,y:355,plant_id:null,planted:null,id:'gb3_'+ts,size:56},
+    {type:'animal',aid:'rabbit',name:'Biscuit',x:550,y:230,since:TODAY,id:'an3_'+ts},
+    {type:'animal',aid:'bee',name:'Bee 1',x:390,y:180,since:TODAY,id:'an4_'+ts},
+    {type:'animal',aid:'bee',name:'Bee 2',x:440,y:175,since:TODAY,id:'an5_'+ts},
+    {type:'farmer',name:'The Gardener',x:300,y:290,since:TODAY,id:'fr1_'+ts},
+  ]);
+  return{bedsJson,structsJson};
 }
 
 async function loadGarden(g){
@@ -954,6 +968,36 @@ function renderGardensList(){
     item.onclick=async()=>{await loadGarden(g);renderGardensList();closePanel('gp');};
     list.appendChild(item);
   });
+}
+async function clearCurrentGarden(){
+  if(!cGardenId)return;
+  if(!confirm('Remove everything from this garden? This cannot be undone.'))return;
+  closePanel('gp');
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,#farmer').forEach(e=>e.remove());
+  beds=[];bedCount=0;liveAnimals.length=0;farmerEl=null;
+  stopFarmer();stopAllAnimals();
+  await sb.from('gardens').update({beds_json:'[]',structures_json:'[]'}).eq('id',cGardenId);
+  const g=gardens.find(x=>x.id===cGardenId);
+  if(g){g.beds_json='[]';g.structures_json='[]';}
+  toast('Garden cleared');
+}
+async function resetCurrentGarden(){
+  if(!cGardenId)return;
+  if(!confirm('Reset this garden to the default layout? Everything will be replaced.'))return;
+  closePanel('gp');
+  // Clear current
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,#farmer').forEach(e=>e.remove());
+  beds=[];bedCount=0;liveAnimals.length=0;farmerEl=null;
+  stopFarmer();stopAllAnimals();
+  // Rebuild default content into the current garden
+  const g=gardens.find(x=>x.id===cGardenId);
+  if(!g)return;
+  // Re-use createGarden's default layout logic by calling buildDefaultContent
+  const{bedsJson,structsJson}=buildDefaultContent();
+  await sb.from('gardens').update({beds_json:bedsJson,structures_json:structsJson}).eq('id',cGardenId);
+  g.beds_json=bedsJson;g.structures_json=structsJson;
+  await loadGarden(g);
+  toast('🌱 Garden reset to default!');
 }
 async function newGarden(){
   const name=prompt('Garden name (e.g. Front Yard, Back Vegetable Patch):')||(null);
@@ -1942,6 +1986,7 @@ function deselectAll(){
 function setupDrag(handle,obj,isMulch=false){
   let isDragging=false,startPointerX=0,startPointerY=0,startObjX=0,startObjY=0;
   handle.onpointerdown=e=>{
+    if(isPinching)return;// never start a drag during pinch zoom
     if(isReadOnly)return;
     if(e.target.tagName==='INPUT'||e.target.closest('button'))return;
     if(obj.locked)return;
@@ -1983,7 +2028,6 @@ function setScale(s){
   scale=Math.max(0.3,Math.min(2,s));
   const wrap=document.getElementById('gc-scale-wrap');
   wrap.style.transform=`scale(${scale})`;
-  // Update the wrapper's layout size so scroll works correctly
   const gc=document.getElementById('gc');
   wrap.style.width=gc.offsetWidth*scale+'px';
   wrap.style.height=gc.offsetHeight*scale+'px';
@@ -1991,11 +2035,24 @@ function setScale(s){
 function zoomIn(){setScale(scale+0.15);}
 function zoomOut(){setScale(scale-0.15);}
 let pts={};
+let isPinching=false;
 const gscroll=document.getElementById('gs');
-gscroll.addEventListener('touchstart',e=>{[...e.touches].forEach(t=>pts[t.identifier]={x:t.clientX,y:t.clientY});},{passive:true});
+gscroll.addEventListener('touchstart',e=>{
+  [...e.touches].forEach(t=>pts[t.identifier]={x:t.clientX,y:t.clientY});
+  if(e.touches.length>=2){
+    isPinching=true;
+    // Cancel any active drag immediately
+    if(dragging){dragging.obj.el.style.zIndex='';dragging=null;}
+    // Dispatch pointercancel to all elements to stop their drag handlers
+    document.querySelectorAll('.bed-card,.struct-card,.decor-wrap,.growbag-circle,.mulch-strip,.hplanter-wrap').forEach(el=>{
+      try{el.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true}));}catch(ex){}
+    });
+  }
+},{passive:true});
 gscroll.addEventListener('touchmove',e=>{
   if(e.touches.length===2){
     e.preventDefault();
+    isPinching=true;
     const a=e.touches[0],b2=e.touches[1];
     const dist=Math.hypot(a.clientX-b2.clientX,a.clientY-b2.clientY);
     const pa=pts[a.identifier]||{x:a.clientX,y:a.clientY},pb=pts[b2.identifier]||{x:b2.clientX,y:b2.clientY};
@@ -2004,7 +2061,10 @@ gscroll.addEventListener('touchmove',e=>{
   }
   [...e.touches].forEach(t=>pts[t.identifier]={x:t.clientX,y:t.clientY});
 },{passive:false});
-gscroll.addEventListener('touchend',e=>{[...e.changedTouches].forEach(t=>delete pts[t.identifier]);});
+gscroll.addEventListener('touchend',e=>{
+  [...e.changedTouches].forEach(t=>delete pts[t.identifier]);
+  if(Object.keys(pts).length<2)setTimeout(()=>{isPinching=false;},100);
+});
 function expandCanvas(){
   let mx=2400,my=2000;
   document.getElementById('gc').querySelectorAll('.bed-wrap,.struct-wrap,.decor-wrap,.growbag-wrap').forEach(el=>{
