@@ -127,7 +127,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .decor-wrap.selected .decor-x{display:flex;}
 
 /* ── MULCH — styled patterns ── */
-.mulch-strip{position:absolute;z-index:3;border-radius:4px;overflow:hidden;border:2px solid rgba(255,255,255,.15);}
+.mulch-strip{position:absolute;z-index:5;border-radius:4px;overflow:hidden;border:2px solid rgba(255,255,255,.15);}
 .mulch-strip canvas{position:absolute;inset:0;pointer-events:none;}
 .mulch-strip.selected{cursor:grab;z-index:15;}
 .mulch-strip.selected:active{cursor:grabbing;}
@@ -360,6 +360,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       <h3>My Gardens</h3>
       <div id="glist"></div>
       <button class="apgo" style="width:100%;margin-bottom:6px" onclick="newGarden()">+ New Garden</button>
+      <button class="apgo" style="width:100%;margin-bottom:6px;background:#2E7D32" onclick="openManageGarden();closePanel('gp')">🌿 Manage Garden</button>
+      <button class="apgo" style="width:100%;margin-bottom:6px;background:#5D4037" onclick="openManageFarmers();closePanel('gp')">👨‍🌾 Manage Farmers</button>
       <button class="apgo" style="width:100%;margin-bottom:6px;background:#E65100" onclick="resetCurrentGarden()">🔄 Reset to Default Layout</button>
       <button class="apgo" style="width:100%;margin-bottom:6px;background:var(--dn)" onclick="clearCurrentGarden()">🗑️ Clear Everything</button>
       <button class="closebtn" onclick="closePanel('gp')">Close</button>
@@ -738,87 +740,97 @@ const DECOR_SVGS={
   </svg>`,
 };
 const ANIMAL_SVGS={
-  horse:(sz)=>`<svg viewBox="0 0 60 52" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Body -->
-    <ellipse cx="30" cy="34" rx="20" ry="13" fill="#8B6914"/>
-    <ellipse cx="30" cy="33" rx="18" ry="11" fill="#A0802A"/>
-    <!-- Neck -->
-    <path d="M36 26 Q42 18 40 10 Q37 6 34 8 Q32 14 30 20 Z" fill="#9A7820"/>
-    <!-- Head -->
-    <ellipse cx="37" cy="10" rx="7" ry="5" fill="#9A7820" transform="rotate(-20 37 10)"/>
-    <ellipse cx="40" cy="7" rx="5" ry="3.5" fill="#A0802A" transform="rotate(-20 40 7)"/>
-    <!-- Nostrils -->
-    <ellipse cx="43" cy="6" rx="1.5" ry="1" fill="#7A5C14" transform="rotate(-20 43 6)"/>
-    <!-- Eye -->
-    <circle cx="35" cy="8" r="2" fill="#2A1A00"/>
-    <circle cx="35.5" cy="7.5" r="0.7" fill="#fff" opacity=".6"/>
-    <!-- Ear -->
-    <path d="M32 6 L30 2 L34 4 Z" fill="#8B6914"/>
-    <!-- Mane -->
-    <path d="M37 6 Q35 10 33 14 Q35 12 37 16 Q36 12 38 8 Z" fill="#4A2A00"/>
-    <path d="M36 8 Q33 13 31 17 Q33 15 34 19" stroke="#3A1A00" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <!-- Legs -->
-    <rect x="16" y="43" width="6" height="9" rx="3" fill="#7A5C14"/>
-    <rect x="23" y="44" width="6" height="8" rx="3" fill="#8B6914"/>
-    <rect x="33" y="44" width="6" height="8" rx="3" fill="#8B6914"/>
-    <rect x="40" y="43" width="6" height="9" rx="3" fill="#7A5C14"/>
-    <!-- Hooves -->
-    <rect x="16" y="49" width="6" height="3" rx="1.5" fill="#2A1A00"/>
-    <rect x="23" y="50" width="6" height="2.5" rx="1.2" fill="#2A1A00"/>
-    <rect x="33" y="50" width="6" height="2.5" rx="1.2" fill="#2A1A00"/>
-    <rect x="40" y="49" width="6" height="3" rx="1.5" fill="#2A1A00"/>
-    <!-- Tail -->
-    <path d="M12 34 Q6 38 8 46 Q10 50 9 52" stroke="#4A2A00" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M9 52 Q7 54 11 53 Q8 55 12 54" stroke="#3A1A00" stroke-width="2" fill="none"/>
-  </svg>`,
-  cow:(sz)=>`<svg viewBox="0 0 64 52" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Body with patches -->
-    <ellipse cx="32" cy="34" rx="22" ry="14" fill="#F5F0E8"/>
-    <ellipse cx="22" cy="30" rx="8" ry="7" fill="#3A2A1A" opacity=".85"/>
-    <ellipse cx="40" cy="36" rx="7" ry="6" fill="#3A2A1A" opacity=".8"/>
-    <ellipse cx="32" cy="38" rx="5" ry="4" fill="#3A2A1A" opacity=".6"/>
-    <!-- Udder -->
-    <ellipse cx="30" cy="46" rx="7" ry="4" fill="#F4A7A7"/>
-    <circle cx="27" cy="49" r="1.5" fill="#E88888"/>
-    <circle cx="30" cy="50" r="1.5" fill="#E88888"/>
-    <circle cx="33" cy="49" r="1.5" fill="#E88888"/>
-    <!-- Neck -->
-    <path d="M38 26 Q44 20 43 14 Q40 10 37 12 Q36 18 34 22 Z" fill="#EDE8E0"/>
-    <ellipse cx="39" cy="12" rx="5" ry="4" fill="#3A2A1A" opacity=".5"/>
-    <!-- Head -->
-    <ellipse cx="41" cy="13" rx="8" ry="6" fill="#EDE8E0" transform="rotate(-15 41 13)"/>
-    <!-- Snout -->
-    <ellipse cx="45" cy="14" rx="5" ry="3.5" fill="#F4C8B0" transform="rotate(-10 45 14)"/>
-    <ellipse cx="44" cy="14" rx="1.5" ry="1" fill="#C87A70"/>
-    <ellipse cx="47" cy="13.5" rx="1.5" ry="1" fill="#C87A70"/>
-    <!-- Eye -->
-    <circle cx="39" cy="10" r="2.2" fill="#1A1000"/>
-    <circle cx="39.5" cy="9.4" r="0.8" fill="#fff" opacity=".6"/>
-    <!-- Ear -->
-    <path d="M36 9 L33 4 L38 7 Z" fill="#EDE8E0" stroke="#CCC0A8" stroke-width="1"/>
-    <!-- Horns -->
-    <path d="M37 8 Q35 4 32 3" stroke="#C8B880" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M40 7 Q40 3 43 2" stroke="#C8B880" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <!-- Legs -->
-    <rect x="16" y="44" width="7" height="8" rx="3.5" fill="#D0C8B8"/>
-    <rect x="24" y="45" width="7" height="7" rx="3.5" fill="#E0D8C8"/>
-    <rect x="35" y="45" width="7" height="7" rx="3.5" fill="#E0D8C8"/>
-    <rect x="43" y="44" width="7" height="8" rx="3.5" fill="#D0C8B8"/>
-    <!-- Hooves -->
-    <rect x="16" y="50" width="7" height="2.5" rx="1.2" fill="#3A2A1A"/>
-    <rect x="24" y="50" width="7" height="2.5" rx="1.2" fill="#3A2A1A"/>
-    <rect x="35" y="50" width="7" height="2.5" rx="1.2" fill="#3A2A1A"/>
-    <rect x="43" y="50" width="7" height="2.5" rx="1.2" fill="#3A2A1A"/>
-    <!-- Tail -->
-    <path d="M11 33 Q5 37 7 44 Q8 47 7 50" stroke="#C8B880" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M7 50 Q5 53 9 52 Q6 55 11 53" stroke="#A89860" stroke-width="2" fill="none"/>
-  </svg>`,
+  horse:function(sz){return `<svg viewBox="0 0 80 64" width="${sz}" height="${sz*0.8}" xmlns="http://www.w3.org/2000/svg">
+  <!-- Horse side-profile -->
+  <!-- Body -->
+  <ellipse cx="42" cy="42" rx="24" ry="14" fill="#A0702A"/>
+  <!-- Rump highlight -->
+  <ellipse cx="56" cy="38" rx="10" ry="8" fill="#B8843A" opacity=".5"/>
+  <!-- Neck -->
+  <path d="M30 34 Q28 22 32 14 Q36 8 40 10 Q42 16 38 26 Z" fill="#A0702A"/>
+  <!-- Head -->
+  <path d="M37 12 Q38 4 44 3 Q50 3 52 8 Q52 14 48 16 Q42 17 37 12Z" fill="#966818"/>
+  <!-- Muzzle -->
+  <ellipse cx="50" cy="11" rx="4.5" ry="3.5" fill="#B8843A"/>
+  <ellipse cx="49" cy="11.5" rx="1.2" ry="0.9" fill="#7A5010"/>
+  <ellipse cx="51.5" cy="11" rx="1.2" ry="0.9" fill="#7A5010"/>
+  <!-- Eye -->
+  <circle cx="42" cy="8" r="2.2" fill="#1A0800"/>
+  <circle cx="42.7" cy="7.4" r="0.7" fill="#fff" opacity=".7"/>
+  <!-- Ear -->
+  <path d="M37 6 L35 1 L40 5 Z" fill="#966818" stroke="#7A5010" stroke-width=".5"/>
+  <!-- Mane -->
+  <path d="M39 5 Q35 10 31 16 Q33 14 36 12 Q33 18 30 22" stroke="#4A2000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M38 7 Q34 12 30 18" stroke="#3A1800" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Legs - front pair -->
+  <rect x="22" y="52" width="7" height="11" rx="3.5" fill="#8B5E18"/>
+  <rect x="30" y="53" width="7" height="10" rx="3.5" fill="#966818"/>
+  <!-- Hooves front -->
+  <rect x="22" y="60" width="7" height="3" rx="1.5" fill="#2A1400"/>
+  <rect x="30" y="60" width="7" height="3" rx="1.5" fill="#2A1400"/>
+  <!-- Legs - back pair -->
+  <rect x="48" y="53" width="7" height="10" rx="3.5" fill="#966818"/>
+  <rect x="56" y="52" width="7" height="11" rx="3.5" fill="#8B5E18"/>
+  <!-- Hooves back -->
+  <rect x="48" y="60" width="7" height="3" rx="1.5" fill="#2A1400"/>
+  <rect x="56" y="60" width="7" height="3" rx="1.5" fill="#2A1400"/>
+  <!-- Tail -->
+  <path d="M18 40 Q10 44 11 52 Q12 56 10 60" stroke="#4A2000" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M10 60 Q8 64 12 62 Q9 66 14 63" stroke="#3A1800" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>`;},
+  cow:function(sz){return `<svg viewBox="0 0 84 68" width="${sz}" height="${sz*0.81}" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cow side-profile -->
+  <!-- Body -->
+  <ellipse cx="44" cy="44" rx="26" ry="16" fill="#F0EBE0"/>
+  <!-- Black patches -->
+  <ellipse cx="32" cy="38" rx="10" ry="9" fill="#2A2020" opacity=".88"/>
+  <ellipse cx="56" cy="47" rx="8" ry="7" fill="#2A2020" opacity=".78"/>
+  <ellipse cx="46" cy="35" rx="6" ry="5" fill="#2A2020" opacity=".6"/>
+  <!-- Udder -->
+  <ellipse cx="40" cy="58" rx="10" ry="5" fill="#F4A0A0"/>
+  <circle cx="35" cy="62" r="2" fill="#E07070"/>
+  <circle cx="40" cy="63" r="2" fill="#E07070"/>
+  <circle cx="45" cy="62" r="2" fill="#E07070"/>
+  <!-- Neck -->
+  <path d="M32 36 Q28 24 32 16 Q36 10 40 12 Q42 18 38 28 Z" fill="#E8E2D8"/>
+  <!-- Neck patch -->
+  <ellipse cx="34" cy="20" rx="5" ry="6" fill="#2A2020" opacity=".55"/>
+  <!-- Head -->
+  <path d="M37 14 Q36 6 43 4 Q50 3 53 9 Q53 16 48 18 Q41 19 37 14Z" fill="#E0D8C8"/>
+  <!-- Snout/muzzle -->
+  <ellipse cx="51" cy="13" rx="5" ry="4" fill="#E8C0A8"/>
+  <ellipse cx="49.5" cy="13.5" rx="1.4" ry="1" fill="#B06850"/>
+  <ellipse cx="52.5" cy="13" rx="1.4" ry="1" fill="#B06850"/>
+  <!-- Eye -->
+  <circle cx="42" cy="9" r="2.4" fill="#1A1000"/>
+  <circle cx="42.8" cy="8.3" r="0.8" fill="#fff" opacity=".7"/>
+  <!-- Eyelash -->
+  <path d="M40.5 7.5 Q41 6 42 7" stroke="#1A1000" stroke-width="1" fill="none"/>
+  <!-- Ear -->
+  <path d="M37 8 L34 3 L39 7 Z" fill="#E0D8C8" stroke="#C0B898" stroke-width=".8"/>
+  <!-- Horns -->
+  <path d="M38 7 Q36 2 33 1" stroke="#D4C878" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M42 6 Q42 1 46 0" stroke="#D4C878" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Legs -->
+  <rect x="22" y="56" width="8" height="11" rx="4" fill="#D0C8B8"/>
+  <rect x="31" y="57" width="8" height="10" rx="4" fill="#E0D8C8"/>
+  <rect x="51" y="57" width="8" height="10" rx="4" fill="#E0D8C8"/>
+  <rect x="60" y="56" width="8" height="11" rx="4" fill="#D0C8B8"/>
+  <!-- Hooves -->
+  <rect x="22" y="64" width="8" height="3" rx="1.5" fill="#2A2020"/>
+  <rect x="31" y="64" width="8" height="3" rx="1.5" fill="#2A2020"/>
+  <rect x="51" y="64" width="8" height="3" rx="1.5" fill="#2A2020"/>
+  <rect x="60" y="64" width="8" height="3" rx="1.5" fill="#2A2020"/>
+  <!-- Tail -->
+  <path d="M19 42 Q12 46 13 55 Q14 59 12 63" stroke="#C8C0A8" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M12 63 Q10 67 14 65 Q11 68 15 67" stroke="#A8A088" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>`;}
 };
 const ANIMALS=[
   {id:'chicken',name:'Chicken',emoji:'🐓',roam:true},
   {id:'goat',name:'Goat',emoji:'🐐',roam:true},
-  {id:'horse',name:'Horse',svg:true,roam:true,large:true},
-  {id:'cow',name:'Cow',svg:true,roam:true,large:true},
+  {id:'horse',name:'Horse',emoji:'🐴',svgFn:'horse',roam:true,large:true},
+  {id:'cow',name:'Cow',emoji:'🐄',svgFn:'cow',roam:true,large:true},
   {id:'rabbit',name:'Rabbit',emoji:'🐇',roam:true},
   {id:'duck',name:'Duck',emoji:'🦆',roam:true},
   {id:'dog',name:'Dog',emoji:'🐕',roam:true},
@@ -883,7 +895,8 @@ async function doSignOut(){
   await sb.auth.signOut();
   showScreen('auth-screen');
   cUser=null;gardens=[];beds=[];cGardenId=null;isReadOnly=false;
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,.farmer-el').forEach(e=>e.remove());farmerEl=null;
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap').forEach(e=>e.remove());
+  document.getElementById('farmer')?.remove();farmerEl=null;
 }
 
 // ── SAVING — robust immediate save ────────────────────────────────────────────
@@ -1010,7 +1023,8 @@ async function loadGarden(g){
   cGardenId=g.id;
   if(cUser)localStorage.setItem('lastGardenId_'+cUser.id,g.id);
   document.getElementById('gsel-btn').textContent=(g.name||'Garden')+' ▾';
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,.farmer-el').forEach(e=>e.remove());farmerEl=null;
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap').forEach(e=>e.remove());
+  document.getElementById('farmer')?.remove();farmerEl=null;
   beds=[];bedCount=0;liveAnimals.length=0;
   applyBg(g.bg||'lush');
   try{const b=JSON.parse(g.beds_json||'[]');b.forEach(d=>restoreBed(d));}catch(e){console.error('Beds parse:',e);}
@@ -1265,7 +1279,7 @@ function createBed(data){
   card.appendChild(soil);wrap.appendChild(card);
   bed.el=wrap;document.getElementById('gc').appendChild(wrap);beds.push(bed);
   // Drag on the whole card — cells stop propagation only for taps, not drags
-  setupDrag(card,{get el(){return wrap;},get locked(){return bed.locked;},get x(){return bed.x;},set x(v){bed.x=v;wrap.style.left=v+'px';},get y(){return bed.y;},set y(v){bed.y=v;wrap.style.top=v+'px';}});
+  setupDrag(wrap,{get el(){return wrap;},get locked(){return bed.locked;},get x(){return bed.x;},set x(v){bed.x=v;wrap.style.left=v+'px';},get y(){return bed.y;},set y(v){bed.y=v;wrap.style.top=v+'px';}});
   expandCanvas();return bed;
 }
 
@@ -1483,8 +1497,8 @@ function createMulchEl(data,mDef){
   saveSdata();
   document.getElementById('gc').appendChild(el);
   drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);
-  // Always draggable — tap to show controls, drag freely
-  const dragObj={get el(){return el;},get locked(){return false;},get x(){return parseFloat(el.style.left);},set x(v){el.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(el.style.top);},set y(v){el.style.top=v+'px';data.y=v;saveSdata();}};
+  // Only draggable when selected
+  const dragObj={get el(){return el;},get locked(){return!el.classList.contains('selected');},get x(){return parseFloat(el.style.left);},set x(v){el.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(el.style.top);},set y(v){el.style.top=v+'px';data.y=v;saveSdata();}};
   setupDrag(el,dragObj,true);
 }
 
@@ -1523,10 +1537,10 @@ function buildThingsPanel(){
   ANIMALS.forEach(a=>{
     const t=document.createElement('div');t.className='ttile';
     let iconHtml;
-    if(a.svg&&ANIMAL_SVGS[a.id]){
-      const sz=a.large?42:34;
-      iconHtml=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;width:44px;height:38px">${ANIMAL_SVGS[a.id](sz)}</span>`;
-    }else{
+    if(a.svgFn&&ANIMAL_SVGS[a.svgFn]){
+      const sz=a.large?44:34;
+      iconHtml=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;width:46px;height:40px;overflow:hidden;">${ANIMAL_SVGS[a.svgFn](sz)}</span>`;
+    } else {
       iconHtml=`<span class="ttile-icon">${a.emoji}</span>`;
     }
     t.innerHTML=iconHtml+`<span class="ttile-name">${a.name}</span>`;
@@ -1551,12 +1565,11 @@ function addStructure(s){
 }
 function createStructEl(data,sDef){
   if(!sDef)sDef=STRUCTS.find(s=>s.id===data.sid)||STRUCTS[0];
-  const wrap=document.createElement('div');wrap.className='struct-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;overflow:visible;`;
+  const wrap=document.createElement('div');wrap.className='struct-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;`;
   if(sDef.highZ)wrap.style.zIndex='30';
   const card=document.createElement('div');card.className='struct-card';
   const w=data.w||sDef.w, h=data.h||sDef.h;
   card.style.cssText=`width:${w}px;height:${h}px;cursor:move;`;
-  wrap.style.width=w+'px';wrap.style.height=h+'px';
 
   const isFence=sDef.id==='fence';
   if(isFence){
@@ -1598,7 +1611,6 @@ function createStructEl(data,sDef){
         data.w=Math.max(40,sw+(ev.clientX-sx)/scale);
         data.h=Math.max(20,sh+(ev.clientY-sy)/scale);
         card.style.width=data.w+'px';card.style.height=data.h+'px';
-        wrap.style.width=data.w+'px';wrap.style.height=data.h+'px';
         if(isFence&&card._buildFence){
           const oldSvg=card.querySelector('svg');if(oldSvg)oldSvg.remove();
           card.insertAdjacentHTML('afterbegin',card._buildFence(data.w,data.h));
@@ -1631,7 +1643,7 @@ function createStructEl(data,sDef){
   document.getElementById('gc').appendChild(wrap);
   // Restore fish in ponds
   if(sDef.id==='pond')restoreFish(card,data);
-  setupDrag(wrap,{get el(){return wrap;},get locked(){return data.locked;},get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;saveSdata();}});
+  setupDrag(card,{get el(){return wrap;},get locked(){return data.locked;},get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;saveSdata();}});
   expandCanvas();
 }
 function addDecor(d){
@@ -1713,9 +1725,9 @@ function createAnimalEl(data,aDef){
   if(!aDef)aDef=ANIMALS.find(a=>a.id===data.aid);if(!aDef)return;
   const wrap=document.createElement('div');wrap.className='animal-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;position:absolute;z-index:20;`;
   const em=document.createElement('div');em.className='animal-emoji'+(aDef.large?' large':'');
-  if(aDef.svg&&ANIMAL_SVGS[aDef.id]){
-    const sz=aDef.large?52:36;
-    em.innerHTML=ANIMAL_SVGS[aDef.id](sz);
+  if(aDef.svgFn&&ANIMAL_SVGS[aDef.svgFn]){
+    const sz=aDef.large?54:38;
+    em.innerHTML=ANIMAL_SVGS[aDef.svgFn](sz);
     em.style.cssText='display:flex;align-items:center;justify-content:center;';
   }else{em.textContent=aDef.emoji;}
   const nm=document.createElement('div');nm.className='animal-name';nm.textContent=data.name||aDef.name;
@@ -1787,29 +1799,28 @@ function stopAllAnimals(){liveAnimals.forEach(a=>clearTimeout(a.timer));liveAnim
 // ── FARMER ────────────────────────────────────────────────────────────────────
 function addFarmerPrompt(){
   const existingFarmers=document.getElementById('gc').querySelectorAll('.farmer-el');
-  if(existingFarmers.length>=1){toast('👨‍🌾 You already have a farmer! Remove them first via Manage Farmers.');closePanel('tp');return;}
+  if(existingFarmers.length>=1){toast('👨‍🌾 You already have a farmer! Remove them via Manage Farmers.');closePanel('tp');return;}
   closePanel('tp');
-  // Show gender + name modal instead of confirm/prompt
   const existing=document.getElementById('add-farmer-modal');if(existing)existing.remove();
   const modal=document.createElement('div');modal.id='add-farmer-modal';
   modal.style.cssText='position:fixed;inset:0;z-index:950;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
   modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:0;width:300px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);overflow:hidden;">
     <div style="background:#5D4037;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
       <div style="font-size:16px;font-weight:700;color:#fff">👨‍🌾 Add a Farmer</div>
-      <button onclick="document.getElementById('add-farmer-modal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:16px;cursor:pointer;">×</button>
+      <button onclick="document.getElementById('add-farmer-modal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:16px;cursor:pointer;line-height:1;">×</button>
     </div>
     <div style="padding:16px;">
       <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Choose gender</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-        <button id="afm-female" onclick="window._afmSelectGender('female')" style="background:#F0EBE0;border:2.5px solid transparent;border-radius:12px;padding:12px 8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <button id="afm-female" onclick="window._afmSelectGender('female')" style="background:#F0EBE0;border:2.5px solid transparent;border-radius:12px;padding:12px 8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;">
           <span style="font-size:28px">👩‍🌾</span><span>Female</span>
         </button>
-        <button id="afm-male" onclick="window._afmSelectGender('male')" style="background:#F0EBE0;border:2.5px solid transparent;border-radius:12px;padding:12px 8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <button id="afm-male" onclick="window._afmSelectGender('male')" style="background:#EDF8E2;border:2.5px solid var(--gb);border-radius:12px;padding:12px 8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;">
           <span style="font-size:28px">👨‍🌾</span><span>Male</span>
         </button>
       </div>
       <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Name</div>
-      <input id="afm-name" type="text" placeholder="e.g. Jamie, Sam, The Gardener…" maxlength="28" style="width:100%;padding:9px 11px;border:1.5px solid #e0d8cf;border-radius:9px;font-size:14px;font-family:inherit;outline:none;color:#333;margin-bottom:12px;">
+      <input id="afm-name" type="text" placeholder="e.g. Jamie, Sam, The Gardener…" maxlength="28" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1.5px solid #e0d8cf;border-radius:9px;font-size:14px;font-family:inherit;outline:none;color:#333;margin-bottom:12px;">
       <button onclick="window._afmConfirm()" style="width:100%;background:var(--gb);color:#fff;border:none;border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">✓ Add Farmer</button>
     </div>
   </div>`;
@@ -1818,20 +1829,20 @@ function addFarmerPrompt(){
   let selectedGender='male';
   window._afmSelectGender=function(g){
     selectedGender=g;
-    document.getElementById('afm-female').style.borderColor=g==='female'?'var(--gb)':'transparent';
-    document.getElementById('afm-male').style.borderColor=g==='male'?'var(--gb)':'transparent';
-    document.getElementById('afm-'+(g==='female'?'female':'male')).style.background=g==='female'?'#EDF8E2':'#EDF8E2';
-    document.getElementById('afm-'+(g==='female'?'male':'female')).style.background='#F0EBE0';
+    const fe=document.getElementById('afm-female');const me=document.getElementById('afm-male');
+    if(!fe||!me)return;
+    fe.style.borderColor=g==='female'?'var(--gb)':'transparent';
+    fe.style.background=g==='female'?'#EDF8E2':'#F0EBE0';
+    me.style.borderColor=g==='male'?'var(--gb)':'transparent';
+    me.style.background=g==='male'?'#EDF8E2':'#F0EBE0';
   };
   window._afmConfirm=function(){
-    const name=(document.getElementById('afm-name').value.trim())||'Farmer';
+    const name=(document.getElementById('afm-name')?.value.trim())||'Farmer';
     modal.remove();
     const pos=getDropPos(40,50);
     const data={type:'farmer',name,gender:selectedGender,x:pos.x,y:pos.y,since:TODAY,id:'fr'+Date.now()};
     createFarmerEl(data);scheduleSave();toast('✓ '+name+' is ready to work!');
   };
-  // Select male by default
-  window._afmSelectGender('male');
   setTimeout(()=>document.getElementById('afm-name')?.focus(),100);
 }
 function createFarmerEl(data){
@@ -1858,6 +1869,134 @@ function createFarmerEl(data){
   if(!farmerEl)farmerEl=el;// keep first ref for scheduleFarmer compat
   scheduleFarmer(em,data,el);
 }
+function openManageFarmers(){
+  const existing=document.getElementById('manage-farmers-modal');if(existing)existing.remove();
+  const modal=document.createElement('div');modal.id='manage-farmers-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+  function buildContent(){
+    const farmers=[...document.getElementById('gc').querySelectorAll('.farmer-el')];
+    let listHtml='';
+    if(farmers.length===0){
+      listHtml='<div style="color:#aaa;font-style:italic;text-align:center;padding:12px 0;">No farmers yet. Add one from the Add Things panel.</div>';
+    } else {
+      farmers.forEach((el)=>{
+        let d={};try{d=JSON.parse(el.dataset.sdata||'{}');}catch(e){}
+        const emoji=d.gender==='female'?'👩‍🌾':'👨‍🌾';
+        const name=d.name||'Farmer';
+        const fid=d.id||'';
+        listHtml+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0ebe0;">
+          <span style="font-size:28px">${emoji}</span>
+          <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1B4A0A">${name}</div><div style="font-size:11px;color:#888">Since ${d.since||'unknown'}</div></div>
+          <button onclick="window._mfRemove('${fid}')" style="background:#fde8e8;color:#c0392b;border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Remove</button>
+        </div>`;
+      });
+    }
+    modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:0;width:300px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);overflow:hidden;">
+      <div style="background:#5D4037;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:16px;font-weight:700;color:#fff">👨‍🌾 Manage Farmers</div>
+        <button onclick="document.getElementById('manage-farmers-modal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:16px;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div style="padding:14px 16px;">${listHtml}
+        <button onclick="document.getElementById('manage-farmers-modal').remove()" style="width:100%;margin-top:12px;background:#F0EBE0;color:#555;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Done</button>
+      </div>
+    </div>`;
+    modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  }
+  buildContent();
+  document.body.appendChild(modal);
+  window._mfRemove=function(farmerId){
+    if(!confirm('Remove this farmer?'))return;
+    document.getElementById('gc').querySelectorAll('.farmer-el').forEach(el=>{
+      try{const d=JSON.parse(el.dataset.sdata||'{}');if(String(d.id)===String(farmerId))el.remove();}catch(e){}
+    });
+    farmerEl=null;
+    scheduleSave();
+    const m=document.getElementById('manage-farmers-modal');if(m)m.remove();
+    openManageFarmers();
+    toast('Farmer removed');
+  };
+}
+
+function openManageGarden(){
+  const existing=document.getElementById('manage-garden-modal');if(existing)existing.remove();
+  const modal=document.createElement('div');modal.id='manage-garden-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+
+  function buildContent(){
+    // Collect beds, growbags, hplanters
+    const bedEls=[...document.getElementById('gc').querySelectorAll('.bed-wrap')];
+    const gbEls=[...document.getElementById('gc').querySelectorAll('.growbag-wrap')];
+    const hpEls=[...document.getElementById('gc').querySelectorAll('.hplanter-wrap')];
+
+    function makeSection(title,emoji,items,removeOneFn,removeAllFn){
+      if(items.length===0)return `<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">${emoji} ${title} <span style="font-weight:400">(none)</span></div></div>`;
+      let rows=items.map((el,i)=>{
+        let label='';
+        if(title==='Garden Beds'){const b=beds.find(x=>x.el===el);label=b?b.name:('Bed '+(i+1));}
+        else if(title==='Grow Bags'){try{const d=JSON.parse(el.dataset.sdata||'{}');label=d.plant_id?'Planted grow bag':'Empty grow bag';}catch(e){label='Grow Bag';}}
+        else{try{const d=JSON.parse(el.dataset.sdata||'{}');label=d.plant_id?'Planted planter':'Empty planter';}catch(e){label='Planter';}}
+        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f0e8;">
+          <span style="font-size:20px">${emoji}</span>
+          <div style="flex:1;font-size:13px;color:#333">${label}</div>
+          <button onclick="window._mgRemoveOne(this,'${title}',${i})" style="background:#fde8e8;color:#c0392b;border:none;border-radius:7px;padding:5px 9px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Remove</button>
+        </div>`;
+      }).join('');
+      return `<div style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.4px;">${emoji} ${title} (${items.length})</div>
+          <button onclick="window._mgRemoveAll('${title}')" style="background:#fde8e8;color:#c0392b;border:none;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Remove All</button>
+        </div>${rows}</div>`;
+    }
+
+    const html=makeSection('Garden Beds','🌱',bedEls)+makeSection('Grow Bags','🪣',gbEls)+makeSection('Hanging Planters','🪴',hpEls);
+
+    modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:0;width:320px;max-width:94vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.35);overflow:hidden;">
+      <div style="background:#2E7D32;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div style="font-size:16px;font-weight:700;color:#fff">🌿 Manage Garden</div>
+        <button onclick="document.getElementById('manage-garden-modal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:16px;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div style="padding:14px 16px;overflow-y:auto;flex:1;">${html}
+        <button onclick="document.getElementById('manage-garden-modal').remove()" style="width:100%;margin-top:4px;background:#F0EBE0;color:#555;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Done</button>
+      </div>
+    </div>`;
+    modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  }
+
+  buildContent();
+  document.body.appendChild(modal);
+
+  window._mgRemoveOne=function(btn,type,idx){
+    if(!confirm('Remove this item?'))return;
+    const gc=document.getElementById('gc');
+    if(type==='Garden Beds'){
+      const bedEls=[...gc.querySelectorAll('.bed-wrap')];
+      if(bedEls[idx]){const el=bedEls[idx];const b=beds.find(x=>x.el===el);if(b)beds=beds.filter(x=>x!==b);el.remove();}
+    } else if(type==='Grow Bags'){
+      const gbEls=[...gc.querySelectorAll('.growbag-wrap')];
+      if(gbEls[idx])gbEls[idx].remove();
+    } else {
+      const hpEls=[...gc.querySelectorAll('.hplanter-wrap')];
+      if(hpEls[idx])hpEls[idx].remove();
+    }
+    scheduleSave();
+    const m=document.getElementById('manage-garden-modal');if(m)m.remove();
+    openManageGarden();
+    toast('Item removed');
+  };
+  window._mgRemoveAll=function(type){
+    const label=type==='Garden Beds'?'all garden beds':type==='Grow Bags'?'all grow bags':'all hanging planters';
+    if(!confirm('Remove '+label+'?'))return;
+    const gc=document.getElementById('gc');
+    if(type==='Garden Beds'){gc.querySelectorAll('.bed-wrap').forEach(e=>e.remove());beds=[];}
+    else if(type==='Grow Bags')gc.querySelectorAll('.growbag-wrap').forEach(e=>e.remove());
+    else gc.querySelectorAll('.hplanter-wrap').forEach(e=>e.remove());
+    scheduleSave();
+    const m=document.getElementById('manage-garden-modal');if(m)m.remove();
+    openManageGarden();
+    toast('Removed all '+type.toLowerCase());
+  };
+}
+
 function startFarmer(){
   // Farmer is restored via restoreStructure when type==='farmer'
 }
@@ -2064,10 +2203,26 @@ function openLockPanel(){
   });
 }
 function lockAll(locked){
-  beds.forEach(b=>b.locked=locked);
-  document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{
-    try{const d=JSON.parse(el.dataset.sdata);d.locked=locked;el.dataset.sdata=JSON.stringify(d);}catch(e){}
+  beds.forEach(b=>{
+    b.locked=locked;
+    // Update the lock button UI
+    const lb=b.el?.querySelector('.bab');
+    if(lb){lb.className='bab'+(locked?' lkd':'');lb.textContent=locked?'🔒':'🔓';}
   });
+  // For structs/decors/mulch/growbags: update both dataset AND the _lockData reference
+  document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{
+    try{
+      const d=JSON.parse(el.dataset.sdata);
+      d.locked=locked;
+      el.dataset.sdata=JSON.stringify(d);
+      // Also update the lock button inside structs
+      const lkbtn=el.querySelector('.struct-lk');
+      if(lkbtn)lkbtn.textContent=locked?'🔒':'🔓';
+    }catch(e){}
+  });
+  // Store global lock state so setupDrag can check it
+  window._allLocked=locked;
+  if(!locked)window._allLocked=false;
   openLockPanel();scheduleSave();toast(locked?'🔒 Everything locked':'🔓 Everything unlocked');
 }
 
@@ -2116,16 +2271,13 @@ function deselectAll(){
 // ── DRAG ──────────────────────────────────────────────────────────────────────
 function setupDrag(handle,obj,isMulch=false){
   let isDragging=false,startPointerX=0,startPointerY=0,startObjX=0,startObjY=0;
-  // Ensure touch-action:none on the drag handle for smooth mobile dragging
-  handle.style.touchAction='none';
   handle.onpointerdown=e=>{
-    if(isPinching)return;
+    if(isPinching)return;// never start a drag during pinch zoom
     if(isReadOnly)return;
     if(e.target.tagName==='INPUT'||e.target.closest('button'))return;
-    if(obj.locked)return;
+    if(obj.locked||window._allLocked)return;
     e.preventDefault();
-    e.stopPropagation();
-    isDragging=false;
+    isDragging=false;// don't mark as dragging yet — need movement threshold
     startPointerX=e.clientX;
     startPointerY=e.clientY;
     startObjX=obj.x;
@@ -2133,10 +2285,10 @@ function setupDrag(handle,obj,isMulch=false){
     try{handle.setPointerCapture(e.pointerId);}catch(ex){}
   };
   handle.onpointermove=e=>{
-    if(e.buttons===0)return;
+    if(e.buttons===0)return;// no button held — not a drag
     const dx=(e.clientX-startPointerX)/scale;
     const dy=(e.clientY-startPointerY)/scale;
-    if(!isDragging&&Math.hypot(dx,dy)<6)return;// slightly larger threshold reduces accidental drags
+    if(!isDragging&&Math.hypot(dx,dy)<4)return;// movement threshold
     if(!isDragging){
       isDragging=true;
       obj.el.style.zIndex=999;
