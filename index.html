@@ -1497,8 +1497,8 @@ function createMulchEl(data,mDef){
   saveSdata();
   document.getElementById('gc').appendChild(el);
   drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);
-  // Only draggable when selected
-  const dragObj={get el(){return el;},get locked(){return!el.classList.contains('selected');},get x(){return parseFloat(el.style.left);},set x(v){el.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(el.style.top);},set y(v){el.style.top=v+'px';data.y=v;saveSdata();}};
+  // Draggable directly; tap toggles selection to show remove/resize handles
+  const dragObj={get el(){return el;},get locked(){return !!data.locked||window._allLocked;},get x(){return parseFloat(el.style.left);},set x(v){el.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(el.style.top);},set y(v){el.style.top=v+'px';data.y=v;saveSdata();}};
   setupDrag(el,dragObj,true);
 }
 
@@ -1726,9 +1726,9 @@ function createAnimalEl(data,aDef){
   const wrap=document.createElement('div');wrap.className='animal-wrap';wrap.style.cssText=`left:${data.x}px;top:${data.y}px;position:absolute;z-index:20;`;
   const em=document.createElement('div');em.className='animal-emoji'+(aDef.large?' large':'');
   if(aDef.svgFn&&ANIMAL_SVGS[aDef.svgFn]){
-    const sz=aDef.large?54:38;
+    const sz=aDef.large?72:38;
     em.innerHTML=ANIMAL_SVGS[aDef.svgFn](sz);
-    em.style.cssText='display:flex;align-items:center;justify-content:center;';
+    em.style.cssText='display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));';
   }else{em.textContent=aDef.emoji;}
   const nm=document.createElement('div');nm.className='animal-name';nm.textContent=data.name||aDef.name;
   const xbtn=document.createElement('button');xbtn.className='animal-x';xbtn.textContent='×';
@@ -1799,7 +1799,7 @@ function stopAllAnimals(){liveAnimals.forEach(a=>clearTimeout(a.timer));liveAnim
 // ── FARMER ────────────────────────────────────────────────────────────────────
 function addFarmerPrompt(){
   const existingFarmers=document.getElementById('gc').querySelectorAll('.farmer-el');
-  if(existingFarmers.length>=1){toast('👨‍🌾 You already have a farmer! Remove them via Manage Farmers.');closePanel('tp');return;}
+  if(existingFarmers.length>=10){toast('👨‍🌾 Max 10 farmers per garden! Remove one via Manage Farmers.');closePanel('tp');return;}
   closePanel('tp');
   const existing=document.getElementById('add-farmer-modal');if(existing)existing.remove();
   const modal=document.createElement('div');modal.id='add-farmer-modal';
@@ -1897,13 +1897,22 @@ function openManageFarmers(){
         <button onclick="document.getElementById('manage-farmers-modal').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:16px;cursor:pointer;line-height:1;">×</button>
       </div>
       <div style="padding:14px 16px;">${listHtml}
-        <button onclick="document.getElementById('manage-farmers-modal').remove()" style="width:100%;margin-top:12px;background:#F0EBE0;color:#555;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Done</button>
+        ${farmers.length>0?`<button onclick="window._mfRemoveAll()" style="width:100%;margin-top:10px;background:#fde8e8;color:#c0392b;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Remove All Farmers</button>`:''}
+        <button onclick="document.getElementById('manage-farmers-modal').remove()" style="width:100%;margin-top:8px;background:#F0EBE0;color:#555;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Done</button>
       </div>
     </div>`;
     modal.onclick=e=>{if(e.target===modal)modal.remove();};
   }
   buildContent();
   document.body.appendChild(modal);
+  window._mfRemoveAll=function(){
+    if(!confirm('Remove ALL farmers from this garden?'))return;
+    document.getElementById('gc').querySelectorAll('.farmer-el').forEach(el=>el.remove());
+    farmerEl=null;
+    scheduleSave();
+    buildContent();
+    toast('All farmers removed');
+  };
   window._mfRemove=function(farmerId){
     if(!confirm('Remove this farmer?'))return;
     document.getElementById('gc').querySelectorAll('.farmer-el').forEach(el=>{
@@ -2270,13 +2279,14 @@ function deselectAll(){
 
 // ── DRAG ──────────────────────────────────────────────────────────────────────
 function setupDrag(handle,obj,isMulch=false){
-  let isDragging=false,startPointerX=0,startPointerY=0,startObjX=0,startObjY=0;
+  let isDragging=false,active=false,startPointerX=0,startPointerY=0,startObjX=0,startObjY=0;
   handle.onpointerdown=e=>{
     if(isPinching)return;// never start a drag during pinch zoom
     if(isReadOnly)return;
     if(e.target.tagName==='INPUT'||e.target.closest('button'))return;
     if(obj.locked||window._allLocked)return;
     e.preventDefault();
+    active=true;
     isDragging=false;// don't mark as dragging yet — need movement threshold
     startPointerX=e.clientX;
     startPointerY=e.clientY;
@@ -2285,6 +2295,7 @@ function setupDrag(handle,obj,isMulch=false){
     try{handle.setPointerCapture(e.pointerId);}catch(ex){}
   };
   handle.onpointermove=e=>{
+    if(!active)return;// no valid drag was started on this handle — ignore stray moves
     if(e.buttons===0)return;// no button held — not a drag
     const dx=(e.clientX-startPointerX)/scale;
     const dy=(e.clientY-startPointerY)/scale;
@@ -2301,11 +2312,11 @@ function setupDrag(handle,obj,isMulch=false){
   };
   handle.onpointerup=()=>{
     if(isDragging){obj.el.style.zIndex='';dragging=null;scheduleSave();}
-    isDragging=false;
+    isDragging=false;active=false;
   };
   handle.onpointercancel=()=>{
     if(isDragging){obj.el.style.zIndex='';dragging=null;}
-    isDragging=false;
+    isDragging=false;active=false;
   };
 }
 
