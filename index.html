@@ -76,6 +76,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .bed-name-tag{position:absolute;top:-28px;left:0;background:var(--sd);color:#DEB887;font-size:11px;font-weight:600;border-radius:6px 6px 0 0;padding:3px 8px;white-space:nowrap;display:flex;align-items:center;gap:4px;opacity:0.7;transition:opacity .15s;z-index:20;}
 .bed-wrap:hover .bed-name-tag,.bed-wrap.bed-sel .bed-name-tag{opacity:1;}
 .bed-name-inp{background:transparent;border:none;color:#DEB887;font-size:11px;font-weight:600;font-family:inherit;outline:none;width:80px;cursor:text;}
+.curved-bed{background:transparent !important;border:none !important;overflow:visible;}
+.curved-cell:hover{background:rgba(139,94,60,.25) !important;border-color:rgba(139,94,60,.7) !important;}
+.curved-cell.csel{background:rgba(76,175,80,.3) !important;border:1.5px solid #4CAF50 !important;}
 .bed-name-inp:focus{border-bottom:1px solid #DEB887;}
 .bab{background:rgba(255,255,255,.15);border:none;color:#DEB887;border-radius:4px;width:20px;height:20px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .bab:active{background:rgba(255,255,255,.35);}
@@ -240,8 +243,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .lock-toggle::after{content:'';position:absolute;width:22px;height:22px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
 .lock-toggle.on::after{left:20px;}
 /* ── HANGING PLANTER ── */
-.hplanter-wrap{position:absolute;z-index:18;touch-action:none;display:flex;flex-direction:column;align-items:center;}
-.hplanter-wrap.selected{z-index:30;}
+.hplanter-wrap{position:absolute;z-index:22;touch-action:none;display:flex;flex-direction:column;align-items:center;}
+.hplanter-wrap.selected{z-index:35;}
 .hplanter-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
 .hplanter-wrap.selected .hplanter-x{display:flex;}
 /* ── BOTTOM SHEET ── */
@@ -383,10 +386,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 
     <!-- ADD BED -->
     <div class="panel" id="ap">
-      <h3>New Raised Bed</h3>
+      <h3>New Garden Bed</h3>
       <input class="ap-inp" id="ap-name" placeholder="Bed name (e.g. East Bed)" maxlength="28">
       <div class="ap-row"><label>Columns</label><input type="range" id="ap-c" min="1" max="20" value="5" oninput="document.getElementById('ap-cv').textContent=this.value"><span class="vv" id="ap-cv">5</span></div>
       <div class="ap-row"><label>Rows</label><input type="range" id="ap-r" min="1" max="20" value="3" oninput="document.getElementById('ap-rv').textContent=this.value"><span class="vv" id="ap-rv">3</span></div>
+      <div class="ap-row" style="align-items:center;gap:10px;">
+        <label style="flex:1">Curved (semi-circle)</label>
+        <input type="checkbox" id="ap-curved" style="width:20px;height:20px;cursor:pointer;accent-color:var(--gb);">
+      </div>
       <div class="ap-btns">
         <button class="apcanc" onclick="closePanel('ap')">Cancel</button>
         <button class="apgo" onclick="createBedFromPanel()">+ Create Bed</button>
@@ -408,6 +415,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       <div class="thing-grid" id="decor-grid"></div>
       <div class="sec-hdr">🐾 Animals</div>
       <div class="thing-grid" id="animal-grid"></div>
+      <div class="sec-hdr">🐄 Pasture</div>
+      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addPasture();closePanel('tp')">🌿 Add Pasture</button>
       <div class="sec-hdr">👨‍🌾 Farmer</div>
       <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addFarmerPrompt()">🧑‍🌾 Add Farmer</button>
       <div class="sec-hdr">🪣 Grow Bags</div>
@@ -453,7 +462,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
     <div class="bshead"><h3>Choose a plant</h3><span class="bssub" id="bssub">tap to place</span><button class="bsx" onclick="closeSheet()">×</button></div>
     <div class="bscat">
       <button class="cbt active" onclick="filterCat('all',this)">All</button>
-      <button class="cbt" onclick="filterCat('vegetable',this)">🥕 Veg</button>
+      <button class="cbt" onclick="filterCat('vegetable',this)">🥕 Vegetables</button>
       <button class="cbt" onclick="filterCat('flower',this)">🌸 Flowers</button>
       <button class="cbt" onclick="filterCat('herb',this)">🌿 Herbs</button>
     </div>
@@ -526,8 +535,9 @@ const PM=Object.fromEntries(PLANTS.map(p=>[p.id,p]));
 
 // ── STATIC DATA ──────────────────────────────────────────────────────────────
 const STRUCTS=[
-  {id:'shed',name:'Shed',icon:'🏚',color:'#5D4037',w:90,h:80,resizable:true},
-  {id:'house',name:'House',icon:'🏠',color:'#455A64',w:110,h:90,resizable:true},
+  {id:'shed',name:'Shed',icon:'shed',color:'#5D4037',w:90,h:80,resizable:true},
+  {id:'house',name:'House',icon:'house',color:'#455A64',w:110,h:90,resizable:true},
+  {id:'windmill',name:'Windmill',icon:'windmill',color:'#607D8B',w:70,h:90,resizable:true},
   {id:'deck',name:'Deck/Porch',icon:'deck',color:'#8D6E63',w:120,h:80,resizable:true},
   {id:'greenhouse',name:'Greenhouse',icon:'greenhouse',color:'#4CAF50',w:90,h:90,resizable:true,plantable:'bed'},
   {id:'fence',name:'Fence',icon:'🪵',color:'#795548',w:180,h:28,resizable:true},
@@ -690,6 +700,57 @@ const STRUCT_SVGS={
     <line x1="${w*0.72}" y1="${h*0.52}" x2="${w*0.72}" y2="${h*0.82}" stroke="#8D6E63" stroke-width="1"/>
     <line x1="${w*0.55}" y1="${h*0.67}" x2="${w*0.89}" y2="${h*0.67}" stroke="#8D6E63" stroke-width="1"/>
   </svg>`,
+  house:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Chimney -->
+    <rect x="${w*0.72}" y="${h*0.04}" width="${w*0.09}" height="${h*0.2}" rx="2" fill="#78909C"/>
+    <rect x="${w*0.7}" y="${h*0.03}" width="${w*0.13}" height="${h*0.04}" rx="1" fill="#607D8B"/>
+    <!-- Roof -->
+    <path d="M${w*0.03} ${h*0.44} L${w/2} ${h*0.06} L${w*0.97} ${h*0.44} Z" fill="#B71C1C"/>
+    <path d="M${w*0.07} ${h*0.44} L${w/2} ${h*0.11} L${w*0.93} ${h*0.44} Z" fill="#E53935"/>
+    <!-- Eave shadow -->
+    <rect x="${w*0.03}" y="${h*0.42}" width="${w*0.94}" height="${h*0.04}" fill="#8B1A1A" rx="1"/>
+    <!-- Walls -->
+    <rect x="${w*0.06}" y="${h*0.44}" width="${w*0.88}" height="${h*0.52}" fill="#ECEFF1"/>
+    <!-- Siding lines -->
+    ${[0.52,0.6,0.68,0.76,0.84].map(r=>`<line x1="${w*0.06}" y1="${h*r}" x2="${w*0.94}" y2="${h*r}" stroke="#CFD8DC" stroke-width="1"/>`).join('')}
+    <!-- Left window -->
+    <rect x="${w*0.1}" y="${h*0.5}" width="${w*0.2}" height="${h*0.16}" rx="2" fill="#81D4FA" stroke="#90A4AE" stroke-width="1.5"/>
+    <line x1="${w*0.2}" y1="${h*0.5}" x2="${w*0.2}" y2="${h*0.66}" stroke="#90A4AE" stroke-width="1"/>
+    <line x1="${w*0.1}" y1="${h*0.58}" x2="${w*0.3}" y2="${h*0.58}" stroke="#90A4AE" stroke-width="1"/>
+    <!-- Right window -->
+    <rect x="${w*0.7}" y="${h*0.5}" width="${w*0.2}" height="${h*0.16}" rx="2" fill="#81D4FA" stroke="#90A4AE" stroke-width="1.5"/>
+    <line x1="${w*0.8}" y1="${h*0.5}" x2="${w*0.8}" y2="${h*0.66}" stroke="#90A4AE" stroke-width="1"/>
+    <line x1="${w*0.7}" y1="${h*0.58}" x2="${w*0.9}" y2="${h*0.58}" stroke="#90A4AE" stroke-width="1"/>
+    <!-- Door -->
+    <rect x="${w*0.38}" y="${h*0.6}" width="${w*0.24}" height="${h*0.36}" rx="2" fill="#5D4037"/>
+    <rect x="${w*0.4}" y="${h*0.62}" width="${w*0.09}" height="${h*0.34}" rx="1" fill="#4E342E"/>
+    <rect x="${w*0.51}" y="${h*0.62}" width="${w*0.09}" height="${h*0.34}" rx="1" fill="#4E342E"/>
+    <circle cx="${w*0.56}" cy="${h*0.78}" r="${Math.max(2,w*0.025)}" fill="#FFD54F"/>
+    <!-- Stoop -->
+    <rect x="${w*0.32}" y="${h*0.94}" width="${w*0.36}" height="${h*0.04}" rx="1" fill="#B0BEC5"/>
+  </svg>`,
+  windmill:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Tower body -->
+    <path d="M${w*0.38} ${h*0.98} L${w*0.44} ${h*0.28} L${w*0.56} ${h*0.28} L${w*0.62} ${h*0.98} Z" fill="#BCAAA4"/>
+    <path d="M${w*0.38} ${h*0.98} L${w*0.44} ${h*0.28} L${w*0.5} ${h*0.28} L${w*0.54} ${h*0.98} Z" fill="#D7CCC8"/>
+    <!-- Tower stripes -->
+    ${[0.4,0.55,0.7,0.85].map(r=>`<line x1="${w*0.39}" y1="${h*r}" x2="${w*0.61}" y2="${h*r}" stroke="#A1887F" stroke-width="1" opacity=".5"/>`).join('')}
+    <!-- Cap -->
+    <ellipse cx="${w*0.5}" cy="${h*0.27}" rx="${w*0.1}" ry="${h*0.04}" fill="#795548"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.25}" rx="${w*0.08}" ry="${h*0.03}" fill="#6D4C41"/>
+    <!-- Hub -->
+    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(4,w*0.07)}" fill="#455A64"/>
+    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(2,w*0.04)}" fill="#607D8B"/>
+    <!-- Blades (4, static but angled) -->
+    <path d="M${w*0.5} ${h*0.22} L${w*0.44} ${h*0.02} L${w*0.56} ${h*0.07} Z" fill="#EF5350" opacity=".9"/>
+    <path d="M${w*0.5} ${h*0.22} L${w*0.78} ${h*0.16} L${w*0.73} ${h*0.28} Z" fill="#42A5F5" opacity=".9"/>
+    <path d="M${w*0.5} ${h*0.22} L${w*0.56} ${h*0.42} L${w*0.44} ${h*0.37} Z" fill="#FFB300" opacity=".9"/>
+    <path d="M${w*0.5} ${h*0.22} L${w*0.22} ${h*0.28} L${w*0.27} ${h*0.16} Z" fill="#66BB6A" opacity=".9"/>
+    <!-- Door -->
+    <rect x="${w*0.44}" y="${h*0.82}" width="${w*0.12}" height="${h*0.14}" rx="2" fill="#5D4037"/>
+    <!-- Base -->
+    <rect x="${w*0.3}" y="${h*0.97}" width="${w*0.4}" height="${h*0.03}" rx="2" fill="#A1887F"/>
+  </svg>`,
 };
 function getStructIcon(sDef,w,h){
   if(STRUCT_SVGS[sDef.icon]){
@@ -707,7 +768,6 @@ const DECORS=[
   {id:'mushroom',name:'Mushrooms',emoji:'🍄'},
   {id:'stones',name:'Garden Stones',emoji:'🪨'},
   {id:'pebbles',name:'Garden Pebbles',emoji:'⚪'},
-  {id:'windmill',name:'Windmill',svg:true},
 ];
 const DECOR_SVGS={
   scarecrow:(sz)=>`<svg viewBox="0 0 40 56" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
@@ -1014,8 +1074,11 @@ async function saveNow(){
   if(!cGardenId||isReadOnly)return;
   showSaving();
   const bedsData=beds.map(b=>({
-    id:b.id,name:b.name,cols:b.cols,rows:b.rows,x:b.x,y:b.y,
-    locked:b.locked,cells:b.cells,inter:b.inter,intercells:b.intercells
+    id:b.id,name:b.name,cols:b.cols,rows:b.rows,
+    x:b.el?parseFloat(b.el.style.left):b.x,
+    y:b.el?parseFloat(b.el.style.top):b.y,
+    locked:b.locked,cells:b.cells,inter:b.inter,intercells:b.intercells,
+    curved:b.curved||false
   }));
   const structs=[];
   document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{
@@ -1211,7 +1274,9 @@ let catFilter='all';
 function filterCat(c,btn){catFilter=c;document.querySelectorAll('.cbt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');buildPlantGrid(document.getElementById('bss').value);}
 function buildPlantGrid(q=''){
   const list=document.getElementById('plist');list.innerHTML='';
-  PLANTS.filter(p=>(catFilter==='all'||p.cat===catFilter)&&p.name.toLowerCase().includes(q.toLowerCase())).forEach(p=>{
+  const filtered=PLANTS.filter(p=>(catFilter==='all'||p.cat===catFilter)&&p.name.toLowerCase().includes(q.toLowerCase()));
+  filtered.sort((a,b)=>a.name.localeCompare(b.name));
+  filtered.forEach(p=>{
     const el=document.createElement('div');el.className='ptile'+(activePlant?.id===p.id?' chosen':'');
     el.innerHTML=p.svg+`<span class="ptile-n">${p.name}</span>`;
     el.onclick=()=>pickPlant(p);list.appendChild(el);
@@ -1312,11 +1377,148 @@ function createBedFromPanel(){
   const name=document.getElementById('ap-name').value.trim()||('Bed '+(bedCount+1));
   const cols=parseInt(document.getElementById('ap-c').value);
   const rows=parseInt(document.getElementById('ap-r').value);
+  const curved=document.getElementById('ap-curved')?.checked||false;
   const pos=getDropPos(cols*46,rows*46);
-  createBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,cells:Array(rows*cols).fill(null),inter:false,intercells:[]});
-  document.getElementById('ap-name').value='';closePanel('ap');toast('✓ '+name+' added!');scheduleSave();
+  if(curved){
+    createCurvedBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,curved:true});
+  } else {
+    createBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,cells:Array(rows*cols).fill(null),inter:false,intercells:[]});
+  }
+  document.getElementById('ap-name').value='';
+  document.getElementById('ap-curved').checked=false;
+  closePanel('ap');toast('✓ '+name+' added!');scheduleSave();
 }
-function restoreBed(d){createBed(d);}
+function restoreBed(d){
+  if(d.curved)createCurvedBed(d);
+  else createBed(d);
+}
+
+// ── CURVED BED ────────────────────────────────────────────────────────────────
+function createCurvedBed(data){
+  bedCount++;
+  const cellSize=44,cols=data.cols||5,rows=data.rows||3;
+  const rOuter=Math.max(cols,rows)*cellSize*0.7+40;
+  const rInner=rOuter-rows*cellSize;
+  const totalW=rOuter*2,totalH=rOuter+20;
+  const cx=rOuter,cy=rOuter;
+
+  const wrap=document.createElement('div');wrap.className='bed-wrap curved-bed';
+  wrap.style.cssText=`left:${data.x||60}px;top:${data.y||60}px;width:${totalW}px;height:${totalH}px;`;
+
+  const nameTag=document.createElement('div');nameTag.className='bed-name-tag';
+  const ni=document.createElement('input');ni.className='bed-name-inp';ni.value=data.name||('Bed '+bedCount);ni.maxLength=28;
+  ni.onpointerdown=e=>e.stopPropagation();
+  ni.onchange=e=>{data.name=e.target.value;scheduleSave();};
+  const lb=document.createElement('button');lb.className='bab'+(data.locked?' lkd':'');lb.textContent=data.locked?'🔒':'🔓';
+  lb.onclick=e=>{e.stopPropagation();if(isReadOnly)return;data.locked=!data.locked;lb.className='bab'+(data.locked?' lkd':'');lb.textContent=data.locked?'🔒':'🔓';scheduleSave();};
+  lb.onpointerdown=e=>e.stopPropagation();
+  const db=document.createElement('button');db.className='bab';db.textContent='✕';
+  db.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(!confirm('Delete "'+data.name+'"?'))return;wrap.remove();beds=beds.filter(b=>b.id!==data.id);scheduleSave();};
+  db.onpointerdown=e=>e.stopPropagation();
+  nameTag.appendChild(ni);nameTag.appendChild(lb);nameTag.appendChild(db);
+
+  // SVG semi-circle soil shape
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width',totalW);svg.setAttribute('height',totalH);
+  svg.style.cssText='position:absolute;inset:0;pointer-events:none;';
+
+  // Draw ring-sector soil
+  const soilPath=document.createElementNS('http://www.w3.org/2000/svg','path');
+  const d=`M${cx-rOuter} ${cy} A${rOuter} ${rOuter} 0 0 1 ${cx+rOuter} ${cy} L${cx+rInner} ${cy} A${rInner} ${rInner} 0 0 0 ${cx-rInner} ${cy} Z`;
+  soilPath.setAttribute('d',d);soilPath.setAttribute('fill','#5C3810');soilPath.setAttribute('stroke','#8B5E3C');soilPath.setAttribute('stroke-width','3');
+  svg.appendChild(soilPath);
+
+  // Row arc dividers
+  for(let r=1;r<rows;r++){
+    const rad=rInner+r*cellSize;
+    const arc=document.createElementNS('http://www.w3.org/2000/svg','path');
+    arc.setAttribute('d',`M${cx-rad} ${cy} A${rad} ${rad} 0 0 1 ${cx+rad} ${cy}`);
+    arc.setAttribute('fill','none');arc.setAttribute('stroke','#8B5E3C');arc.setAttribute('stroke-width','1.5');arc.setAttribute('opacity','0.5');
+    svg.appendChild(arc);
+  }
+  // Column radial dividers
+  for(let c=1;c<cols;c++){
+    const angle=Math.PI*(c/cols);
+    const x1=cx+Math.cos(Math.PI-angle)*rInner,y1=cy-Math.sin(angle)*rInner;
+    const x2=cx+Math.cos(Math.PI-angle)*rOuter,y2=cy-Math.sin(angle)*rOuter;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1);line.setAttribute('y1',y1);line.setAttribute('x2',x2);line.setAttribute('y2',y2);
+    line.setAttribute('stroke','#8B5E3C');line.setAttribute('stroke-width','1.5');line.setAttribute('opacity','0.5');
+    svg.appendChild(line);
+  }
+
+  // Cells overlay (invisible hit areas + plant icons)
+  const cellCount=cols*rows;
+  if(!data.cells)data.cells=Array(cellCount).fill(null);
+  const cellEls=[];
+  const cellsContainer=document.createElement('div');cellsContainer.style.cssText='position:absolute;inset:0;';
+
+  for(let row=0;row<rows;row++){
+    const midR=(rInner+(row+0.5)*cellSize);
+    for(let col=0;col<cols;col++){
+      const angle=Math.PI*(1-(col+0.5)/cols);
+      const cellX=cx+Math.cos(angle)*midR;
+      const cellY=cy-Math.sin(angle)*midR;
+      const idx=row*cols+col;
+      const cell=document.createElement('div');
+      cell.className='bed-cell curved-cell';
+      cell.style.cssText=`position:absolute;width:38px;height:38px;left:${cellX-19}px;top:${cellY-19}px;border-radius:50%;background:rgba(90,50,20,.0);border:1px dashed rgba(139,94,60,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;`;
+      renderCell(cell,data.cells[idx]||null);
+      cellEls.push(cell);
+      let tt=null;
+      cell.onpointerdown=e=>{if(e.isPrimary){e.stopPropagation();tt=setTimeout(()=>{tt=null;},400);}};
+      cell.onpointerup=(i=>()=>{if(tt!==null){clearTimeout(tt);tt=null;onCellTap(fakebed,i,cell,false);}})(idx);
+      cell.onpointercancel=()=>{clearTimeout(tt);tt=null;};
+      cellsContainer.appendChild(cell);
+    }
+  }
+
+  const fakebed={id:data.id||bedCount,name:data.name,cols,rows,locked:!!data.locked,cells:data.cells,inter:false,intercells:[],cellEls,interEls:[],el:wrap,curved:true,x:data.x||60,y:data.y||60};
+  beds.push(fakebed);
+
+  wrap.appendChild(nameTag);wrap.appendChild(svg);wrap.appendChild(cellsContainer);
+  wrap.dataset.bedId=fakebed.id;
+  document.getElementById('gc').appendChild(wrap);
+  setupDrag(wrap,{get el(){return wrap;},get locked(){return fakebed.locked;},get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;}});
+  expandCanvas();
+  return fakebed;
+}
+
+// ── PASTURE ──────────────────────────────────────────────────────────────────
+function addPasture(){
+  if(isReadOnly)return;
+  const ts=Date.now();
+  const px=180,py=200,pw=380,ph=320;
+  // Grass cover
+  const grassDef=MULCHES.find(m=>m.id==='grass');
+  if(grassDef)createMulchEl({type:'mulch',mid:'grass',mtype:'grass',color:'#7CB342',x:px,y:py,w:pw,h:ph,id:'m'+ts},grassDef);
+  // Fences around pasture
+  const fDef=STRUCTS.find(s=>s.id==='fence');
+  if(fDef){
+    createStructEl({type:'struct',sid:'fence',x:px,y:py,w:pw,h:28,locked:false,id:'pf1_'+ts},fDef);
+    createStructEl({type:'struct',sid:'fence',x:px,y:py+ph-28,w:pw,h:28,locked:false,id:'pf2_'+ts},fDef);
+    createStructEl({type:'struct',sid:'fence',x:px,y:py,w:28,h:ph,locked:false,id:'pf3_'+ts},fDef);
+    createStructEl({type:'struct',sid:'fence',x:px+pw-28,y:py,w:28,h:ph,locked:false,id:'pf4_'+ts},fDef);
+  }
+  // Animals inside pasture bounds
+  const pastureId='pasture_'+ts;
+  const animalSpecs=[
+    {aid:'horse',name:'Horse'},
+    {aid:'cow',name:'Cow'},
+    {aid:'goat',name:'Goat'},
+    {aid:'rabbit',name:'Rabbit'},
+  ];
+  animalSpecs.forEach((spec,i)=>{
+    const ax=px+60+i*70, ay=py+ph/2;
+    const aDef=ANIMALS.find(a=>a.id===spec.aid);
+    if(aDef){
+      const data={type:'animal',aid:aDef.id,name:spec.name,x:ax,y:ay,since:TODAY,id:'an'+ts+'_'+i,pastureId,pastureBounds:{x:px+30,y:py+30,w:pw-60,h:ph-60}};
+      createAnimalEl(data,aDef);
+    }
+  });
+  scheduleSave();
+  toast('🐄 Pasture added with 4 animals!');
+}
 function createBed(data){
   bedCount++;
   const bed={id:data.id||bedCount,name:data.name||'Bed '+bedCount,cols:data.cols,rows:data.rows,x:data.x||10,y:data.y||10,locked:!!data.locked,cells:[...(data.cells||[])],inter:!!data.inter,intercells:[...(data.intercells||[])],cellEls:[],interEls:[],el:null};
@@ -1336,28 +1538,52 @@ function createBed(data){
   resizeBtn.onpointerdown=e=>e.stopPropagation();
   resizeBtn.onclick=e=>{
     e.stopPropagation();if(isReadOnly)return;
-    const newCols=parseInt(prompt('Columns (current: '+bed.cols+'):',bed.cols));
-    const newRows=parseInt(prompt('Rows (current: '+bed.rows+'):',bed.rows));
-    if(!newCols||!newRows||newCols<1||newRows<1||newCols>12||newRows>12)return;
-    // Extend/truncate cells
-    const newTotal=newCols*newRows;
-    while(bed.cells.length<newTotal)bed.cells.push(null);
-    bed.cells=bed.cells.slice(0,newTotal);
-    bed.cols=newCols;bed.rows=newRows;
-    // Rebuild soil
-    while(soil.firstChild)soil.removeChild(soil.firstChild);
-    bed.cellEls=[];bed.interEls=[];bed.intercells=[];
-    soil.style.gridTemplateColumns=`repeat(${bed.cols},44px)`;
-    for(let i=0;i<bed.rows*bed.cols;i++){
-      const cell=document.createElement('div');cell.className='bed-cell';
-      renderCell(cell,bed.cells[i]||null);bed.cellEls.push(cell);
-      let tt=null;
-      cell.onpointerdown=e=>{if(e.isPrimary)tt=setTimeout(()=>{tt=null;},400);};
-      cell.onpointerup=()=>{if(tt!==null){clearTimeout(tt);tt=null;onCellTap(bed,i,cell,false);}};
-      cell.onpointercancel=()=>{clearTimeout(tt);tt=null;};
-      soil.appendChild(cell);
-    }
-    scheduleSave();toast('Bed resized to '+newCols+'×'+newRows);
+    const ex=document.getElementById('bed-resize-modal');if(ex)ex.remove();
+    const modal=document.createElement('div');modal.id='bed-resize-modal';
+    modal.style.cssText='position:fixed;inset:0;z-index:950;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+    modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:20px;width:280px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);">
+      <div style="font-size:15px;font-weight:700;color:#1B4A0A;margin-bottom:14px;">⊞ Resize Bed</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <label style="width:80px;font-size:13px;color:#555">Columns</label>
+          <input id="_rc" type="range" min="1" max="20" value="${bed.cols}" style="flex:1;accent-color:var(--gb)" oninput="document.getElementById('_rcv').textContent=this.value">
+          <span id="_rcv" style="width:22px;text-align:right;font-weight:700;color:var(--tm)">${bed.cols}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <label style="width:80px;font-size:13px;color:#555">Rows</label>
+          <input id="_rr" type="range" min="1" max="20" value="${bed.rows}" style="flex:1;accent-color:var(--gb)" oninput="document.getElementById('_rrv').textContent=this.value">
+          <span id="_rrv" style="width:22px;text-align:right;font-weight:700;color:var(--tm)">${bed.rows}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="document.getElementById('bed-resize-modal').remove()" style="flex:1;background:#F0EBE0;color:#555;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+        <button id="_rapply" style="flex:1;background:var(--gb);color:#fff;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Apply</button>
+      </div>
+    </div>`;
+    modal.onclick=ev=>{if(ev.target===modal)modal.remove();};
+    document.body.appendChild(modal);
+    document.getElementById('_rapply').onclick=()=>{
+      const newCols=parseInt(document.getElementById('_rc').value);
+      const newRows=parseInt(document.getElementById('_rr').value);
+      if(!newCols||!newRows||newCols<1||newRows<1||newCols>20||newRows>20){modal.remove();return;}
+      const newTotal=newCols*newRows;
+      while(bed.cells.length<newTotal)bed.cells.push(null);
+      bed.cells=bed.cells.slice(0,newTotal);
+      bed.cols=newCols;bed.rows=newRows;
+      while(soil.firstChild)soil.removeChild(soil.firstChild);
+      bed.cellEls=[];bed.interEls=[];bed.intercells=[];
+      soil.style.gridTemplateColumns=`repeat(${bed.cols},44px)`;
+      for(let i=0;i<bed.rows*bed.cols;i++){
+        const cell=document.createElement('div');cell.className='bed-cell';
+        renderCell(cell,bed.cells[i]||null);bed.cellEls.push(cell);
+        let tt=null;
+        cell.onpointerdown=ev2=>{if(ev2.isPrimary)tt=setTimeout(()=>{tt=null;},400);};
+        cell.onpointerup=()=>{if(tt!==null){clearTimeout(tt);tt=null;onCellTap(bed,i,cell,false);}};
+        cell.onpointercancel=()=>{clearTimeout(tt);tt=null;};
+        soil.appendChild(cell);
+      }
+      scheduleSave();toast('Bed resized to '+newCols+'×'+newRows);modal.remove();
+    };
   };
   const db=document.createElement('button');db.className='bab';db.textContent='✕';db.title='Delete bed';
   db.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(!confirm('Delete "'+bed.name+'"?'))return;wrap.remove();beds=beds.filter(b=>b.id!==bed.id);scheduleSave();};
@@ -1921,9 +2147,10 @@ function isPond(x,y){
 }
 function startAnimalRoam(a){
   const canFly=a.def.id==='bee'||a.def.id==='duck';
+  const pb=a.data.pastureBounds;// if set, restrict to pasture
   function roam(){
     if(!a.el.isConnected)return;
-    const bounds=getGardenActivityBounds();
+    const bounds=pb?{minX:pb.x,minY:pb.y,maxX:pb.x+pb.w,maxY:pb.y+pb.h}:getGardenActivityBounds();
     const cx=parseFloat(a.el.style.left),cy=parseFloat(a.el.style.top);
     let nx,ny,attempts=0;
     do{
@@ -1996,8 +2223,98 @@ function createFarmerEl(data){
   const el=document.createElement('div');el.className='farmer-el';
   el.style.cssText=`left:${data.x||60}px;top:${data.y||60}px;position:absolute;z-index:25;cursor:pointer;`;
   el.dataset.sdata=JSON.stringify(data);
-  const emoji=data.gender==='female'?'👩‍🌾':'🧑‍🌾';
-  const em=document.createElement('div');em.className='farmer-emoji';em.textContent=emoji;
+  const emoji=data.gender==='female'?'👩‍🌾':'👨‍🌾';
+  const farmerSvg=data.gender==='female'?
+    // Female farmer — dress, longer hair, lighter top
+    `<svg viewBox="0 0 36 52" width="36" height="52" xmlns="http://www.w3.org/2000/svg">
+      <!-- Hat -->
+      <ellipse cx="18" cy="8" rx="12" ry="3.5" fill="#8B6914"/>
+      <rect x="12" y="4" width="12" height="6" rx="3" fill="#A0791A"/>
+      <ellipse cx="18" cy="4" rx="6" ry="2" fill="#8B6914"/>
+      <!-- Hair — long bob -->
+      <path d="M10 10 Q8 18 9 24 Q11 22 13 20" fill="#4A2800"/>
+      <path d="M26 10 Q28 18 27 24 Q25 22 23 20" fill="#4A2800"/>
+      <!-- Head/face -->
+      <circle cx="18" cy="14" r="7" fill="#FFCC80"/>
+      <!-- Eyes -->
+      <circle cx="15.5" cy="13" r="1.2" fill="#3E2200"/>
+      <circle cx="20.5" cy="13" r="1.2" fill="#3E2200"/>
+      <!-- Smile -->
+      <path d="M15 16 Q18 19 21 16" stroke="#C07030" stroke-width="1" fill="none"/>
+      <!-- Rosy cheeks -->
+      <circle cx="13" cy="15" r="2" fill="#FFB6C1" opacity=".5"/>
+      <circle cx="23" cy="15" r="2" fill="#FFB6C1" opacity=".5"/>
+      <!-- Body — dress -->
+      <path d="M11 22 Q9 34 9 44 L27 44 Q27 34 25 22 Z" fill="#E91E8C" opacity=".85"/>
+      <!-- Apron -->
+      <path d="M13 24 Q18 26 23 24 L21 40 Q18 42 15 40 Z" fill="#FFF9C4" opacity=".7"/>
+      <!-- Arms -->
+      <path d="M11 23 Q6 28 7 34" stroke="#FFCC80" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M25 23 Q30 28 29 34" stroke="#FFCC80" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- Gloves -->
+      <circle cx="7" cy="35" r="3.5" fill="#A5D6A7"/>
+      <circle cx="29" cy="35" r="3.5" fill="#A5D6A7"/>
+      <!-- Tool (rake) -->
+      <line x1="29" y1="34" x2="34" y2="20" stroke="#8B5E3C" stroke-width="2"/>
+      <line x1="31" y1="20" x2="37" y2="20" stroke="#8B5E3C" stroke-width="1.5"/>
+      <!-- Legs -->
+      <rect x="12" y="43" width="5" height="8" rx="2" fill="#FFCC80"/>
+      <rect x="19" y="43" width="5" height="8" rx="2" fill="#FFCC80"/>
+      <!-- Boots -->
+      <ellipse cx="14" cy="51" rx="4" ry="2" fill="#5D4037"/>
+      <ellipse cx="21" cy="51" rx="4" ry="2" fill="#5D4037"/>
+    </svg>`:
+    // Male farmer — jeans, shirt, stubble
+    `<svg viewBox="0 0 36 52" width="36" height="52" xmlns="http://www.w3.org/2000/svg">
+      <!-- Hat -->
+      <ellipse cx="18" cy="8" rx="13" ry="3.5" fill="#5D4037"/>
+      <rect x="11" y="4" width="14" height="6" rx="3" fill="#6D4C41"/>
+      <ellipse cx="18" cy="4" rx="7" ry="2" fill="#5D4037"/>
+      <rect x="15" y="8" width="6" height="2" rx="1" fill="#1B5E20"/>
+      <!-- Head/face -->
+      <circle cx="18" cy="14" r="7" fill="#FFCC80"/>
+      <!-- Stubble shadow -->
+      <ellipse cx="18" cy="17" rx="5" ry="3" fill="#D4A855" opacity=".3"/>
+      <!-- Eyes -->
+      <circle cx="15.5" cy="13" r="1.3" fill="#2E1A00"/>
+      <circle cx="20.5" cy="13" r="1.3" fill="#2E1A00"/>
+      <!-- Brow -->
+      <line x1="14" y1="11" x2="17" y2="11.5" stroke="#4A2800" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="19" y1="11.5" x2="22" y2="11" stroke="#4A2800" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- Smile -->
+      <path d="M15 17 Q18 19.5 21 17" stroke="#A0621A" stroke-width="1" fill="none"/>
+      <!-- Body — flannel shirt -->
+      <rect x="10" y="21" width="16" height="18" rx="3" fill="#C62828"/>
+      <!-- Shirt plaid lines -->
+      <line x1="14" y1="21" x2="14" y2="39" stroke="#B71C1C" stroke-width="1.5" opacity=".5"/>
+      <line x1="18" y1="21" x2="18" y2="39" stroke="#B71C1C" stroke-width="1.5" opacity=".5"/>
+      <line x1="22" y1="21" x2="22" y2="39" stroke="#B71C1C" stroke-width="1.5" opacity=".5"/>
+      <line x1="10" y1="28" x2="26" y2="28" stroke="#B71C1C" stroke-width="1.5" opacity=".5"/>
+      <!-- Overalls bib -->
+      <rect x="14" y="21" width="8" height="8" rx="2" fill="#1565C0" opacity=".8"/>
+      <circle cx="18" cy="23" r="1" fill="#FFD54F"/>
+      <!-- Arms -->
+      <path d="M10 23 Q5 28 6 34" stroke="#C62828" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M26 23 Q31 28 30 34" stroke="#C62828" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <!-- Gloves -->
+      <circle cx="6" cy="35" r="3.5" fill="#A5D6A7"/>
+      <circle cx="30" cy="35" r="3.5" fill="#A5D6A7"/>
+      <!-- Tool (hoe) -->
+      <line x1="30" y1="34" x2="35" y2="20" stroke="#8B5E3C" stroke-width="2"/>
+      <path d="M33 19 L37 17 L35 22 Z" fill="#9E9E9E"/>
+      <!-- Jeans -->
+      <rect x="11" y="38" width="6" height="12" rx="2" fill="#1565C0"/>
+      <rect x="19" y="38" width="6" height="12" rx="2" fill="#1565C0"/>
+      <!-- Belt -->
+      <rect x="10" y="37" width="16" height="3" rx="1.5" fill="#3E2723"/>
+      <rect x="16" y="36.5" width="4" height="4" rx="1" fill="#FFD54F"/>
+      <!-- Boots -->
+      <ellipse cx="14" cy="51" rx="4" ry="2" fill="#3E2723"/>
+      <ellipse cx="22" cy="51" rx="4" ry="2" fill="#3E2723"/>
+    </svg>`;
+  const em=document.createElement('div');em.className='farmer-emoji';
+  em.innerHTML=farmerSvg;
+  em.style.cssText='display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));';
   const nm=document.createElement('div');nm.className='farmer-name';nm.textContent=data.name||'Farmer';
   const bubble=document.createElement('div');bubble.className='farmer-bubble';
   // Large tap target overlay
@@ -2008,7 +2325,7 @@ function createFarmerEl(data){
     e.stopPropagation();
     const ds=data.since?daysSince(data.since):null;
     const ageStr=ds!=null?(ds===0?'Started today':`${ds} day${ds===1?'':'s'} on the farm`):'Longtime farmer';
-    showFarmerModal(data,ageStr,farmerLog.slice(-8).reverse(),emoji);
+    showFarmerModal(data,ageStr,farmerLog.slice(-8).reverse(),null);
   };
   document.getElementById('gc').appendChild(el);
   // Track for multi-farmer support
@@ -2159,14 +2476,15 @@ function stopFarmer(){clearTimeout(farmerTimer);clearTimeout(farmerWalkTimer);fa
 
 function showFarmerModal(data,ageStr,log,emoji){
   const name=data.name||'Farmer';
-  emoji=emoji||(data.gender==='female'?'👩‍🌾':'🧑‍🌾');
+  const gender=data.gender||'male';
+  const avatarSvg=gender==='female'?'👩‍🌾':'👨‍🌾';// modal shows emoji for brevity
   let modal=document.getElementById('farmer-modal');
   if(modal)modal.remove();
   modal=document.createElement('div');modal.id='farmer-modal';
   modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
   modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:20px;width:290px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <span style="font-size:38px">${emoji}</span>
+      <span style="font-size:38px">${avatarSvg}</span>
       <div><div style="font-size:17px;font-weight:700;color:#1B4A0A">${name}</div><div style="font-size:12px;color:#666">${ageStr}</div></div>
       <button onclick="document.getElementById('farmer-modal').remove()" style="margin-left:auto;background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">×</button>
     </div>
@@ -2425,40 +2743,40 @@ function deselectAll(){
 
 // ── DRAG ──────────────────────────────────────────────────────────────────────
 function setupDrag(handle,obj,isMulch=false){
-  let isDragging=false,active=false,startPointerX=0,startPointerY=0,startObjX=0,startObjY=0;
+  let isDragging=false,active=false,startPointerX=0,startPointerY=0,startObjX=0,startObjY=0,didDrag=false;
   handle.onpointerdown=e=>{
-    if(isPinching)return;// never start a drag during pinch zoom
+    if(isPinching)return;
     if(isReadOnly)return;
     if(e.target.tagName==='INPUT'||e.target.closest('button'))return;
     if(obj.locked||window._allLocked)return;
     e.preventDefault();
-    active=true;
-    isDragging=false;// don't mark as dragging yet — need movement threshold
-    startPointerX=e.clientX;
-    startPointerY=e.clientY;
-    startObjX=obj.x;
-    startObjY=obj.y;
+    active=true;isDragging=false;didDrag=false;
+    startPointerX=e.clientX;startPointerY=e.clientY;
+    startObjX=obj.x;startObjY=obj.y;
     try{handle.setPointerCapture(e.pointerId);}catch(ex){}
   };
   handle.onpointermove=e=>{
-    if(!active)return;// no valid drag was started on this handle — ignore stray moves
-    if(e.buttons===0)return;// no button held — not a drag
+    if(!active)return;
     const dx=(e.clientX-startPointerX)/scale;
     const dy=(e.clientY-startPointerY)/scale;
-    if(!isDragging&&Math.hypot(dx,dy)<4)return;// movement threshold
+    if(!isDragging&&Math.hypot(dx,dy)<4)return;
     if(!isDragging){
-      isDragging=true;
+      isDragging=true;didDrag=true;
       obj.el.style.zIndex=999;
       dragging={obj};
     }
-    const nx=Math.max(0,startObjX+dx);
-    const ny=Math.max(0,startObjY+dy);
-    obj.x=nx;obj.y=ny;
+    obj.x=Math.max(0,startObjX+dx);
+    obj.y=Math.max(0,startObjY+dy);
     expandCanvas();
   };
-  handle.onpointerup=()=>{
+  handle.onpointerup=e=>{
     if(isDragging){obj.el.style.zIndex='';dragging=null;scheduleSave();}
     isDragging=false;active=false;
+    // Suppress click that fires right after a drag ends
+    if(didDrag){
+      const absorb=ev=>{ev.stopImmediatePropagation();ev.preventDefault();handle.removeEventListener('click',absorb,true);};
+      handle.addEventListener('click',absorb,{capture:true,once:true});
+    }
   };
   handle.onpointercancel=()=>{
     if(isDragging){obj.el.style.zIndex='';dragging=null;}
