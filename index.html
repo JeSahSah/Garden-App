@@ -332,11 +332,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
     </div>
     <div class="ta">
       <button class="tbb" onclick="togglePanel('bgp')">🎨</button>
-      <button class="tbb" onclick="openLockPanel()">🔒</button>
+      <button class="tbb" id="lock-btn" onclick="toggleLockAll()" title="Lock all items">🔓</button>
       <button class="tbb" id="undo-btn" onclick="doUndo()" title="Undo">↩</button>
+      <button class="tbb" id="redo-btn" onclick="doRedo()" title="Redo" style="opacity:.4">↪</button>
       <button class="tbb" onclick="zoomIn()">＋</button>
       <button class="tbb" onclick="zoomOut()">－</button>
-      <button class="tbb" onclick="doSignOut()" title="Sign Out" style="background:rgba(198,40,40,.85);color:#fff;font-size:13px;padding:0 10px;border-radius:8px;min-width:36px;">⇥ Out</button>
+      <button class="tbb" onclick="doSignOut()">↩</button>
     </div>
   </div>
 
@@ -396,8 +397,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       <div class="ap-row"><label>Columns</label><input type="range" id="ap-c" min="1" max="20" value="5" oninput="document.getElementById('ap-cv').textContent=this.value"><span class="vv" id="ap-cv">5</span></div>
       <div class="ap-row"><label>Rows</label><input type="range" id="ap-r" min="1" max="20" value="3" oninput="document.getElementById('ap-rv').textContent=this.value"><span class="vv" id="ap-rv">3</span></div>
       <div class="ap-row" style="align-items:center;gap:10px;">
-        <label style="flex:1">Curved (semi-circle)</label>
-        <input type="checkbox" id="ap-curved" style="width:20px;height:20px;cursor:pointer;accent-color:var(--gb);">
+        <label style="flex:1">🌙 Semi-circle bed</label>
+        <input type="checkbox" id="ap-curved" style="width:20px;height:20px;cursor:pointer;accent-color:var(--gb);" onchange="if(this.checked)document.getElementById('ap-quarter').checked=false;">
+      </div>
+      <div class="ap-row" style="align-items:center;gap:10px;">
+        <label style="flex:1">◔ Quarter-circle bed</label>
+        <input type="checkbox" id="ap-quarter" style="width:20px;height:20px;cursor:pointer;accent-color:var(--gb);" onchange="if(this.checked)document.getElementById('ap-curved').checked=false;">
       </div>
       <div class="ap-btns">
         <button class="apcanc" onclick="closePanel('ap')">Cancel</button>
@@ -410,6 +415,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       <h3>Add to Garden</h3>
       <div class="sec-hdr">🌿 Structures &amp; Features</div>
       <div class="thing-grid" id="struct-grid"></div>
+      <div class="sec-hdr">🌳 Trees</div>
+      <div class="thing-grid" id="tree-grid"></div>
+      <div class="sec-hdr">🌿 Bushes</div>
+      <div class="thing-grid" id="bush-grid"></div>
       <div class="sec-hdr">🪵 Fences</div>
       <div class="thing-grid">
         <div class="ttile" onclick="addFenceSegment('h');closePanel('tp')"><span class="ttile-icon">━━━</span><span class="ttile-name">Fence (horizontal)</span></div>
@@ -426,15 +435,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addFarmerPrompt()">🧑‍🌾 Add Farmer</button>
       <div class="sec-hdr">🪣 Grow Bags</div>
       <div class="thing-grid">
-        <div class="ttile" onclick="addGrowBag('sm');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Small (6")</span></div>
-        <div class="ttile" onclick="addGrowBag('md');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Medium (10")</span></div>
-        <div class="ttile" onclick="addGrowBag('lg');closePanel('tp')"><span class="ttile-icon">🪣</span><span class="ttile-name">Large (15")</span></div>
+        <div class="ttile" onclick="addGrowBag('sm');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><ellipse cx="22" cy="28" rx="14" ry="12" fill="#A0522D"/><ellipse cx="22" cy="28" rx="14" ry="12" fill="none" stroke="#7B3D1A" stroke-width="2" stroke-dasharray="3,2"/><ellipse cx="22" cy="18" rx="12" ry="6" fill="#8B4513"/><ellipse cx="22" cy="16" rx="11" ry="4" fill="#5D2F0A"/><text x="22" y="33" text-anchor="middle" font-size="10">🌱</text></svg></span><span class="ttile-name">Small (6")</span></div>
+        <div class="ttile" onclick="addGrowBag('md');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><ellipse cx="22" cy="30" rx="17" ry="13" fill="#A0522D"/><ellipse cx="22" cy="30" rx="17" ry="13" fill="none" stroke="#7B3D1A" stroke-width="2" stroke-dasharray="3,2"/><ellipse cx="22" cy="19" rx="15" ry="6" fill="#8B4513"/><ellipse cx="22" cy="17" rx="14" ry="4" fill="#5D2F0A"/><text x="22" y="35" text-anchor="middle" font-size="10">🌱</text></svg></span><span class="ttile-name">Medium (10")</span></div>
+        <div class="ttile" onclick="addGrowBag('lg');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><ellipse cx="22" cy="32" rx="19" ry="11" fill="#A0522D"/><ellipse cx="22" cy="32" rx="19" ry="11" fill="none" stroke="#7B3D1A" stroke-width="2" stroke-dasharray="3,2"/><ellipse cx="22" cy="23" rx="18" ry="7" fill="#8B4513"/><ellipse cx="22" cy="21" rx="17" ry="5" fill="#5D2F0A"/><text x="22" y="36" text-anchor="middle" font-size="10">🌿</text></svg></span><span class="ttile-name">Large (15")</span></div>
       </div>
       <div class="sec-hdr">🌸 Hanging Planters</div>
       <div class="thing-grid">
-        <div class="ttile" onclick="addHangingPlanter('sm');closePanel('tp')"><span class="ttile-icon" style="font-size:22px">🪴</span><span class="ttile-name">Small</span></div>
-        <div class="ttile" onclick="addHangingPlanter('md');closePanel('tp')"><span class="ttile-icon" style="font-size:26px">🪴</span><span class="ttile-name">Medium</span></div>
-        <div class="ttile" onclick="addHangingPlanter('lg');closePanel('tp')"><span class="ttile-icon" style="font-size:30px">🪴</span><span class="ttile-name">Large</span></div>
+        <div class="ttile" onclick="addHangingPlanter('sm');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><line x1="22" y1="2" x2="22" y2="12" stroke="#8D6E63" stroke-width="2"/><path d="M14 12 Q22 10 30 12 L27 30 Q22 33 17 30 Z" fill="#8D6E63"/><path d="M14 12 Q22 9 30 12 L30 16 Q22 13 14 16Z" fill="#A1887F"/><text x="22" y="28" text-anchor="middle" font-size="12">🌸</text></svg></span><span class="ttile-name">Small</span></div>
+        <div class="ttile" onclick="addHangingPlanter('md');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><line x1="22" y1="2" x2="22" y2="10" stroke="#8D6E63" stroke-width="2"/><path d="M12 10 Q22 8 32 10 L29 30 Q22 34 15 30 Z" fill="#8D6E63"/><path d="M12 10 Q22 7 32 10 L32 15 Q22 12 12 15Z" fill="#A1887F"/><text x="22" y="28" text-anchor="middle" font-size="13">🌺</text></svg></span><span class="ttile-name">Medium</span></div>
+        <div class="ttile" onclick="addHangingPlanter('lg');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><line x1="22" y1="1" x2="22" y2="9" stroke="#8D6E63" stroke-width="2.5"/><path d="M10 9 Q22 7 34 9 L31 31 Q22 35 13 31 Z" fill="#8D6E63"/><path d="M10 9 Q22 6 34 9 L34 15 Q22 11 10 15Z" fill="#A1887F"/><text x="22" y="29" text-anchor="middle" font-size="15">🌷</text></svg></span><span class="ttile-name">Large</span></div>
       </div>
       <button class="closebtn" onclick="closePanel('tp')">Close</button>
     </div>
@@ -522,7 +531,10 @@ const PLANTS=[
   {id:'sunflower',name:'Sunflower',cat:'flower',per:1,days:80,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="24" width="4" height="18" rx="2" fill="#558B2F"/><circle cx="22" cy="20" r="8" fill="#5D4037"/><circle cx="22" cy="20" r="6" fill="#4E342E"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600" transform="rotate(45 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFCA28" transform="rotate(90 22 20)"/><ellipse cx="22" cy="10" rx="4" ry="7" fill="#FFD600" transform="rotate(135 22 20)"/></svg>`},
   {id:'dwarf-sun',name:'Dwarf Sunflower',cat:'flower',per:4,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#558B2F"/><circle cx="22" cy="24" r="6" fill="#5D4037"/><circle cx="22" cy="24" r="4" fill="#4E342E"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600" transform="rotate(45 22 24)"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFCA28" transform="rotate(90 22 24)"/><ellipse cx="22" cy="16" rx="3" ry="5" fill="#FFD600" transform="rotate(135 22 24)"/></svg>`},
   {id:'lupin',name:'Lupin',cat:'flower',per:1,days:90,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="12" rx="2" fill="#388E3C"/><ellipse cx="22" cy="20" rx="5" ry="12" fill="#7B1FA2"/><ellipse cx="22" cy="18" rx="4" ry="10" fill="#9C27B0"/><ellipse cx="22" cy="16" rx="3" ry="7" fill="#CE93D8"/><ellipse cx="22" cy="20" rx="2" ry="5" fill="#E1BEE7"/></svg>`},
-  {id:'rose',name:'Rose',cat:'flower',per:1,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#388E3C"/><circle cx="22" cy="20" r="10" fill="#E91E63"/><circle cx="22" cy="20" r="7" fill="#F06292"/><circle cx="22" cy="20" r="5" fill="#F48FB1"/><circle cx="22" cy="20" r="3" fill="#FCE4EC"/></svg>`},
+  {id:'rose',name:'Rose',cat:'flower',per:1,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="14" rx="2" fill="#2E7D32"/><ellipse cx="26" cy="36" rx="3" ry="5" fill="#388E3C" transform="rotate(-30 26 36)"/><ellipse cx="18" cy="38" rx="2.5" ry="4" fill="#43A047" transform="rotate(20 18 38)"/><path d="M22 24 Q16 22 16 17 Q16 12 19 10 Q22 9 22 12 Q22 9 25 10 Q28 12 28 17 Q28 22 22 24Z" fill="#C62828"/><path d="M22 24 Q18 21 18 18 Q18 14 20 12 Q21 11 22 13 Q23 11 24 12 Q26 14 26 18 Q26 21 22 24Z" fill="#E53935"/><path d="M22 20 Q19 18 20 15 Q21 13 22 14 Q23 13 24 15 Q25 18 22 20Z" fill="#EF9A9A"/><circle cx="22" cy="17" r="2" fill="#FCE4EC"/></svg>`},
+  {id:'rosemary',name:'Rosemary',cat:'herb',per:1,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="32" width="4" height="10" rx="2" fill="#1B5E20"/><line x1="22" y1="32" x2="22" y2="8" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round"/><line x1="22" y1="28" x2="12" y2="20" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="22" x2="32" y2="14" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="18" x2="13" y2="11" stroke="#43A047" stroke-width="1.5" stroke-linecap="round"/><line x1="22" y1="14" x2="31" y2="8" stroke="#43A047" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="22" cy="28" rx="4" ry="2" fill="#7E57C2" opacity=".8" transform="rotate(-45 22 28)"/><ellipse cx="12" cy="20" rx="3" ry="1.5" fill="#9575CD" opacity=".8" transform="rotate(-45 12 20)"/><ellipse cx="32" cy="14" rx="3" ry="1.5" fill="#7E57C2" opacity=".8" transform="rotate(-45 32 14)"/><ellipse cx="13" cy="11" rx="2.5" ry="1.2" fill="#9575CD" opacity=".8" transform="rotate(-45 13 11)"/></svg>`},
+  {id:'bleeding-heart',name:'Bleeding Heart',cat:'flower',per:1,days:75,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="32" width="4" height="12" rx="2" fill="#2E7D32"/><ellipse cx="16" cy="28" rx="5" ry="8" fill="#43A047" transform="rotate(-20 16 28)"/><ellipse cx="28" cy="28" rx="5" ry="8" fill="#388E3C" transform="rotate(20 28 28)"/><path d="M22 10 Q14 10 14 18 Q14 24 22 26 Q30 24 30 18 Q30 10 22 10Z" fill="#E91E63"/><path d="M22 10 Q16 10 16 17 Q16 22 22 24 Q28 22 28 17 Q28 10 22 10Z" fill="#F06292"/><path d="M22 24 Q20 26 22 29 Q24 26 22 24Z" fill="#F48FB1"/><path d="M18 14 Q18 10 22 10 Q26 10 26 14" fill="none" stroke="#FCE4EC" stroke-width="1.5" opacity=".7"/></svg>`},
+  {id:'lychnis',name:'Lychnis',cat:'flower',per:1,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="14" rx="2" fill="#388E3C"/><ellipse cx="14" cy="24" rx="5" ry="9" fill="#43A047" transform="rotate(-15 14 24)"/><ellipse cx="30" cy="24" rx="5" ry="9" fill="#2E7D32" transform="rotate(15 30 24)"/><circle cx="22" cy="16" r="9" fill="#D81B60" opacity=".15"/><ellipse cx="22" cy="8" rx="4" ry="7" fill="#E91E63"/><ellipse cx="22" cy="8" rx="4" ry="7" fill="#F06292" transform="rotate(45 22 16)"/><ellipse cx="22" cy="8" rx="4" ry="7" fill="#E91E63" transform="rotate(90 22 16)"/><ellipse cx="22" cy="8" rx="4" ry="7" fill="#F06292" transform="rotate(135 22 16)"/><ellipse cx="22" cy="8" rx="4" ry="7" fill="#E91E63" transform="rotate(180 22 16)"/><circle cx="22" cy="16" r="4" fill="#FCE4EC"/><circle cx="22" cy="16" r="2" fill="#AD1457"/></svg>`},
   {id:'lavender',name:'Lavender',cat:'flower',per:1,days:90,svg:`<svg viewBox="0 0 44 44"><rect x="21" y="28" width="3" height="14" rx="1.5" fill="#558B2F"/><ellipse cx="22" cy="18" rx="4" ry="10" fill="#9575CD"/><ellipse cx="22" cy="16" rx="3" ry="7" fill="#B39DDB"/><ellipse cx="22" cy="14" rx="2" ry="5" fill="#D1C4E9"/></svg>`},
   {id:'marigold',name:'Marigold',cat:'flower',per:4,days:45,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="12" rx="2" fill="#388E3C"/><circle cx="22" cy="22" r="8" fill="#FF8F00"/><ellipse cx="22" cy="12" rx="4" ry="7" fill="#FF6F00"/><ellipse cx="22" cy="12" rx="4" ry="7" fill="#FF8F00" transform="rotate(60 22 22)"/><ellipse cx="22" cy="12" rx="4" ry="7" fill="#FFA000" transform="rotate(120 22 22)"/><circle cx="22" cy="22" r="5" fill="#FF6F00"/></svg>`},
   {id:'daisy',name:'Daisy',cat:'flower',per:4,days:50,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="30" width="4" height="12" rx="2" fill="#388E3C"/><circle cx="22" cy="20" r="5" fill="#FFF176"/><ellipse cx="22" cy="10" rx="3" ry="6" fill="#fff"/><ellipse cx="22" cy="10" rx="3" ry="6" fill="#fff" transform="rotate(45 22 20)"/><ellipse cx="22" cy="10" rx="3" ry="6" fill="#FFF9C4" transform="rotate(90 22 20)"/><ellipse cx="22" cy="10" rx="3" ry="6" fill="#fff" transform="rotate(135 22 20)"/></svg>`},
@@ -539,7 +551,6 @@ const PLANTS=[
   {id:'basil',name:'Basil',cat:'herb',per:1,days:30,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#33691E"/><ellipse cx="22" cy="22" rx="10" ry="13" fill="#43A047"/><ellipse cx="22" cy="22" rx="7" ry="10" fill="#66BB6A"/></svg>`},
   {id:'mint',name:'Mint',cat:'herb',per:1,days:30,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#00695C"/><ellipse cx="16" cy="22" rx="6" ry="9" fill="#00897B" transform="rotate(-10 16 22)"/><ellipse cx="28" cy="22" rx="6" ry="9" fill="#26A69A" transform="rotate(10 28 22)"/><ellipse cx="22" cy="18" rx="5" ry="8" fill="#4DB6AC"/></svg>`},
   {id:'dill',name:'Dill',cat:'herb',per:1,days:40,svg:`<svg viewBox="0 0 44 44"><rect x="21" y="24" width="3" height="18" rx="1.5" fill="#558B2F"/><circle cx="22" cy="16" r="8" fill="none" stroke="#7CB342" stroke-width="1.5"/><circle cx="22" cy="12" r="2" fill="#AED581"/><circle cx="28" cy="16" r="2" fill="#AED581"/><circle cx="16" cy="16" r="2" fill="#AED581"/><circle cx="22" cy="20" r="2" fill="#AED581"/></svg>`},
-  {id:'rosemary',name:'Rosemary',cat:'herb',per:1,days:60,svg:`<svg viewBox="0 0 44 44"><rect x="20" y="28" width="4" height="14" rx="2" fill="#2E7D32"/><ellipse cx="22" cy="20" rx="5" ry="13" fill="#388E3C"/><ellipse cx="18" cy="22" rx="3" ry="9" fill="#43A047" transform="rotate(-15 18 22)"/><ellipse cx="26" cy="22" rx="3" ry="9" fill="#2E7D32" transform="rotate(15 26 22)"/></svg>`},
   {id:'chives',name:'Chives',cat:'herb',per:9,days:30,svg:`<svg viewBox="0 0 44 44"><rect x="18" y="20" width="3" height="22" rx="1.5" fill="#558B2F"/><rect x="22" y="16" width="3" height="26" rx="1.5" fill="#43A047"/><rect x="26" y="20" width="3" height="22" rx="1.5" fill="#388E3C"/><circle cx="19" cy="14" r="4" fill="#CE93D8"/><circle cx="23" cy="10" r="4" fill="#BA68C8"/><circle cx="27" cy="14" r="4" fill="#AB47BC"/></svg>`},
 ];
 const PM=Object.fromEntries(PLANTS.map(p=>[p.id,p]));
@@ -561,31 +572,75 @@ const STRUCTS=[
   {id:'bench',name:'Bench',icon:'bench',color:'#8D6E63',w:80,h:48},
   {id:'bfeeder',name:'Bird Feeder',icon:'birdfeeder',color:'#795548',w:52,h:68},
   {id:'lantern',name:'Lantern',icon:'lantern',color:'#F9A825',w:44,h:60},
+  {id:'picnic',name:'Picnic Table',icon:'picnic',color:'#8D6E63',w:90,h:70,resizable:true},
+  {id:'firepit',name:'Fire Pit',icon:'firepit',color:'#BF360C',w:70,h:60,resizable:true},
+  {id:'forest',name:'Forest',icon:'forest',color:'#1B5E20',w:180,h:140,resizable:true},
+  // Trees
+  {id:'maple',name:'Maple',icon:'maple',color:'#C62828',w:70,h:80,resizable:true,cat:'tree'},
+  {id:'oak',name:'Oak',icon:'oak',color:'#2E7D32',w:75,h:85,resizable:true,cat:'tree'},
+  {id:'apple',name:'Apple Tree',icon:'apple-tree',color:'#E53935',w:70,h:80,resizable:true,cat:'tree'},
+  {id:'avocado',name:'Avocado',icon:'avocado-tree',color:'#388E3C',w:65,h:80,resizable:true,cat:'tree'},
+  {id:'banana',name:'Banana Tree',icon:'banana-tree',color:'#F9A825',w:65,h:90,resizable:true,cat:'tree'},
+  {id:'evergreen',name:'Evergreen',icon:'evergreen',color:'#1B5E20',w:60,h:90,resizable:true,cat:'tree'},
+  {id:'boxwood',name:'Boxwood',icon:'boxwood',color:'#558B2F',w:55,h:55,resizable:true,cat:'tree'},
+  {id:'cherry',name:'Cherry Tree',icon:'cherry-tree',color:'#AD1457',w:70,h:80,resizable:true,cat:'tree'},
+  {id:'willow',name:'Willow',icon:'willow',color:'#558B2F',w:80,h:90,resizable:true,cat:'tree'},
+  {id:'birch',name:'Birch',icon:'birch',color:'#78909C',w:55,h:90,resizable:true,cat:'tree'},
+  // Bushes
+  {id:'hydrangea',name:'Hydrangea Bush',icon:'hydrangea',color:'#7B1FA2',w:60,h:55,resizable:true,cat:'bush'},
+  {id:'bougainvillea',name:'Bougainvillea',icon:'bougainvillea',color:'#E91E63',w:65,h:70,resizable:true,cat:'bush'},
+  {id:'rose-bush',name:'Rose Bush',icon:'rose-bush',color:'#C62828',w:55,h:55,resizable:true,cat:'bush'},
+  {id:'lilac',name:'Lilac Bush',icon:'lilac',color:'#9C27B0',w:60,h:60,resizable:true,cat:'bush'},
+  {id:'forsythia',name:'Forsythia',icon:'forsythia',color:'#F9A825',w:60,h:55,resizable:true,cat:'bush'},
+  {id:'juniper',name:'Juniper Bush',icon:'juniper',color:'#2E7D32',w:55,h:55,resizable:true,cat:'bush'},
 ];
 
 // SVG icon renderers for structs
 const STRUCT_SVGS={
   deck:(w,h)=>{
     const planks=[];
-    const numPlanks=Math.ceil(h*0.82/13);
+    const numPlanks=Math.max(2,Math.ceil((h*0.72)/11));
     for(let i=0;i<numPlanks;i++){
+      const y=h*0.2+i*((h*0.72)/numPlanks);
       const fill=i%2===0?'#D7CCC8':'#C8BDB8';
-      planks.push('<rect x="2" y="'+(h*0.12+i*13)+'" width="'+(w-4)+'" height="11" fill="'+fill+'" rx="1"/>');
-      planks.push('<circle cx="'+(w*0.25)+'" cy="'+(h*0.12+i*13+5.5)+'" r="2" fill="#A1887F" opacity=".3"/>');
-      planks.push('<circle cx="'+(w*0.75)+'" cy="'+(h*0.12+i*13+5.5)+'" r="2" fill="#A1887F" opacity=".3"/>');
+      planks.push(`<rect x="4" y="${y.toFixed(1)}" width="${w-8}" height="${(h*0.72/numPlanks-1).toFixed(1)}" fill="${fill}" rx="1"/>`);
+      // Nail dots
+      planks.push(`<circle cx="${(w*0.22).toFixed(1)}" cy="${(y+4).toFixed(1)}" r="1.6" fill="#A1887F" opacity=".35"/>`);
+      planks.push(`<circle cx="${(w*0.78).toFixed(1)}" cy="${(y+4).toFixed(1)}" r="1.6" fill="#A1887F" opacity=".35"/>`);
+      // Plank wood grain
+      if(i%3===0)planks.push(`<line x1="4" y1="${(y+h*0.72/numPlanks*0.5).toFixed(1)}" x2="${w-4}" y2="${(y+h*0.72/numPlanks*0.5).toFixed(1)}" stroke="rgba(0,0,0,.04)" stroke-width="1"/>`);
     }
-    const numPosts=Math.floor((w-8)/18)+1;
+    // Railing posts
+    const numPosts=Math.max(3,Math.floor((w-8)/22)+1);
     const posts=[];
     for(let i=0;i<numPosts;i++){
-      posts.push('<rect x="'+(4+i*18)+'" y="'+(h*0.06)+'" width="5" height="'+(h*0.82)+'" fill="#6D4C41" rx="1" opacity=".55"/>');
+      const px=4+i*((w-8)/(numPosts-1));
+      posts.push(`<rect x="${(px-3).toFixed(1)}" y="${(h*0.06).toFixed(1)}" width="6" height="${(h*0.16).toFixed(1)}" fill="#795548" rx="1"/>`);
+      // Picket spindles between posts
+      if(i<numPosts-1){
+        const gap=(w-8)/(numPosts-1);
+        const spindles=Math.max(2,Math.floor(gap/8));
+        for(let s=1;s<spindles;s++){
+          const sx=px+s*(gap/spindles);
+          posts.push(`<rect x="${(sx-1.5).toFixed(1)}" y="${(h*0.08).toFixed(1)}" width="3" height="${(h*0.12).toFixed(1)}" fill="#9E9E9E" rx="1" opacity=".5"/>`);
+        }
+      }
     }
-    return '<svg viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg">'
-      +'<rect x="2" y="'+(h*0.12)+'" width="'+(w-4)+'" height="'+(h*0.82)+'" fill="#BCAAA4" rx="3"/>'
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`
+      // Shadow
+      +`<rect x="4" y="${(h*0.92).toFixed(1)}" width="${w-8}" height="${(h*0.06).toFixed(1)}" rx="2" fill="rgba(0,0,0,.12)"/>`
+      // Deck floor
+      +`<rect x="2" y="${(h*0.18).toFixed(1)}" width="${w-4}" height="${(h*0.76).toFixed(1)}" fill="#BCAAA4" rx="3"/>`
       +planks.join('')
-      +'<rect x="2" y="'+(h*0.06)+'" width="'+(w-4)+'" height="'+(h*0.09)+'" fill="#8D6E63" rx="3"/>'
+      // Front face / step edge
+      +`<rect x="2" y="${(h*0.9).toFixed(1)}" width="${w-4}" height="${(h*0.07).toFixed(1)}" fill="#6D4C41" rx="2"/>`
+      // Top railing rail
+      +`<rect x="2" y="${(h*0.05).toFixed(1)}" width="${w-4}" height="${(h*0.04).toFixed(1)}" fill="#6D4C41" rx="2"/>`
+      // Bottom rail of railing
+      +`<rect x="2" y="${(h*0.19).toFixed(1)}" width="${w-4}" height="${(h*0.025).toFixed(1)}" fill="#795548" rx="1"/>`
       +posts.join('')
-      +'<rect x="2" y="'+(h*0.9)+'" width="'+(w-4)+'" height="'+(h*0.07)+'" fill="#6D4C41" rx="2"/>'
-      +'<rect x="2" y="'+(h*0.14)+'" width="'+(w-4)+'" height="5" fill="rgba(0,0,0,0.1)"/>'
+      // Floor-to-shadow fade
+      +`<rect x="2" y="${(h*0.18).toFixed(1)}" width="${w-4}" height="5" fill="rgba(0,0,0,.08)" rx="1"/>`
       +'</svg>';
   },
     greenhouse:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
@@ -598,44 +653,13 @@ const STRUCT_SVGS={
     <text x="${w/2}" y="${h*0.75}" text-anchor="middle" font-size="${Math.min(w,h)*0.2}">🌱</text>
   </svg>`,
   pond:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Water body -->
     <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-2}" ry="${h/2-2}" fill="#1565C0"/>
     <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-5}" ry="${h/2-5}" fill="#1E88E5"/>
-    <!-- Water shimmer -->
-    <ellipse cx="${w*0.35}" cy="${h*0.42}" rx="${w*0.18}" ry="${h*0.07}" fill="#64B5F6" opacity=".3"/>
-    <ellipse cx="${w*0.65}" cy="${h*0.6}" rx="${w*0.12}" ry="${h*0.05}" fill="#90CAF9" opacity=".25"/>
-    <!-- Lily pad 1 — large, lower-left -->
-    <g transform="translate(${w*0.22},${h*0.58})">
-      <path d="M0 0 L${w*0.16} -${h*0.01} A${w*0.14} ${h*0.12} 0 1 1 -${w*0.04} ${h*0.1} Z" fill="#2E7D32"/>
-      <path d="M0 0 L${w*0.16} -${h*0.01} A${w*0.14} ${h*0.12} 0 1 1 -${w*0.04} ${h*0.1} Z" fill="none" stroke="#1B5E20" stroke-width="1"/>
-      <!-- Veins -->
-      <line x1="0" y1="0" x2="${w*0.13}" y2="-${h*0.08}" stroke="#1B5E20" stroke-width=".7" opacity=".6"/>
-      <line x1="0" y1="0" x2="${w*0.15}" y2="${h*0.02}" stroke="#1B5E20" stroke-width=".7" opacity=".6"/>
-      <line x1="0" y1="0" x2="${w*0.06}" y2="${h*0.1}" stroke="#1B5E20" stroke-width=".7" opacity=".6"/>
-      <line x1="0" y1="0" x2="-${w*0.04}" y2="${h*0.06}" stroke="#1B5E20" stroke-width=".7" opacity=".6"/>
-    </g>
-    <!-- Lily pad 2 — medium, upper-right -->
-    <g transform="translate(${w*0.62},${h*0.28}) rotate(40)">
-      <path d="M0 0 L${w*0.12} -${h*0.01} A${w*0.11} ${h*0.09} 0 1 1 -${w*0.03} ${h*0.08} Z" fill="#388E3C"/>
-      <path d="M0 0 L${w*0.12} -${h*0.01} A${w*0.11} ${h*0.09} 0 1 1 -${w*0.03} ${h*0.08} Z" fill="none" stroke="#2E7D32" stroke-width=".8"/>
-      <line x1="0" y1="0" x2="${w*0.10}" y2="-${h*0.07}" stroke="#2E7D32" stroke-width=".6" opacity=".6"/>
-      <line x1="0" y1="0" x2="${w*0.11}" y2="${h*0.01}" stroke="#2E7D32" stroke-width=".6" opacity=".6"/>
-      <line x1="0" y1="0" x2="${w*0.04}" y2="${h*0.08}" stroke="#2E7D32" stroke-width=".6" opacity=".6"/>
-      <!-- White lily flower -->
-      <g transform="translate(${w*0.06},${h*0.01})">
-        <circle cx="0" cy="0" r="${w*0.03}" fill="#FFEE58"/>
-        ${[-72,-36,0,36,72,108,144,180,216,252].map(a=>`<ellipse cx="${Math.cos(a*Math.PI/180)*w*0.04}" cy="${Math.sin(a*Math.PI/180)*h*0.035}" rx="${w*0.022}" ry="${h*0.013}" fill="#fff" opacity=".92" transform="rotate(${a} ${Math.cos(a*Math.PI/180)*w*0.04} ${Math.sin(a*Math.PI/180)*h*0.035})"/>`).join('')}
-      </g>
-    </g>
-    <!-- Lily pad 3 — small, centre -->
-    <g transform="translate(${w*0.48},${h*0.52}) rotate(-25)">
-      <path d="M0 0 L${w*0.09} 0 A${w*0.08} ${h*0.07} 0 1 1 -${w*0.02} ${h*0.06} Z" fill="#43A047"/>
-      <line x1="0" y1="0" x2="${w*0.08}" y2="-${h*0.05}" stroke="#2E7D32" stroke-width=".5" opacity=".5"/>
-      <line x1="0" y1="0" x2="${w*0.04}" y2="${h*0.06}" stroke="#2E7D32" stroke-width=".5" opacity=".5"/>
-      <!-- Pink flower bud -->
-      <circle cx="${w*0.05}" cy="-${h*0.015}" r="${w*0.022}" fill="#F48FB1" opacity=".9"/>
-      <circle cx="${w*0.05}" cy="-${h*0.015}" r="${w*0.012}" fill="#FCE4EC"/>
-    </g>
+    <ellipse cx="${w/2}" cy="${h/2+4}" rx="${w/2-10}" ry="${h/2-12}" fill="#42A5F5" opacity=".7"/>
+    <ellipse cx="${w*0.28}" cy="${h*0.38}" rx="${w*0.14}" ry="${h*0.1}" fill="#66BB6A" opacity=".9"/>
+    <ellipse cx="${w*0.68}" cy="${h*0.62}" rx="${w*0.11}" ry="${h*0.08}" fill="#66BB6A" opacity=".8"/>
+    <ellipse cx="${w*0.55}" cy="${h*0.5}" rx="${w*0.08}" ry="${h*0.055}" fill="#FFF9C4" opacity=".5"/>
+    <ellipse cx="${w*0.38}" cy="${h*0.62}" rx="${w*0.06}" ry="${h*0.04}" fill="#FFF9C4" opacity=".4"/>
   </svg>`,
   compost:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="6" y="${h*0.18}" width="${w-12}" height="${h*0.78}" rx="4" fill="#2E7D32"/>
@@ -673,36 +697,33 @@ const STRUCT_SVGS={
     <rect x="${w*0.7}" y="${h*0.2}" width="5" height="${h*0.22}" rx="2" fill="#6D4C41" transform="rotate(-12,${w*0.72},${h*0.31})"/>
     <ellipse cx="${w*0.66}" cy="${h*0.52}" rx="${w*0.15}" ry="${h*0.1}" fill="#558B2F" opacity=".9"/>
   </svg>`,
-  wateringcan:(w,h)=>`<svg viewBox="0 0 100 80" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Body — classic watering can shape -->
-    <path d="M14 72 Q12 52 18 42 L72 42 Q78 52 76 72 Z" fill="#1976D2"/>
-    <!-- Body front highlight -->
-    <path d="M20 46 Q22 56 20 70" stroke="#42A5F5" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>
-    <!-- Top rim -->
-    <ellipse cx="45" cy="42" rx="27" ry="7" fill="#1565C0"/>
-    <ellipse cx="45" cy="42" rx="22" ry="5" fill="#1E88E5"/>
-    <!-- Opening circle -->
-    <ellipse cx="45" cy="40" rx="16" ry="4" fill="#0D47A1"/>
-    <!-- Spout — long, elegant angled tube -->
-    <path d="M72 56 Q90 48 96 30" stroke="#0D47A1" stroke-width="11" fill="none" stroke-linecap="round"/>
-    <path d="M72 56 Q90 48 96 30" stroke="#1565C0" stroke-width="7" fill="none" stroke-linecap="round"/>
-    <!-- Rose (sprinkler head) — round with holes -->
-    <ellipse cx="97" cy="28" rx="8" ry="6" fill="#0D47A1" transform="rotate(-20 97 28)"/>
-    <ellipse cx="97" cy="28" rx="6" ry="4" fill="#1565C0" transform="rotate(-20 97 28)"/>
-    <!-- Droplets from rose -->
-    <circle cx="90" cy="20" r="2.5" fill="#64B5F6" opacity=".85"/>
-    <circle cx="98" cy="17" r="2" fill="#90CAF9" opacity=".8"/>
-    <circle cx="105" cy="22" r="2" fill="#64B5F6" opacity=".75"/>
-    <circle cx="92" cy="12" r="1.8" fill="#BBDEFB" opacity=".7"/>
-    <circle cx="102" cy="12" r="1.5" fill="#90CAF9" opacity=".65"/>
-    <circle cx="108" cy="16" r="1.5" fill="#64B5F6" opacity=".6"/>
-    <!-- Handle — arched -->
-    <path d="M18 44 Q14 28 28 24 Q44 20 52 26 Q62 22 72 26 Q86 30 80 44" stroke="#0D47A1" stroke-width="7" fill="none" stroke-linecap="round"/>
-    <path d="M18 44 Q14 30 28 26 Q44 22 52 28 Q62 24 72 28 Q86 32 80 44" stroke="#1565C0" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <!-- Decorative band on body -->
-    <path d="M15 58 Q44 62 75 58" stroke="#1565C0" stroke-width="2.5" fill="none" opacity=".5"/>
-    <!-- Bottom base -->
-    <ellipse cx="45" cy="72" rx="30" ry="5" fill="#0D47A1" opacity=".6"/>
+  wateringcan:(w,h)=>`<svg viewBox="0 60 100 90" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Main body — galvanized look -->
+    <path d="M18 110 Q16 88 22 78 L78 78 Q84 88 82 110 Z" fill="#1E88E5"/>
+    <path d="M22 78 Q50 72 78 78" stroke="#1565C0" stroke-width="1.5" fill="none"/>
+    <path d="M18 110 Q50 114 82 110" stroke="#1565C0" stroke-width="1.5" fill="none"/>
+    <!-- Body highlight -->
+    <path d="M26 82 Q28 90 26 106" stroke="#42A5F5" stroke-width="3" fill="none" stroke-linecap="round" opacity=".5"/>
+    <!-- Top opening/rim -->
+    <ellipse cx="50" cy="78" rx="28" ry="7" fill="#1565C0"/>
+    <ellipse cx="50" cy="78" rx="24" ry="5" fill="#1976D2"/>
+    <!-- Spout — angled forward and up -->
+    <path d="M78 92 Q92 84 98 70" stroke="#0D47A1" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M78 92 Q92 84 98 70" stroke="#1565C0" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <!-- Spout head/rose -->
+    <ellipse cx="98" cy="70" rx="7" ry="5" fill="#0D47A1" transform="rotate(-30 98 70)"/>
+    <!-- Water drops from rose -->
+    <circle cx="92" cy="62" r="2" fill="#64B5F6" opacity=".8"/>
+    <circle cx="100" cy="60" r="2" fill="#64B5F6" opacity=".8"/>
+    <circle cx="107" cy="64" r="1.5" fill="#64B5F6" opacity=".7"/>
+    <circle cx="96" cy="56" r="1.5" fill="#64B5F6" opacity=".6"/>
+    <circle cx="104" cy="56" r="1.5" fill="#64B5F6" opacity=".6"/>
+    <!-- Handle — arched over top -->
+    <path d="M22 80 Q18 64 30 62 Q42 60 50 64 Q58 60 70 62 Q82 64 78 80" stroke="#0D47A1" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M22 80 Q18 66 30 64 Q42 62 50 66 Q58 62 70 64 Q82 66 78 80" stroke="#1565C0" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Rivet dots on body -->
+    <circle cx="30" cy="95" r="2.5" fill="#1565C0"/>
+    <circle cx="70" cy="95" r="2.5" fill="#1565C0"/>
   </svg>`,
   bench:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="4" y="${h*0.28}" width="${w-8}" height="${h*0.14}" rx="3" fill="#A1887F"/>
@@ -775,50 +796,212 @@ const STRUCT_SVGS={
     <rect x="${w*0.32}" y="${h*0.94}" width="${w*0.36}" height="${h*0.04}" rx="1" fill="#B0BEC5"/>
   </svg>`,
   windmill:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Base/ground -->
-    <rect x="${w*0.2}" y="${h*0.96}" width="${w*0.6}" height="${h*0.04}" rx="2" fill="#8D6E63"/>
-    <!-- Tower — brick tapered Dutch style -->
-    <path d="M${w*0.28} ${h*0.97} L${w*0.36} ${h*0.42} L${w*0.64} ${h*0.42} L${w*0.72} ${h*0.97} Z" fill="#B71C1C"/>
-    <path d="M${w*0.28} ${h*0.97} L${w*0.36} ${h*0.42} L${w*0.42} ${h*0.42} L${w*0.48} ${h*0.97} Z" fill="#C62828" opacity=".6"/>
-    <!-- Brick lines horizontal -->
-    ${[0.55,0.65,0.75,0.85].map(r=>`<line x1="${w*(0.28+(0.44*(r-0.42)/0.55))}" y1="${h*r}" x2="${w*(0.72-(0.44*(r-0.42)/0.55))}" y2="${h*r}" stroke="#8B1010" stroke-width="1.2" opacity=".4"/>`).join('')}
-    <!-- Windows -->
-    <rect x="${w*0.43}" y="${h*0.6}" width="${w*0.14}" height="${h*0.1}" rx="${w*0.04}" fill="#1A237E" stroke="#880E0E" stroke-width="1"/>
-    <rect x="${w*0.43}" y="${h*0.76}" width="${w*0.14}" height="${h*0.1}" rx="${w*0.04}" fill="#1A237E" stroke="#880E0E" stroke-width="1"/>
-    <!-- Door — arched -->
-    <path d="M${w*0.42} ${h*0.97} L${w*0.42} ${h*0.87} Q${w*0.5} ${h*0.83} ${w*0.58} ${h*0.87} L${w*0.58} ${h*0.97} Z" fill="#4E342E"/>
-    <!-- Balcony platform -->
-    <rect x="${w*0.29}" y="${h*0.4}" width="${w*0.42}" height="${h*0.04}" rx="2" fill="#5D4037"/>
-    <rect x="${w*0.27}" y="${h*0.43}" width="${w*0.46}" height="${h*0.02}" rx="1" fill="#795548"/>
-    <!-- Balcony railing posts -->
-    ${[0.31,0.37,0.43,0.49,0.55,0.61,0.67].map(x=>`<rect x="${w*x}" y="${h*0.40}" width="${w*0.02}" height="${h*0.04}" fill="#6D4C41"/>`).join('')}
-    <!-- Cap — domed dark cap -->
-    <path d="M${w*0.3} ${h*0.42} Q${w*0.5} ${h*0.3} ${w*0.7} ${h*0.42} Z" fill="#37474F"/>
-    <path d="M${w*0.34} ${h*0.42} Q${w*0.5} ${h*0.32} ${w*0.66} ${h*0.42} Z" fill="#455A64"/>
+    <!-- Tower body -->
+    <path d="M${w*0.38} ${h*0.98} L${w*0.44} ${h*0.28} L${w*0.56} ${h*0.28} L${w*0.62} ${h*0.98} Z" fill="#BCAAA4"/>
+    <path d="M${w*0.38} ${h*0.98} L${w*0.44} ${h*0.28} L${w*0.5} ${h*0.28} L${w*0.54} ${h*0.98} Z" fill="#D7CCC8"/>
+    <!-- Tower stripes -->
+    ${[0.4,0.55,0.7,0.85].map(r=>`<line x1="${w*0.39}" y1="${h*r}" x2="${w*0.61}" y2="${h*r}" stroke="#A1887F" stroke-width="1" opacity=".5"/>`).join('')}
+    <!-- Cap -->
+    <ellipse cx="${w*0.5}" cy="${h*0.27}" rx="${w*0.1}" ry="${h*0.04}" fill="#795548"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.25}" rx="${w*0.08}" ry="${h*0.03}" fill="#6D4C41"/>
     <!-- Hub -->
-    <circle cx="${w*0.5}" cy="${h*0.35}" r="${Math.max(5,w*0.08)}" fill="#263238"/>
-    <circle cx="${w*0.5}" cy="${h*0.35}" r="${Math.max(3,w*0.05)}" fill="#37474F"/>
-    <circle cx="${w*0.5}" cy="${h*0.35}" r="${Math.max(2,w*0.03)}" fill="#546E7A"/>
-    <!-- BLADES — Dutch windmill sails: cross pattern, wooden frame with canvas -->
-    <!-- Blade 1: upper-left -->
-    <path d="M${w*0.5} ${h*0.35} L${w*0.2} ${h*0.08} L${w*0.28} ${h*0.06} Z" fill="#8D6E63" opacity=".95"/>
-    <path d="M${w*0.5} ${h*0.35} L${w*0.2} ${h*0.08} L${w*0.22} ${h*0.14} Z" fill="#BCAAA4" opacity=".7"/>
-    <line x1="${w*0.5}" y1="${h*0.35}" x2="${w*0.2}" y2="${h*0.08}" stroke="#5D4037" stroke-width="2.5"/>
-    <!-- Blade 2: upper-right -->
-    <path d="M${w*0.5} ${h*0.35} L${w*0.8} ${h*0.08} L${w*0.78} ${h*0.14} Z" fill="#8D6E63" opacity=".95"/>
-    <path d="M${w*0.5} ${h*0.35} L${w*0.8} ${h*0.08} L${w*0.72} ${h*0.06} Z" fill="#BCAAA4" opacity=".7"/>
-    <line x1="${w*0.5}" y1="${h*0.35}" x2="${w*0.8}" y2="${h*0.08}" stroke="#5D4037" stroke-width="2.5"/>
-    <!-- Blade 3: lower-left -->
-    <path d="M${w*0.5} ${h*0.35} L${w*0.17} ${h*0.55} L${w*0.22} ${h*0.58} Z" fill="#8D6E63" opacity=".95"/>
-    <path d="M${w*0.5} ${h*0.35} L${w*0.17} ${h*0.55} L${w*0.19} ${h*0.49} Z" fill="#BCAAA4" opacity=".7"/>
-    <line x1="${w*0.5}" y1="${h*0.35}" x2="${w*0.17}" y2="${h*0.55}" stroke="#5D4037" stroke-width="2.5"/>
-    <!-- Blade 4: lower-right -->
-    <path d="M${w*0.5} ${h*0.35} L${w*0.83} ${h*0.55} L${w*0.81} ${h*0.49} Z" fill="#8D6E63" opacity=".95"/>
-    <path d="M${w*0.5} ${h*0.35} L${w*0.83} ${h*0.55} L${w*0.78} ${h*0.58} Z" fill="#BCAAA4" opacity=".7"/>
-    <line x1="${w*0.5}" y1="${h*0.35}" x2="${w*0.83}" y2="${h*0.55}" stroke="#5D4037" stroke-width="2.5"/>
-    <!-- Cross-braces on blades -->
-    <line x1="${w*0.36}" y1="${h*0.21}" x2="${w*0.24}" y2="${h*0.12}" stroke="#6D4C41" stroke-width="1.2" opacity=".6"/>
-    <line x1="${w*0.64}" y1="${h*0.21}" x2="${w*0.76}" y2="${h*0.12}" stroke="#6D4C41" stroke-width="1.2" opacity=".6"/>
+    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(4,w*0.07)}" fill="#455A64"/>
+    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(2,w*0.04)}" fill="#607D8B"/>
+    <!-- Blades (4, static but angled) -->
+    <path d="M${w*0.5} ${h*0.22} L${w*0.44} ${h*0.02} L${w*0.56} ${h*0.07} Z" fill="#EF5350" opacity=".9"/>
+    <path d="M${w*0.5} ${h*0.22} L${w*0.78} ${h*0.16} L${w*0.73} ${h*0.28} Z" fill="#42A5F5" opacity=".9"/>
+    <path d="M${w*0.5} ${h*0.22} L${w*0.56} ${h*0.42} L${w*0.44} ${h*0.37} Z" fill="#FFB300" opacity=".9"/>
+    <path d="M${w*0.5} ${h*0.22} L${w*0.22} ${h*0.28} L${w*0.27} ${h*0.16} Z" fill="#66BB6A" opacity=".9"/>
+    <!-- Door -->
+    <rect x="${w*0.44}" y="${h*0.82}" width="${w*0.12}" height="${h*0.14}" rx="2" fill="#5D4037"/>
+    <!-- Base -->
+    <rect x="${w*0.3}" y="${h*0.97}" width="${w*0.4}" height="${h*0.03}" rx="2" fill="#A1887F"/>
+  </svg>`,
+  picnic:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Tabletop -->
+    <rect x="${w*0.06}" y="${h*0.28}" width="${w*0.88}" height="${h*0.18}" rx="3" fill="#A1887F"/>
+    <rect x="${w*0.06}" y="${h*0.28}" width="${w*0.88}" height="${h*0.06}" rx="2" fill="#BCAAA4"/>
+    <!-- Plank lines -->
+    <line x1="${w*0.06}" y1="${h*0.35}" x2="${w*0.94}" y2="${h*0.35}" stroke="#8D6E63" stroke-width="1" opacity=".5"/>
+    <!-- Diagonal legs -->
+    <line x1="${w*0.25}" y1="${h*0.46}" x2="${w*0.18}" y2="${h*0.9}" stroke="#6D4C41" stroke-width="${Math.max(4,w*0.06)}" stroke-linecap="round"/>
+    <line x1="${w*0.75}" y1="${h*0.46}" x2="${w*0.82}" y2="${h*0.9}" stroke="#6D4C41" stroke-width="${Math.max(4,w*0.06)}" stroke-linecap="round"/>
+    <line x1="${w*0.25}" y1="${h*0.46}" x2="${w*0.32}" y2="${h*0.9}" stroke="#795548" stroke-width="${Math.max(3,w*0.05)}" stroke-linecap="round"/>
+    <line x1="${w*0.75}" y1="${h*0.46}" x2="${w*0.68}" y2="${h*0.9}" stroke="#795548" stroke-width="${Math.max(3,w*0.05)}" stroke-linecap="round"/>
+    <!-- Cross brace -->
+    <line x1="${w*0.2}" y1="${h*0.7}" x2="${w*0.8}" y2="${h*0.7}" stroke="#8D6E63" stroke-width="3" opacity=".6"/>
+    <!-- Bench seats -->
+    <rect x="${w*0.0}" y="${h*0.52}" width="${w*0.32}" height="${h*0.1}" rx="2" fill="#8D6E63"/>
+    <rect x="${w*0.68}" y="${h*0.52}" width="${w*0.32}" height="${h*0.1}" rx="2" fill="#8D6E63"/>
+  </svg>`,
+  firepit:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Stone ring -->
+    <ellipse cx="${w/2}" cy="${h*0.72}" rx="${w*0.42}" ry="${h*0.22}" fill="#616161"/>
+    <ellipse cx="${w/2}" cy="${h*0.72}" rx="${w*0.36}" ry="${h*0.17}" fill="#424242"/>
+    <!-- Logs -->
+    <rect x="${w*0.28}" y="${h*0.65}" width="${w*0.44}" height="${h*0.1}" rx="5" fill="#5D4037" transform="rotate(-15 ${w/2} ${h*0.7})"/>
+    <rect x="${w*0.28}" y="${h*0.65}" width="${w*0.44}" height="${h*0.1}" rx="5" fill="#795548" transform="rotate(15 ${w/2} ${h*0.7})"/>
+    <!-- Embers -->
+    <ellipse cx="${w/2}" cy="${h*0.72}" rx="${w*0.2}" ry="${h*0.08}" fill="#FF6F00" opacity=".8"/>
+    <!-- Flames -->
+    <path d="M${w*0.42} ${h*0.62} Q${w*0.38} ${h*0.42} ${w*0.46} ${h*0.28} Q${w*0.5} ${h*0.38} ${w*0.5} ${h*0.22} Q${w*0.54} ${h*0.38} ${w*0.58} ${h*0.28} Q${w*0.66} ${h*0.42} ${w*0.58} ${h*0.62} Z" fill="#FF6F00"/>
+    <path d="M${w*0.44} ${h*0.6} Q${w*0.4} ${h*0.44} ${w*0.48} ${h*0.32} Q${w*0.5} ${h*0.40} ${w*0.5} ${h*0.28} Q${w*0.52} ${h*0.40} ${w*0.56} ${h*0.32} Q${w*0.62} ${h*0.44} ${w*0.56} ${h*0.6} Z" fill="#FF8F00"/>
+    <path d="M${w*0.46} ${h*0.58} Q${w*0.44} ${h*0.46} ${w*0.5} ${h*0.36} Q${w*0.56} ${h*0.46} ${w*0.54} ${h*0.58} Z" fill="#FFCA28"/>
+    <!-- Smoke wisps -->
+    <path d="M${w*0.46} ${h*0.22} Q${w*0.42} ${h*0.12} ${w*0.46} ${h*0.04}" stroke="rgba(100,100,100,.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.54} ${h*0.22} Q${w*0.58} ${h*0.12} ${w*0.54} ${h*0.04}" stroke="rgba(100,100,100,.25)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Outer stones detail -->
+    ${[0,45,90,135,180,225,270,315].map(a=>`<ellipse cx="${w/2+Math.cos(a*Math.PI/180)*w*0.4}" cy="${h*0.72+Math.sin(a*Math.PI/180)*h*0.2}" rx="${w*0.07}" ry="${h*0.06}" fill="#757575" transform="rotate(${a} ${w/2+Math.cos(a*Math.PI/180)*w*0.4} ${h*0.72+Math.sin(a*Math.PI/180)*h*0.2})"/>`).join('')}
+  </svg>`,
+  forest:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ground -->
+    <ellipse cx="${w/2}" cy="${h*0.95}" rx="${w*0.48}" ry="${h*0.07}" fill="#2E7D32" opacity=".5"/>
+    <!-- Back trees -->
+    <path d="M${w*0.18} ${h*0.82} L${w*0.28} ${h*0.35} L${w*0.38} ${h*0.82} Z" fill="#1B5E20"/>
+    <path d="M${w*0.18} ${h*0.65} L${w*0.28} ${h*0.22} L${w*0.38} ${h*0.65} Z" fill="#2E7D32"/>
+    <rect x="${w*0.26}" y="${h*0.82}" width="${w*0.04}" height="${h*0.14}" fill="#4E342E"/>
+    <path d="M${w*0.62} ${h*0.82} L${w*0.72} ${h*0.32} L${w*0.82} ${h*0.82} Z" fill="#1B5E20"/>
+    <path d="M${w*0.62} ${h*0.62} L${w*0.72} ${h*0.18} L${w*0.82} ${h*0.62} Z" fill="#2E7D32"/>
+    <rect x="${w*0.70}" y="${h*0.82}" width="${w*0.04}" height="${h*0.14}" fill="#4E342E"/>
+    <!-- Front centre tree -->
+    <path d="M${w*0.38} ${h*0.88} L${w*0.5} ${h*0.28} L${w*0.62} ${h*0.88} Z" fill="#1B5E20"/>
+    <path d="M${w*0.38} ${h*0.66} L${w*0.5} ${h*0.10} L${w*0.62} ${h*0.66} Z" fill="#388E3C"/>
+    <rect x="${w*0.47}" y="${h*0.88}" width="${w*0.06}" height="${h*0.1}" fill="#3E2723"/>
+    <!-- Dappled leaves -->
+    <circle cx="${w*0.28}" cy="${h*0.42}" r="${w*0.06}" fill="#43A047" opacity=".6"/>
+    <circle cx="${w*0.72}" cy="${h*0.38}" r="${w*0.06}" fill="#43A047" opacity=".6"/>
+    <circle cx="${w*0.5}" cy="${h*0.2}" r="${w*0.07}" fill="#66BB6A" opacity=".55"/>
+  </svg>`,
+  // Tree SVGs
+  maple:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.6}" width="${w*0.12}" height="${h*0.38}" rx="3" fill="#5D4037"/>
+    <path d="M${w*0.5} ${h*0.08} L${w*0.3} ${h*0.45} L${w*0.38} ${h*0.45} L${w*0.22} ${h*0.65} L${w*0.4} ${h*0.62} L${w*0.35} ${h*0.75} L${w*0.5} ${h*0.66} L${w*0.65} ${h*0.75} L${w*0.6} ${h*0.62} L${w*0.78} ${h*0.65} L${w*0.62} ${h*0.45} L${w*0.7} ${h*0.45} Z" fill="#C62828"/>
+    <path d="M${w*0.5} ${h*0.08} L${w*0.32} ${h*0.45} L${w*0.4} ${h*0.45} L${w*0.26} ${h*0.63} L${w*0.42} ${h*0.6} L${w*0.5} ${h*0.66} L${w*0.58} ${h*0.6} L${w*0.74} ${h*0.63} L${w*0.6} ${h*0.45} L${w*0.68} ${h*0.45} Z" fill="#E53935"/>
+  </svg>`,
+  oak:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.43}" y="${h*0.55}" width="${w*0.14}" height="${h*0.44}" rx="4" fill="#4E342E"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.38}" rx="${w*0.42}" ry="${h*0.38}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.38}" cy="${h*0.32}" rx="${w*0.3}" ry="${h*0.28}" fill="#388E3C"/>
+    <ellipse cx="${w*0.62}" cy="${h*0.3}" rx="${w*0.28}" ry="${h*0.26}" fill="#43A047"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.2}" rx="${w*0.22}" ry="${h*0.2}" fill="#66BB6A"/>
+  </svg>`,
+  'apple-tree':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.43}" y="${h*0.58}" width="${w*0.14}" height="${h*0.4}" rx="3" fill="#5D4037"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.38}" rx="${w*0.4}" ry="${h*0.38}" fill="#388E3C"/>
+    <ellipse cx="${w*0.36}" cy="${h*0.3}" rx="${w*0.28}" ry="${h*0.26}" fill="#43A047"/>
+    <ellipse cx="${w*0.64}" cy="${h*0.28}" rx="${w*0.26}" ry="${h*0.24}" fill="#66BB6A"/>
+    <circle cx="${w*0.38}" cy="${h*0.48}" r="${w*0.07}" fill="#E53935"/>
+    <circle cx="${w*0.58}" cy="${h*0.52}" r="${w*0.07}" fill="#EF5350"/>
+    <circle cx="${w*0.5}" cy="${h*0.38}" r="${w*0.06}" fill="#C62828"/>
+  </svg>`,
+  'avocado-tree':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.6}" width="${w*0.12}" height="${h*0.38}" rx="3" fill="#4E342E"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.36}" rx="${w*0.38}" ry="${h*0.36}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.28}" rx="${w*0.28}" ry="${h*0.28}" fill="#388E3C"/>
+    <ellipse cx="${w*0.36}" cy="${h*0.4}" rx="${w*0.22}" ry="${h*0.2}" fill="#43A047"/>
+    <ellipse cx="${w*0.65}" cy="${h*0.38}" rx="${w*0.2}" ry="${h*0.22}" fill="#558B2F"/>
+    <!-- Avocado fruit -->
+    <ellipse cx="${w*0.44}" cy="${h*0.54}" rx="${w*0.055}" ry="${w*0.08}" fill="#33691E"/>
+    <ellipse cx="${w*0.6}" cy="${h*0.52}" rx="${w*0.05}" ry="${w*0.075}" fill="#558B2F"/>
+  </svg>`,
+  'banana-tree':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.4}" width="${w*0.12}" height="${h*0.58}" rx="4" fill="#33691E"/>
+    <!-- Leaves -->
+    <path d="M${w*0.5} ${h*0.4} Q${w*0.1} ${h*0.3} ${w*0.0} ${h*0.15}" stroke="#43A047" stroke-width="${w*0.1}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.4} Q${w*0.9} ${h*0.28} ${w*1.0} ${h*0.12}" stroke="#388E3C" stroke-width="${w*0.1}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.36} Q${w*0.2} ${h*0.15} ${w*0.1} ${h*0.02}" stroke="#66BB6A" stroke-width="${w*0.08}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.36} Q${w*0.8} ${h*0.14} ${w*0.9} ${h*0.02}" stroke="#4CAF50" stroke-width="${w*0.08}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.34} Q${w*0.5} ${h*0.1} ${w*0.5} ${h*0.0}" stroke="#558B2F" stroke-width="${w*0.07}" fill="none" stroke-linecap="round"/>
+    <!-- Bananas -->
+    <path d="M${w*0.5} ${h*0.56} Q${w*0.32} ${h*0.52} ${w*0.28} ${h*0.62}" stroke="#FDD835" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.56} Q${w*0.38} ${h*0.5} ${w*0.34} ${h*0.62}" stroke="#FFEE58" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  evergreen:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.82}" width="${w*0.12}" height="${h*0.17}" rx="3" fill="#4E342E"/>
+    <path d="M${w*0.5} ${h*0.04} L${w*0.22} ${h*0.55} L${w*0.36} ${h*0.55} L${w*0.16} ${h*0.78} L${w*0.84} ${h*0.78} L${w*0.64} ${h*0.55} L${w*0.78} ${h*0.55} Z" fill="#1B5E20"/>
+    <path d="M${w*0.5} ${h*0.04} L${w*0.26} ${h*0.52} L${w*0.38} ${h*0.52} L${w*0.2} ${h*0.74} L${w*0.8} ${h*0.74} L${w*0.62} ${h*0.52} L${w*0.74} ${h*0.52} Z" fill="#2E7D32"/>
+    <path d="M${w*0.5} ${h*0.04} L${w*0.3} ${h*0.46} L${w*0.44} ${h*0.46} L${w*0.32} ${h*0.66} L${w*0.68} ${h*0.66} L${w*0.56} ${h*0.46} L${w*0.7} ${h*0.46} Z" fill="#388E3C"/>
+  </svg>`,
+  boxwood:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.78}" width="${w*0.12}" height="${h*0.2}" rx="2" fill="#4E342E"/>
+    <rect x="${w*0.06}" y="${h*0.28}" width="${w*0.88}" height="${h*0.56}" rx="6" fill="#388E3C"/>
+    <rect x="${w*0.1}" y="${h*0.32}" width="${w*0.8}" height="${h*0.48}" rx="5" fill="#43A047"/>
+    <!-- Clipped surface dots -->
+    ${[...Array(12)].map((_,i)=>`<circle cx="${w*(0.15+i%4*0.23)}" cy="${h*(0.38+Math.floor(i/4)*0.18)}" r="${w*0.04}" fill="#2E7D32" opacity=".4"/>`).join('')}
+  </svg>`,
+  'cherry-tree':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.58}" width="${w*0.12}" height="${h*0.4}" rx="3" fill="#4E342E"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.36}" rx="${w*0.4}" ry="${h*0.36}" fill="#F48FB1"/>
+    <ellipse cx="${w*0.36}" cy="${h*0.3}" rx="${w*0.28}" ry="${h*0.26}" fill="#F8BBD9"/>
+    <ellipse cx="${w*0.64}" cy="${h*0.28}" rx="${w*0.26}" ry="${h*0.25}" fill="#FCE4EC"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.2}" rx="${w*0.2}" ry="${h*0.18}" fill="#fff" opacity=".6"/>
+    <!-- Cherries -->
+    <circle cx="${w*0.4}" cy="${h*0.5}" r="${w*0.06}" fill="#C62828"/>
+    <circle cx="${w*0.58}" cy="${h*0.52}" r="${w*0.06}" fill="#E53935"/>
+    <line x1="${w*0.4}" y1="${h*0.44}" x2="${w*0.4}" y2="${h*0.36}" stroke="#2E7D32" stroke-width="1.5"/>
+    <line x1="${w*0.58}" y1="${h*0.46}" x2="${w*0.58}" y2="${h*0.38}" stroke="#2E7D32" stroke-width="1.5"/>
+  </svg>`,
+  willow:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.46}" y="${h*0.3}" width="${w*0.08}" height="${h*0.68}" rx="3" fill="#5D4037"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.22}" rx="${w*0.38}" ry="${h*0.22}" fill="#2E7D32"/>
+    <!-- Drooping branches -->
+    ${[0.18,0.3,0.42,0.58,0.7,0.82].map(x=>`<path d="M${w*x} ${h*0.28} Q${w*(x-0.08)} ${h*0.56} ${w*(x-0.12)} ${h*0.82}" stroke="#43A047" stroke-width="2.5" fill="none" stroke-linecap="round"/>`).join('')}
+  </svg>`,
+  birch:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.42}" y="${h*0.32}" width="${w*0.16}" height="${h*0.66}" rx="4" fill="#ECEFF1"/>
+    <!-- Bark marks -->
+    ${[0.45,0.55,0.65,0.75,0.82].map(y=>`<rect x="${w*0.42}" y="${h*y}" width="${w*0.16}" height="${h*0.025}" rx="1" fill="#607D8B" opacity=".4"/>`).join('')}
+    <ellipse cx="${w*0.5}" cy="${h*0.22}" rx="${w*0.36}" ry="${h*0.24}" fill="#AED581"/>
+    <ellipse cx="${w*0.38}" cy="${h*0.18}" rx="${w*0.24}" ry="${h*0.18}" fill="#C5E1A5"/>
+    <ellipse cx="${w*0.62}" cy="${h*0.17}" rx="${w*0.22}" ry="${h*0.17}" fill="#DCEDC8"/>
+  </svg>`,
+  // Bush SVGs
+  hydrangea:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.43}" y="${h*0.72}" width="${w*0.14}" height="${h*0.26}" rx="2" fill="#5D4037"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.5}" rx="${w*0.44}" ry="${h*0.48}" fill="#7B1FA2"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.46}" rx="${w*0.36}" ry="${h*0.38}" fill="#9C27B0"/>
+    <!-- Flower clusters -->
+    ${[[0.3,0.35],[0.55,0.3],[0.7,0.45],[0.4,0.58],[0.65,0.6]].map(([cx,cy])=>`<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.1}" fill="#CE93D8" opacity=".8"/><circle cx="${w*cx}" cy="${h*cy}" r="${w*0.06}" fill="#E1BEE7"/>`).join('')}
+  </svg>`,
+  bougainvillea:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.78}" width="${w*0.12}" height="${h*0.2}" rx="2" fill="#5D4037"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.48}" rx="${w*0.44}" ry="${h*0.46}" fill="#AD1457"/>
+    <ellipse cx="${w*0.4}" cy="${h*0.42}" rx="${w*0.3}" ry="${h*0.34}" fill="#C2185B"/>
+    <ellipse cx="${w*0.62}" cy="${h*0.44}" rx="${w*0.28}" ry="${h*0.3}" fill="#E91E63"/>
+    <!-- Bracts -->
+    ${[[0.25,0.38],[0.48,0.25],[0.7,0.35],[0.35,0.55],[0.62,0.58]].map(([cx,cy])=>`<path d="M${w*cx} ${h*cy} Q${w*(cx+0.06)} ${h*(cy-0.08)} ${w*(cx+0.12)} ${h*cy} Q${w*(cx+0.06)} ${h*(cy+0.04)} ${w*cx} ${h*cy}Z" fill="#F48FB1" opacity=".8"/>`).join('')}
+  </svg>`,
+  'rose-bush':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.72}" width="${w*0.12}" height="${h*0.26}" rx="2" fill="#4E342E"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.48}" rx="${w*0.44}" ry="${h*0.46}" fill="#388E3C"/>
+    <!-- Thorny stems visible at bottom -->
+    <line x1="${w*0.5}" y1="${h*0.72}" x2="${w*0.38}" y2="${h*0.58}" stroke="#2E7D32" stroke-width="2"/>
+    <line x1="${w*0.5}" y1="${h*0.72}" x2="${w*0.62}" y2="${h*0.6}" stroke="#2E7D32" stroke-width="2"/>
+    <!-- Rose blooms -->
+    ${[[0.32,0.35],[0.55,0.28],[0.68,0.46],[0.38,0.56]].map(([cx,cy])=>`<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.1}" fill="#C62828"/><circle cx="${w*cx}" cy="${h*cy}" r="${w*0.06}" fill="#EF5350"/><circle cx="${w*cx}" cy="${h*cy}" r="${w*0.03}" fill="#FFCDD2"/>`).join('')}
+  </svg>`,
+  lilac:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.74}" width="${w*0.12}" height="${h*0.24}" rx="2" fill="#5D4037"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.5}" rx="${w*0.44}" ry="${h*0.46}" fill="#6A1B9A"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.44}" rx="${w*0.36}" ry="${h*0.38}" fill="#8E24AA"/>
+    ${[[0.3,0.32],[0.52,0.26],[0.7,0.38],[0.38,0.52],[0.64,0.54]].map(([cx,cy])=>`<ellipse cx="${w*cx}" cy="${h*cy}" rx="${w*0.1}" ry="${h*0.12}" fill="#CE93D8" opacity=".85"/><ellipse cx="${w*cx}" cy="${h*(cy-0.04)}" rx="${w*0.07}" ry="${h*0.08}" fill="#E1BEE7"/>`).join('')}
+  </svg>`,
+  forsythia:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.76}" width="${w*0.12}" height="${h*0.22}" rx="2" fill="#5D4037"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.5}" rx="${w*0.44}" ry="${h*0.46}" fill="#F57F17"/>
+    <ellipse cx="${w*0.38}" cy="${h*0.44}" rx="${w*0.3}" ry="${h*0.36}" fill="#F9A825"/>
+    <ellipse cx="${w*0.64}" cy="${h*0.46}" rx="${w*0.28}" ry="${h*0.34}" fill="#FDD835"/>
+    ${[[0.26,0.36],[0.5,0.24],[0.72,0.38],[0.36,0.58],[0.64,0.6]].map(([cx,cy])=>`<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.08}" fill="#FFEE58" opacity=".8"/>`).join('')}
+  </svg>`,
+  juniper:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${w*0.44}" y="${h*0.76}" width="${w*0.12}" height="${h*0.22}" rx="2" fill="#4E342E"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.48}" rx="${w*0.44}" ry="${h*0.46}" fill="#1B5E20"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.42}" rx="${w*0.36}" ry="${h*0.38}" fill="#2E7D32"/>
+    <path d="M${w*0.5} ${h*0.06} L${w*0.28} ${h*0.44} L${w*0.38} ${h*0.44} L${w*0.22} ${h*0.62} L${w*0.78} ${h*0.62} L${w*0.62} ${h*0.44} L${w*0.72} ${h*0.44} Z" fill="#388E3C"/>
+    <!-- Berries -->
+    <circle cx="${w*0.36}" cy="${h*0.48}" r="${w*0.04}" fill="#1A237E" opacity=".7"/>
+    <circle cx="${w*0.62}" cy="${h*0.52}" r="${w*0.04}" fill="#1A237E" opacity=".7"/>
+    <circle cx="${w*0.48}" cy="${h*0.56}" r="${w*0.04}" fill="#303F9F" opacity=".7"/>
   </svg>`,
 };
 function getStructIcon(sDef,w,h){
@@ -926,131 +1109,139 @@ const DECOR_SVGS={
   </svg>`,
 };
 const ANIMAL_SVGS={
-  horse:function(sz){return `<svg viewBox="0 0 120 100" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+  horse:function(sz){return `<svg viewBox="0 0 110 90" width="${sz}" height="${sz*0.82}" xmlns="http://www.w3.org/2000/svg">
   <!-- Ground shadow -->
-  <ellipse cx="62" cy="97" rx="36" ry="5" fill="rgba(0,0,0,.12)"/>
-  <!-- Tail — swept back, galloping -->
-  <path d="M95 54 C102 46 110 38 108 28 C107 22 103 20 100 24 C104 30 102 36 96 44" fill="#7A4C28" opacity=".9"/>
-  <path d="M95 54 C100 44 106 34 104 26" stroke="#5C3010" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <!-- BODY — warm golden tan, large barrel chest, galloping pose -->
-  <ellipse cx="60" cy="58" rx="34" ry="22" fill="#E8B46A"/>
-  <!-- Belly shading -->
-  <ellipse cx="58" cy="68" rx="26" ry="12" fill="#D4944A" opacity=".4"/>
-  <!-- Hip highlight -->
-  <ellipse cx="80" cy="50" rx="14" ry="11" fill="#F0C882" opacity=".5"/>
-  <!-- Shoulder shading -->
-  <ellipse cx="38" cy="55" rx="12" ry="10" fill="#C8844A" opacity=".4"/>
-  <!-- NECK — upright, muscular -->
-  <path d="M36 48 C30 38 28 26 32 17 C35 10 43 8 47 11 C49 18 47 32 42 46 Z" fill="#D8A45C"/>
-  <path d="M36 48 C31 39 30 29 33 19" stroke="#B8843C" stroke-width="2" fill="none"/>
-  <!-- HEAD — elongated, elegant horse head -->
-  <path d="M42 12 C41 5 46 1 53 1 C60 1 65 6 65 13 C65 19 61 23 55 23 C47 23 42 18 42 12Z" fill="#C8904A"/>
-  <!-- Nose bridge blaze — white stripe -->
-  <path d="M53 2 C52 7 51 13 52 17" stroke="#F0DDB0" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
-  <!-- Muzzle — lighter, soft -->
-  <ellipse cx="62" cy="16" rx="6" ry="5" fill="#D4A060" transform="rotate(8 62 16)"/>
-  <ellipse cx="61" cy="17" rx="2.2" ry="1.5" fill="#7A4820"/>
-  <ellipse cx="65" cy="16" rx="2" ry="1.4" fill="#7A4820"/>
-  <path d="M57 20 Q62 22 67 20" stroke="#7A4820" stroke-width="1.2" fill="none"/>
-  <!-- Eye — large, dark, kind -->
-  <ellipse cx="48" cy="9" rx="3.5" ry="3" fill="#1A0A00"/>
-  <ellipse cx="49.2" cy="8" rx="1.2" ry="1" fill="#fff" opacity=".8"/>
-  <!-- Ear — pointed, upright -->
-  <path d="M45 5 L42 -2 L49 4 Z" fill="#C8904A" stroke="#A07030" stroke-width=".8"/>
-  <path d="M45 5 L43 0 L47 3 Z" fill="#E8C882"/>
-  <!-- MANE — dark brown, flowing backward (galloping) -->
-  <path d="M48 3 C50 8 52 14 55 20" stroke="#3D1C00" stroke-width="6" fill="none" stroke-linecap="round"/>
-  <path d="M44 5 C45 10 47 17 50 22" stroke="#5C2C00" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M40 8 C42 14 44 20 46 26" stroke="#2A1000" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M37 13 C39 18 40 24 40 30" stroke="#4A2000" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <!-- LEGS — galloping, dynamic: front legs extended forward, back legs back -->
-  <!-- Front-left leg (leading, extended far forward) -->
-  <path d="M34 70 C30 76 26 82 24 90" stroke="#B87A38" stroke-width="9" fill="none" stroke-linecap="round"/>
-  <ellipse cx="23" cy="91" rx="7" ry="3.5" fill="#5C3010"/>
-  <!-- Front-right leg (less extended) -->
-  <path d="M44 72 C44 78 44 84 44 92" stroke="#C8904A" stroke-width="8" fill="none" stroke-linecap="round"/>
-  <ellipse cx="44" cy="93" rx="6" ry="3" fill="#5C3010"/>
-  <!-- Back-left leg (extended back) -->
-  <path d="M74 70 C80 76 86 82 90 88" stroke="#C8904A" stroke-width="9" fill="none" stroke-linecap="round"/>
-  <ellipse cx="91" cy="89" rx="7" ry="3.5" fill="#5C3010"/>
-  <!-- Back-right leg (tucked under) -->
-  <path d="M84 68 C86 74 86 80 84 88" stroke="#B87A38" stroke-width="8" fill="none" stroke-linecap="round"/>
-  <ellipse cx="83" cy="89" rx="6" ry="3" fill="#5C3010"/>
-  <!-- Knee highlights -->
-  <ellipse cx="34" cy="76" rx="5" ry="3.5" fill="#A06830" opacity=".5"/>
-  <ellipse cx="80" cy="76" rx="5" ry="3.5" fill="#A06830" opacity=".5"/>
+  <ellipse cx="60" cy="88" rx="38" ry="5" fill="rgba(0,0,0,.13)"/>
+  <!-- TAIL — swept high, flowing dark brown -->
+  <path d="M90 46 C100 38 110 30 108 18 C106 10 100 8 96 14 C101 20 98 30 92 40" fill="#6B3A1E"/>
+  <path d="M90 46 C97 36 104 24 102 14" stroke="#4A2208" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M90 46 C96 34 100 26 98 16" stroke="#7A4C28" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- BODY — large warm golden-tan barrel, galloping lean forward -->
+  <ellipse cx="58" cy="52" rx="32" ry="20" fill="#EFB96C"/>
+  <!-- Body shading -->
+  <ellipse cx="70" cy="46" rx="18" ry="13" fill="#F5D090" opacity=".55"/>
+  <ellipse cx="44" cy="58" rx="14" ry="10" fill="#D4944A" opacity=".35"/>
+  <!-- Hip bump -->
+  <ellipse cx="80" cy="48" rx="14" ry="13" fill="#E0A050" opacity=".5"/>
+  <!-- Chest muscle -->
+  <ellipse cx="36" cy="50" rx="10" ry="12" fill="#D4944A" opacity=".4"/>
+  <!-- NECK — thick, arched forward (galloping) -->
+  <path d="M34 44 C28 33 26 20 30 12 C33 6 41 4 44 8 C46 14 44 28 40 42 Z" fill="#D8A050"/>
+  <path d="M34 44 C29 33 28 22 31 13" stroke="#B8742A" stroke-width="2" fill="none"/>
+  <!-- HEAD — warm amber, slightly tilted forward -->
+  <path d="M42 10 C41 3 46 -1 53 0 C60 1 65 6 65 13 C65 19 61 23 54 23 C46 23 42 18 42 10Z" fill="#C8883C"/>
+  <!-- Cheek highlight -->
+  <ellipse cx="50" cy="14" rx="6" ry="5" fill="#E0A04A" opacity=".5"/>
+  <!-- Face blaze — white stripe -->
+  <path d="M54 1 C53 6 52 12 53 18" stroke="#F5DDA8" stroke-width="4" fill="none" stroke-linecap="round" opacity=".65"/>
+  <!-- Muzzle — rounded, lighter -->
+  <ellipse cx="63" cy="17" rx="6" ry="5" fill="#D4A060" transform="rotate(8 63 17)"/>
+  <!-- Nostrils -->
+  <ellipse cx="61" cy="18" rx="2" ry="1.5" fill="#7A4818"/>
+  <ellipse cx="65" cy="17.5" rx="1.8" ry="1.4" fill="#7A4818"/>
+  <!-- Mouth line -->
+  <path d="M58 21 Q63 23 68 21" stroke="#8B5820" stroke-width="1.2" fill="none"/>
+  <!-- EYE — large, round, dark with highlight -->
+  <circle cx="48" cy="9" r="3.5" fill="#0F0800"/>
+  <circle cx="49.2" cy="7.8" r="1.2" fill="#fff" opacity=".8"/>
+  <!-- Ear -->
+  <path d="M44 5 L41 -2 L49 4 Z" fill="#C8883C" stroke="#A06828" stroke-width=".8"/>
+  <path d="M44 5 L43 0 L47 3 Z" fill="#E8C882"/>
+  <!-- MANE — thick dark brown, swept back -->
+  <path d="M48 2 C46 8 46 16 48 22" stroke="#2A1000" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M44 5 C42 11 42 20 43 27" stroke="#3D1800" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M40 9 C38 15 38 23 38 30" stroke="#5A2A0A" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M36 14 C34 20 34 28 35 35" stroke="#2A1000" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- LEGS — galloping: front pair thrust forward, back pair back -->
+  <!-- Front-left (leading, extended far fwd) -->
+  <path d="M32 66 C26 74 20 80 16 88" stroke="#B87838" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <!-- Front knee joint -->
+  <ellipse cx="26" cy="76" rx="5.5" ry="4" fill="#9A6028" opacity=".6"/>
+  <!-- Front-right (tucked) -->
+  <path d="M40 68 C38 76 36 82 38 88" stroke="#C89048" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <!-- Back-left (extended back) -->
+  <path d="M76 66 C82 74 88 80 92 88" stroke="#C89048" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <!-- Back knee -->
+  <ellipse cx="84" cy="76" rx="5.5" ry="4" fill="#9A6028" opacity=".55"/>
+  <!-- Back-right (tucked under) -->
+  <path d="M84 66 C86 74 84 82 82 88" stroke="#B87838" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <!-- HOOVES — dark brown, chunky -->
+  <ellipse cx="15" cy="88" rx="7" ry="3.5" fill="#4A2808"/>
+  <ellipse cx="38" cy="88" rx="6.5" ry="3" fill="#4A2808"/>
+  <ellipse cx="93" cy="88" rx="7" ry="3.5" fill="#4A2808"/>
+  <ellipse cx="81" cy="88" rx="6.5" ry="3" fill="#4A2808"/>
 </svg>`;},
-  cow:function(sz){return `<svg viewBox="0 0 110 100" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+  cow:function(sz){return `<svg viewBox="0 0 100 90" width="${sz}" height="${sz*0.9}" xmlns="http://www.w3.org/2000/svg">
   <!-- Ground shadow -->
-  <ellipse cx="56" cy="97" rx="36" ry="4" fill="rgba(0,0,0,.13)"/>
-  <!-- Tail — thin, ropy, with tuft -->
-  <path d="M89 56 C96 56 100 62 98 70 C97 76 92 80 90 86" stroke="#B0A898" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <ellipse cx="89" cy="87" rx="6" ry="4" fill="#909080" transform="rotate(-15 89 87)"/>
-  <!-- BODY — white base with black patches, large boxy Holstein -->
-  <ellipse cx="55" cy="60" rx="34" ry="22" fill="#F0EDE8"/>
-  <!-- Holstein patches -->
-  <ellipse cx="38" cy="50" rx="14" ry="13" fill="#101010" opacity=".9"/>
-  <ellipse cx="68" cy="64" rx="11" ry="10" fill="#101010" opacity=".88"/>
-  <path d="M76 46 C82 42 88 44 86 52 C84 56 78 54 76 46Z" fill="#101010" opacity=".8"/>
-  <!-- Belly outline -->
-  <path d="M26 72 Q55 78 82 72" stroke="#D8D4CC" stroke-width="2" fill="none"/>
-  <!-- Udder -->
-  <ellipse cx="48" cy="79" rx="14" ry="7" fill="#F0AAAA"/>
-  <ellipse cx="48" cy="79" rx="13" ry="4" fill="#E09090" opacity=".6"/>
+  <ellipse cx="50" cy="88" rx="34" ry="4.5" fill="rgba(0,0,0,.13)"/>
+  <!-- Tail — thin ropy, right side -->
+  <path d="M82 50 C90 52 94 60 92 68 C91 74 88 78 86 84" stroke="#B0A898" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="85" cy="85" rx="5.5" ry="3.5" fill="#909080" transform="rotate(-10 85 85)"/>
+  <!-- BODY — large white boxy Holstein body -->
+  <ellipse cx="52" cy="57" rx="32" ry="22" fill="#F4F0EA"/>
+  <ellipse cx="52" cy="57" rx="32" ry="22" fill="none" stroke="#C8C4BC" stroke-width="1.5"/>
+  <!-- Holstein BLACK patches -->
+  <ellipse cx="36" cy="46" rx="14" ry="13" fill="#0E0E0E" opacity=".9"/>
+  <ellipse cx="68" cy="61" rx="11" ry="10" fill="#0E0E0E" opacity=".88"/>
+  <path d="M74 44 C80 40 86 42 84 50 C82 54 76 52 74 44Z" fill="#0E0E0E" opacity=".8"/>
+  <!-- Belly shading -->
+  <path d="M24 70 Q52 76 80 70" stroke="#D8D4CC" stroke-width="2" fill="none"/>
+  <!-- RUMP -->
+  <ellipse cx="78" cy="54" rx="16" ry="20" fill="#ECE8E0"/>
+  <ellipse cx="82" cy="48" rx="9" ry="8" fill="#0E0E0E" opacity=".45"/>
+  <!-- UDDER — prominent pink -->
+  <ellipse cx="46" cy="76" rx="14" ry="7.5" fill="#F0AAAA"/>
+  <ellipse cx="46" cy="76" rx="13" ry="4.5" fill="#E09090" opacity=".55"/>
   <!-- Teats -->
-  <rect x="38" y="83" width="4" height="7" rx="2" fill="#C07070"/>
-  <rect x="44" y="84" width="4" height="7" rx="2" fill="#C07070"/>
-  <rect x="50" y="84" width="4" height="7" rx="2" fill="#C07070"/>
-  <rect x="56" y="83" width="4" height="7" rx="2" fill="#C07070"/>
-  <!-- RUMP — wide square rump -->
-  <ellipse cx="80" cy="57" rx="15" ry="18" fill="#E8E4DC"/>
-  <!-- Rump patch -->
-  <ellipse cx="84" cy="52" rx="8" ry="7" fill="#101010" opacity=".5"/>
-  <!-- NECK — wide, dewlap -->
-  <path d="M30 50 C25 40 24 28 28 19 C32 11 40 9 43 12 C44 20 42 34 37 48 Z" fill="#E8E4DC"/>
+  <rect x="36" y="80" width="4.5" height="7" rx="2.2" fill="#C07070"/>
+  <rect x="42" y="81" width="4.5" height="7" rx="2.2" fill="#C07070"/>
+  <rect x="48" y="81" width="4.5" height="7" rx="2.2" fill="#C07070"/>
+  <rect x="54" y="80" width="4.5" height="7" rx="2.2" fill="#C07070"/>
+  <!-- NECK -->
+  <path d="M30 48 C25 38 24 26 28 17 C31 10 39 8 42 11 C43 18 41 32 37 46 Z" fill="#EEE8DC"/>
   <!-- Dewlap -->
-  <path d="M28 46 C24 51 23 56 26 58" stroke="#D0CCC4" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <!-- Neck patch -->
-  <ellipse cx="34" cy="24" rx="6" ry="7" fill="#101010" opacity=".55"/>
-  <!-- HEAD — broad, front-facing with big pink muzzle -->
-  <ellipse cx="50" cy="14" rx="16" ry="15" fill="#EEEAE0"/>
-  <!-- Head patch -->
-  <ellipse cx="48" cy="8" rx="6" ry="5" fill="#101010" opacity=".65"/>
-  <!-- EARS — large, pink-lined -->
-  <path d="M35 12 C29 7 26 10 28 17 C30 22 36 19 35 12Z" fill="#E8E4DC" stroke="#C8C4BC" stroke-width=".8"/>
-  <path d="M35 12 C31 9 30 12 31 17" fill="#FBB0B0" stroke="none"/>
-  <path d="M64 12 C70 7 73 10 71 17 C69 22 63 19 64 12Z" fill="#E8E4DC" stroke="#C8C4BC" stroke-width=".8"/>
-  <path d="M64 12 C68 9 69 12 68 17" fill="#FBB0B0" stroke="none"/>
-  <!-- Pink horns -->
-  <path d="M40 8 C37 3 33 1 30 2" stroke="#EEC0C0" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <path d="M58 8 C61 3 65 1 68 2" stroke="#EEC0C0" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <!-- EYES — large, round, gentle -->
-  <circle cx="41" cy="14" r="5" fill="#404040"/>
-  <circle cx="42.5" cy="12.5" r="1.8" fill="#fff" opacity=".8"/>
-  <circle cx="59" cy="14" r="5" fill="#404040"/>
-  <circle cx="60.5" cy="12.5" r="1.8" fill="#fff" opacity=".8"/>
-  <!-- MUZZLE — big pink square muzzle -->
-  <rect x="38" y="21" width="24" height="16" rx="8" fill="#F4AAAA"/>
-  <rect x="38" y="21" width="24" height="8" rx="8" fill="#F0BCBC" opacity=".6"/>
-  <!-- Nostrils — large and round -->
-  <circle cx="45" cy="30" r="3.5" fill="#A06060"/>
-  <circle cx="55" cy="30" r="3.5" fill="#A06060"/>
-  <!-- Mouth -->
-  <path d="M44 36 Q50 38 56 36" stroke="#906050" stroke-width="1.5" fill="none"/>
-  <!-- LEGS — sturdy, white with grey hooves -->
-  <rect x="24" y="76" width="11" height="18" rx="5" fill="#E0DCD4"/>
-  <rect x="38" y="78" width="11" height="16" rx="5" fill="#E8E4DC"/>
-  <rect x="60" y="78" width="11" height="16" rx="5" fill="#E8E4DC"/>
-  <rect x="75" y="76" width="11" height="18" rx="5" fill="#E0DCD4"/>
+  <path d="M28 44 C24 50 23 55 26 57" stroke="#D0CCC4" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="36" cy="22" rx="6" ry="7" fill="#0E0E0E" opacity=".55"/>
+  <!-- HEAD — large square friendly head, front facing slightly -->
+  <ellipse cx="48" cy="14" rx="17" ry="16" fill="#F0ECE0"/>
+  <ellipse cx="48" cy="14" rx="17" ry="16" fill="none" stroke="#C8C4BC" stroke-width="1.2"/>
+  <!-- Head patches -->
+  <ellipse cx="46" cy="7" rx="6" ry="5.5" fill="#0E0E0E" opacity=".7"/>
+  <!-- EARS — large rounded, pink inside -->
+  <path d="M32 12 C26 7 23 10 25 17 C27 22 33 20 32 12Z" fill="#EEE8DC" stroke="#C8C4BC" stroke-width=".8"/>
+  <path d="M32 12 C28 9 27 12 28 17" fill="#F4AAAA" opacity=".7"/>
+  <path d="M62 12 C68 7 71 10 69 17 C67 22 61 20 62 12Z" fill="#EEE8DC" stroke="#C8C4BC" stroke-width=".8"/>
+  <path d="M62 12 C66 9 67 12 66 17" fill="#F4AAAA" opacity=".7"/>
+  <!-- HORNS — curved pink horns (like reference) -->
+  <path d="M38 8 C35 3 31 1 28 2" stroke="#F4CCCC" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M57 8 C60 3 64 1 67 2" stroke="#F4CCCC" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- EYES — large round with highlights, grey circles (like reference) -->
+  <circle cx="40" cy="13" r="6" fill="#5A5A5A"/>
+  <circle cx="40" cy="13" r="4.5" fill="#3A3A3A"/>
+  <circle cx="41.8" cy="11.2" r="2" fill="#fff" opacity=".85"/>
+  <circle cx="56" cy="13" r="6" fill="#5A5A5A"/>
+  <circle cx="56" cy="13" r="4.5" fill="#3A3A3A"/>
+  <circle cx="57.8" cy="11.2" r="2" fill="#fff" opacity=".85"/>
+  <!-- BIG PINK MUZZLE rectangle — dominant feature of reference image -->
+  <rect x="34" y="22" width="28" height="16" rx="9" fill="#F4AAAA"/>
+  <rect x="34" y="22" width="28" height="8" rx="9" fill="#F8C8C8" opacity=".5"/>
+  <!-- Nostrils — large brown circles inside muzzle -->
+  <circle cx="42" cy="31" r="4.5" fill="#8A5040"/>
+  <circle cx="54" cy="31" r="4.5" fill="#8A5040"/>
+  <!-- LEGS — white with dark grey hooves -->
+  <rect x="22" y="74" width="11" height="16" rx="5" fill="#EAE4D8"/>
+  <rect x="36" y="76" width="11" height="14" rx="5" fill="#F0EAE0"/>
+  <rect x="58" y="76" width="11" height="14" rx="5" fill="#F0EAE0"/>
+  <rect x="72" y="74" width="11" height="16" rx="5" fill="#EAE4D8"/>
   <!-- Hooves — dark grey, split -->
-  <ellipse cx="29" cy="93" rx="6.5" ry="3.5" fill="#505050"/>
-  <line x1="29" y1="89" x2="29" y2="95" stroke="#666" stroke-width="1.2"/>
-  <ellipse cx="43" cy="93" rx="6" ry="3" fill="#505050"/>
-  <line x1="43" y1="90" x2="43" y2="95" stroke="#666" stroke-width="1.2"/>
-  <ellipse cx="65" cy="93" rx="6" ry="3" fill="#505050"/>
-  <line x1="65" y1="90" x2="65" y2="95" stroke="#666" stroke-width="1.2"/>
-  <ellipse cx="80" cy="93" rx="6.5" ry="3.5" fill="#505050"/>
-  <line x1="80" y1="89" x2="80" y2="95" stroke="#666" stroke-width="1.2"/>
+  <ellipse cx="27" cy="89" rx="7" ry="3.5" fill="#4A4A4A"/>
+  <line x1="27" y1="85" x2="27" y2="90" stroke="#666" stroke-width="1.3"/>
+  <ellipse cx="41" cy="89" rx="6.5" ry="3" fill="#4A4A4A"/>
+  <line x1="41" y1="86" x2="41" y2="90" stroke="#666" stroke-width="1.3"/>
+  <ellipse cx="63" cy="89" rx="6.5" ry="3" fill="#4A4A4A"/>
+  <line x1="63" y1="86" x2="63" y2="90" stroke="#666" stroke-width="1.3"/>
+  <ellipse cx="77" cy="89" rx="7" ry="3.5" fill="#4A4A4A"/>
+  <line x1="77" y1="85" x2="77" y2="90" stroke="#666" stroke-width="1.3"/>
 </svg>`;}
 };
 const ANIMALS=[
@@ -1078,7 +1269,6 @@ const MULCHES=[
   {id:'patio-charcoal',name:'Patio Stones — Charcoal',color:'#455A64',type:'patio-charcoal'},
   {id:'patio-terracotta',name:'Patio Stones — Terracotta',color:'#B5541C',type:'patio-terracotta'},
   {id:'grass',name:'Grass Clippings',color:'#7CB342',type:'grass'},
-  {id:'dark-grass',name:'Dark Grass Clippings',color:'#1B5E20',type:'dark-grass'},
 ];
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -1130,8 +1320,8 @@ async function doSignOut(){
   await sb.auth.signOut();
   showScreen('auth-screen');
   cUser=null;gardens=[];beds=[];cGardenId=null;isReadOnly=false;
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,.farmer-el').forEach(e=>e.remove());
-  farmerEl=null;
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap').forEach(e=>e.remove());
+  document.getElementById('farmer')?.remove();farmerEl=null;
 }
 
 // ── UNDO ──────────────────────────────────────────────────────────────────────
@@ -1148,7 +1338,12 @@ function pushUndo(label='action'){
   })));
   const structs=[];
   document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{
-    try{const d=JSON.parse(el.dataset.sdata);structs.push({...d,x:parseFloat(el.style.left)||d.x,y:parseFloat(el.style.top)||d.y});}catch(e){}
+    try{
+      const d=JSON.parse(el.dataset.sdata);
+      if(d.type==='animal'&&d.pastureId)return;
+      if(d.type==='pasture-group'){const pas=liveAnimals.filter(a=>a.data.pastureId===d.pastureId).map(a=>({...a.data,x:parseFloat(a.el.style.left),y:parseFloat(a.el.style.top)}));d.animals=pas;}
+      structs.push({...d,x:parseFloat(el.style.left)||d.x,y:parseFloat(el.style.top)||d.y});
+    }catch(e){}
   });
   const farmerEls=[...document.getElementById('gc').querySelectorAll('.farmer-el')].map(el=>{
     try{return JSON.parse(el.dataset.sdata);}catch(e){return null;}
@@ -1157,27 +1352,53 @@ function pushUndo(label='action'){
   if(undoStack.length>MAX_UNDO)undoStack.shift();
   updateUndoBtn();
 }
+function toggleLockAll(){
+  window._allLocked=!window._allLocked;
+  const btn=document.getElementById('lock-btn');
+  if(btn){btn.textContent=window._allLocked?'🔒':'🔓';btn.title=window._allLocked?'Unlock all items':'Lock all items';}
+  toast(window._allLocked?'🔒 Everything locked':'🔓 Everything unlocked');
+  scheduleSave();
+}
+const redoStack=[];
 function updateUndoBtn(){
-  const btn=document.getElementById('undo-btn');
-  if(btn){btn.style.opacity=undoStack.length>0?'1':'0.4';btn.title=undoStack.length>0?'Undo: '+undoStack[undoStack.length-1].label:'Nothing to undo';}
+  const ub=document.getElementById('undo-btn');
+  if(ub){ub.style.opacity=undoStack.length>0?'1':'0.4';ub.title=undoStack.length>0?'Undo: '+undoStack[undoStack.length-1].label:'Nothing to undo';}
+  const rb=document.getElementById('redo-btn');
+  if(rb){rb.style.opacity=redoStack.length>0?'1':'0.4';rb.title=redoStack.length>0?'Redo: '+redoStack[redoStack.length-1].label:'Nothing to redo';}
+}
+async function doRedo(){
+  if(redoStack.length===0){toast('Nothing to redo');return;}
+  const snap=redoStack.pop();
+  // Push current state onto undo before applying redo
+  const curBeds=JSON.stringify(beds.map(b=>({id:b.id,name:b.name,cols:b.cols,rows:b.rows,x:b.el?parseFloat(b.el.style.left):b.x,y:b.el?parseFloat(b.el.style.top):b.y,locked:b.locked,cells:[...b.cells],inter:b.inter,intercells:[...(b.intercells||[])],curved:b.curved||false})));
+  const curStructs=[];
+  document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{try{const d=JSON.parse(el.dataset.sdata);if(d.type==='animal'&&d.pastureId)return;curStructs.push({...d,x:parseFloat(el.style.left)||d.x,y:parseFloat(el.style.top)||d.y});}catch(e){}});
+  undoStack.push({beds:curBeds,structs:JSON.stringify(curStructs),farmers:'[]',bg:currentBg,label:'Before redo'});
+  updateUndoBtn();
+  await _applySnap(snap);
+  toast('↪ Redone: '+snap.label);
+  scheduleSave();
+}
+async function _applySnap(snap){
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.farmer-el,.hplanter-wrap').forEach(e=>e.remove());
+  farmerEl=null;beds=[];bedCount=0;liveAnimals.length=0;stopAllAnimals();
+  try{JSON.parse(snap.beds).forEach(d=>restoreBed(d));}catch(e){}
+  try{JSON.parse(snap.structs).forEach(d=>restoreStructure(d));}catch(e){}
+  try{JSON.parse(snap.farmers||'[]').forEach(d=>createFarmerEl(d));}catch(e){}
+  if(snap.bg)applyBg(snap.bg);
+  expandCanvas();
 }
 async function doUndo(){
   if(undoStack.length===0){toast('Nothing to undo');return;}
   const snap=undoStack.pop();
+  // Save current state to redo stack
+  const curBeds=JSON.stringify(beds.map(b=>({id:b.id,name:b.name,cols:b.cols,rows:b.rows,x:b.el?parseFloat(b.el.style.left):b.x,y:b.el?parseFloat(b.el.style.top):b.y,locked:b.locked,cells:[...b.cells],inter:b.inter,intercells:[...(b.intercells||[])],curved:b.curved||false})));
+  const curStructs=[];
+  document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{try{const d=JSON.parse(el.dataset.sdata);if(d.type==='animal'&&d.pastureId)return;curStructs.push({...d,x:parseFloat(el.style.left)||d.x,y:parseFloat(el.style.top)||d.y});}catch(e){}});
+  redoStack.push({beds:curBeds,structs:JSON.stringify(curStructs),farmers:'[]',bg:currentBg,label:snap.label});
+  if(redoStack.length>MAX_UNDO)redoStack.shift();
   updateUndoBtn();
-  // Clear canvas
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.farmer-el,.hplanter-wrap').forEach(e=>e.remove());
-  document.getElementById('farmer')?.remove();farmerEl=null;
-  beds=[];bedCount=0;liveAnimals.length=0;stopAllAnimals();
-  // Restore beds
-  try{JSON.parse(snap.beds).forEach(d=>restoreBed(d));}catch(e){}
-  // Restore structs
-  try{JSON.parse(snap.structs).forEach(d=>restoreStructure(d));}catch(e){}
-  // Restore farmers
-  try{JSON.parse(snap.farmers).forEach(d=>createFarmerEl(d));}catch(e){}
-  // Restore bg
-  if(snap.bg)applyBg(snap.bg);
-  expandCanvas();
+  await _applySnap(snap);
   toast('↩ Undone: '+snap.label);
   scheduleSave();
 }
@@ -1203,21 +1424,14 @@ async function saveNow(){
   document.getElementById('gc').querySelectorAll('[data-sdata]').forEach(el=>{
     try{
       const d=JSON.parse(el.dataset.sdata);
-      // Skip animals that belong to a pasture — they're saved inside their pasture-group entry
+      // Animals belonging to a pasture are stored inside the pasture-group entry; skip them here
       if(d.type==='animal'&&d.pastureId)return;
-      // For pasture groups, snapshot current animal positions into the sdata
+      // For pasture groups, snapshot current animal positions into sdata
       if(d.type==='pasture-group'){
-        const pastureAnimals=[];
-        liveAnimals.forEach(a=>{
-          if(a.data.pastureId===d.pastureId){
-            pastureAnimals.push({...a.data,x:parseFloat(a.el.style.left),y:parseFloat(a.el.style.top)});
-          }
-        });
-        d.animals=pastureAnimals;
-        el.dataset.sdata=JSON.stringify(d);
+        const pas=liveAnimals.filter(a=>a.data.pastureId===d.pastureId).map(a=>({...a.data,x:parseFloat(a.el.style.left),y:parseFloat(a.el.style.top)}));
+        d.animals=pas;
       }
-      d.x=parseInt(el.style.left)||d.x;d.y=parseInt(el.style.top)||d.y;
-      structs.push(d);
+      d.x=parseInt(el.style.left)||d.x;d.y=parseInt(el.style.top)||d.y;structs.push(d);
     }catch(e){}
   });
   const payload={beds_json:JSON.stringify(bedsData),structures_json:JSON.stringify(structs),bg:currentBg};
@@ -1319,11 +1533,14 @@ function buildDefaultContent(){
     {type:'animal',aid:'bee',name:'Bee 1',x:390,y:180,since:TODAY,id:'an4_'+ts},
     {type:'animal',aid:'bee',name:'Bee 2',x:440,y:175,since:TODAY,id:'an5_'+ts},
     {type:'farmer',name:'The Gardener',x:300,y:290,since:TODAY,id:'fr1_'+ts},
-    {type:'pasture-group',pastureId:'pasture_def',x:850,y:200,w:440,h:420,id:'pg_def_'+ts},
-    {type:'animal',aid:'horse',name:'Horse',x:880,y:300,since:TODAY,id:'an_ph_'+ts,pastureId:'pasture_def',pastureBounds:{x:880,y:230,w:280,h:360}},
-    {type:'animal',aid:'cow',name:'Cow',x:1000,y:350,since:TODAY,id:'an_pc_'+ts,pastureId:'pasture_def',pastureBounds:{x:880,y:230,w:280,h:360}},
-    {type:'animal',aid:'goat',name:'Goat',x:920,y:430,since:TODAY,id:'an_pg_'+ts,pastureId:'pasture_def',pastureBounds:{x:880,y:230,w:280,h:360}},
-    {type:'animal',aid:'rabbit',name:'Cottontail',x:1060,y:440,since:TODAY,id:'an_pr_'+ts,pastureId:'pasture_def',pastureBounds:{x:880,y:230,w:280,h:360}},
+    {type:'struct',sid:'picnic',x:680,y:430,w:100,h:74,locked:false,id:'pic1_'+ts},
+    // Pasture with animals embedded (prevents duplication on reload)
+    {type:'pasture-group',pastureId:'pasture_def',x:850,y:200,w:440,h:420,id:'pg_def_'+ts,animals:[
+      {type:'animal',aid:'horse',name:'Horse',x:900,y:300,since:TODAY,id:'an_ph_'+ts,pastureId:'pasture_def',pastureBounds:{x:880,y:230,w:280,h:360}},
+      {type:'animal',aid:'cow',name:'Cow',x:1010,y:360,since:TODAY,id:'an_pc_'+ts,pastureId:'pasture_def',pastureBounds:{x:880,y:230,w:280,h:360}},
+      {type:'animal',aid:'goat',name:'Goat',x:920,y:440,since:TODAY,id:'an_pg_'+ts,pastureId:'pasture_def',pastureBounds:{x:880,y:230,w:280,h:360}},
+      {type:'animal',aid:'rabbit',name:'Cottontail',x:1060,y:450,since:TODAY,id:'an_pr_'+ts,pastureId:'pasture_def',pastureBounds:{x:880,y:230,w:280,h:360}},
+    ]},
   ]);
   return{bedsJson,structsJson};
 }
@@ -1332,8 +1549,8 @@ async function loadGarden(g){
   cGardenId=g.id;
   if(cUser)localStorage.setItem('lastGardenId_'+cUser.id,g.id);
   document.getElementById('gsel-btn').textContent=(g.name||'Garden')+' ▾';
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,.farmer-el').forEach(e=>e.remove());
-  farmerEl=null;
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap').forEach(e=>e.remove());
+  document.getElementById('farmer')?.remove();farmerEl=null;
   beds=[];bedCount=0;liveAnimals.length=0;
   applyBg(g.bg||'lush');
   try{const b=JSON.parse(g.beds_json||'[]');b.forEach(d=>restoreBed(d));}catch(e){console.error('Beds parse:',e);}
@@ -1372,7 +1589,7 @@ async function clearCurrentGarden(){
   if(!cGardenId)return;
   if(!confirm('Remove everything from this garden? This cannot be undone.'))return;
   closePanel('gp');
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,.farmer-el').forEach(e=>e.remove());
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,#farmer').forEach(e=>e.remove());
   beds=[];bedCount=0;liveAnimals.length=0;farmerEl=null;
   stopFarmer();stopAllAnimals();
   await sb.from('gardens').update({beds_json:'[]',structures_json:'[]'}).eq('id',cGardenId);
@@ -1385,7 +1602,7 @@ async function resetCurrentGarden(){
   if(!confirm('Reset this garden to the default layout? Everything will be replaced.'))return;
   closePanel('gp');
   // Clear current
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,.farmer-el').forEach(e=>e.remove());
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,#farmer').forEach(e=>e.remove());
   beds=[];bedCount=0;liveAnimals.length=0;farmerEl=null;
   stopFarmer();stopAllAnimals();
   // Rebuild default content into the current garden
@@ -1520,18 +1737,23 @@ function createBedFromPanel(){
   const cols=parseInt(document.getElementById('ap-c').value);
   const rows=parseInt(document.getElementById('ap-r').value);
   const curved=document.getElementById('ap-curved')?.checked||false;
+  const quarter=document.getElementById('ap-quarter')?.checked||false;
   const pos=getDropPos(cols*46,rows*46);
   if(curved){
     createCurvedBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,curved:true});
+  } else if(quarter){
+    createQuarterBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,quarter:true});
   } else {
     createBed({name,cols,rows,x:pos.x,y:pos.y,locked:false,cells:Array(rows*cols).fill(null),inter:false,intercells:[]});
   }
   document.getElementById('ap-name').value='';
   document.getElementById('ap-curved').checked=false;
+  if(document.getElementById('ap-quarter'))document.getElementById('ap-quarter').checked=false;
   closePanel('ap');toast('✓ '+name+' added!');scheduleSave('Add bed');
 }
 function restoreBed(d){
   if(d.curved)createCurvedBed(d);
+  else if(d.quarter)createQuarterBed(d);
   else createBed(d);
 }
 
@@ -1667,7 +1889,93 @@ function createCurvedBed(data){
   return fakebed;
 }
 
-// ── PASTURE ──────────────────────────────────────────────────────────────────
+// ── QUARTER-CIRCLE BED ────────────────────────────────────────────────────────
+function createQuarterBed(data){
+  bedCount++;
+  const cellSize=44,cols=data.cols||4,rows=data.rows||4;
+  const R=Math.max(cols,rows)*cellSize*0.72+20;
+  const totalW=R+20,totalH=R+20;
+  const cx=10,cy=10+R;// origin at bottom-left
+
+  const wrap=document.createElement('div');wrap.className='bed-wrap curved-bed';
+  wrap.style.cssText=`left:${data.x||60}px;top:${data.y||60}px;width:${totalW}px;height:${totalH}px;`;
+
+  const nameTag=document.createElement('div');nameTag.className='bed-name-tag';
+  const ni=document.createElement('input');ni.className='bed-name-inp';ni.value=data.name||('Bed '+bedCount);ni.maxLength=28;
+  ni.onpointerdown=e=>e.stopPropagation();
+  ni.onchange=e=>{data.name=e.target.value;scheduleSave();};
+  const lb=document.createElement('button');lb.className='bab'+(data.locked?' lkd':'');lb.textContent=data.locked?'🔒':'🔓';
+  lb.onclick=e=>{e.stopPropagation();if(isReadOnly)return;data.locked=!data.locked;lb.className='bab'+(data.locked?' lkd':'');lb.textContent=data.locked?'🔒':'🔓';scheduleSave();};
+  lb.onpointerdown=e=>e.stopPropagation();
+  const db=document.createElement('button');db.className='bab';db.textContent='✕';
+  db.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(!confirm('Delete "'+data.name+'"?'))return;wrap.remove();beds=beds.filter(b=>b.id!==data.id);scheduleSave();};
+  db.onpointerdown=e=>e.stopPropagation();
+  nameTag.appendChild(ni);nameTag.appendChild(lb);nameTag.appendChild(db);
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width',totalW);svg.setAttribute('height',totalH);
+  svg.style.cssText='position:absolute;inset:0;pointer-events:none;';
+
+  // Quarter circle soil (bottom-left corner = cx,cy; sweeps up and right)
+  const soilPath=document.createElementNS('http://www.w3.org/2000/svg','path');
+  soilPath.setAttribute('d',`M${cx} ${cy} L${cx+R} ${cy} A${R} ${R} 0 0 0 ${cx} ${cy-R} Z`);
+  soilPath.setAttribute('fill','#5C3810');soilPath.setAttribute('stroke','#8B5E3C');soilPath.setAttribute('stroke-width','3');
+  svg.appendChild(soilPath);
+
+  // Row arc dividers
+  for(let r=1;r<rows;r++){
+    const rad=r*cellSize;
+    const arc=document.createElementNS('http://www.w3.org/2000/svg','path');
+    arc.setAttribute('d',`M${cx+rad} ${cy} A${rad} ${rad} 0 0 0 ${cx} ${cy-rad}`);
+    arc.setAttribute('fill','none');arc.setAttribute('stroke','#8B5E3C');arc.setAttribute('stroke-width','1.5');arc.setAttribute('opacity','0.5');
+    svg.appendChild(arc);
+  }
+  // Column radial dividers (from 0 to 90 degrees)
+  for(let c=1;c<cols;c++){
+    const angle=(Math.PI/2)*(c/cols);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',cx);line.setAttribute('y1',cy);
+    line.setAttribute('x2',cx+Math.cos(angle)*R);line.setAttribute('y2',cy-Math.sin(angle)*R);
+    line.setAttribute('stroke','#8B5E3C');line.setAttribute('stroke-width','1.5');line.setAttribute('opacity','0.5');
+    svg.appendChild(line);
+  }
+
+  if(!data.cells)data.cells=Array(cols*rows).fill(null);
+  const cellEls=[];
+  const cellsContainer=document.createElement('div');cellsContainer.style.cssText='position:absolute;inset:0;';
+
+  for(let row=0;row<rows;row++){
+    const midR=(row+0.5)*cellSize;
+    for(let col=0;col<cols;col++){
+      const angle=(Math.PI/2)*((col+0.5)/cols);
+      const cellX=cx+Math.cos(angle)*midR;
+      const cellY=cy-Math.sin(angle)*midR;
+      const idx=row*cols+col;
+      const cell=document.createElement('div');
+      cell.className='bed-cell curved-cell';
+      cell.style.cssText=`position:absolute;width:36px;height:36px;left:${cellX-18}px;top:${cellY-18}px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;`;
+      renderCell(cell,data.cells[idx]||null);
+      cellEls.push(cell);
+      let tt=null;
+      cell.onpointerdown=e=>{if(e.isPrimary){e.stopPropagation();tt=setTimeout(()=>{tt=null;},400);}};
+      cell.onpointerup=(i=>()=>{if(tt!==null){clearTimeout(tt);tt=null;onCellTap(fakebed,i,cell,false);}})(idx);
+      cell.onpointercancel=()=>{clearTimeout(tt);tt=null;};
+      cellsContainer.appendChild(cell);
+    }
+  }
+
+  const fakebed={id:data.id||bedCount,name:data.name,cols,rows,locked:!!data.locked,cells:data.cells,inter:false,intercells:[],cellEls,interEls:[],el:wrap,quarter:true,x:data.x||60,y:data.y||60};
+  beds.push(fakebed);
+
+  wrap.appendChild(nameTag);wrap.appendChild(svg);wrap.appendChild(cellsContainer);
+  wrap.dataset.bedId=fakebed.id;
+  document.getElementById('gc').appendChild(wrap);
+  setupDrag(wrap,{get el(){return wrap;},get locked(){return fakebed.locked;},get x(){return parseFloat(wrap.style.left);},set x(v){wrap.style.left=v+'px';data.x=v;},get y(){return parseFloat(wrap.style.top);},set y(v){wrap.style.top=v+'px';data.y=v;}});
+  expandCanvas();
+  return fakebed;
+}
+
+
 function findOpenPasturePos(pw,ph){
   const gc=document.getElementById('gc');
   const candidates=[
@@ -1703,13 +2011,13 @@ function addPasture(){
   groupEl.style.cssText=`position:absolute;left:${px}px;top:${py}px;width:${pw}px;height:${ph}px;z-index:8;touch-action:none;`;
   document.getElementById('gc').appendChild(groupEl);
 
-  // Grass background — dark green clippings
+  // Grass background
   const grassBg=document.createElement('div');
-  grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#2E7D32;`;
+  grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#7CB342;`;
   const cv=document.createElement('canvas');cv.style.cssText='position:absolute;inset:0;pointer-events:none;';
   grassBg.appendChild(cv);
   groupEl.appendChild(grassBg);
-  setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'dark-grass',pw,ph);}},60);
+  setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'grass',pw,ph);}},60);
 
   // Pasture label
   const lbl=document.createElement('div');
@@ -1809,18 +2117,15 @@ function addPasture(){
     }
   });
 
-  // Draggable — update sdata on move
+  // Draggable — update group sdata with embedded animal positions on move
   const pData={x:px,y:py};
-  function getPastureAnimals(){
-    return liveAnimals.filter(a=>a.data.pastureId===pastureId).map(a=>({...a.data,x:parseFloat(a.el.style.left),y:parseFloat(a.el.style.top)}));
-  }
-  const baseData={type:'pasture-group',pastureId,w:pw,h:ph,id:'pg_'+ts};
+  const baseSD={type:'pasture-group',pastureId,w:pw,h:ph,id:'pg_'+ts};
+  function getAnimalSnap(){return liveAnimals.filter(a=>a.data.pastureId===pastureId).map(a=>({...a.data,x:parseFloat(a.el.style.left),y:parseFloat(a.el.style.top)}));}
+  groupEl.dataset.sdata=JSON.stringify({...baseSD,x:px,y:py,animals:getAnimalSnap()});
   setupDrag(groupEl,{
     get el(){return groupEl;},locked:false,
-    get x(){return pData.x;},
-    set x(v){pData.x=v;groupEl.style.left=v+'px';groupEl.dataset.sdata=JSON.stringify({...baseData,x:v,y:pData.y,animals:getPastureAnimals()});},
-    get y(){return pData.y;},
-    set y(v){pData.y=v;groupEl.style.top=v+'px';groupEl.dataset.sdata=JSON.stringify({...baseData,x:pData.x,y:v,animals:getPastureAnimals()});}
+    get x(){return pData.x;},set x(v){pData.x=v;groupEl.style.left=v+'px';groupEl.dataset.sdata=JSON.stringify({...baseSD,x:v,y:pData.y,animals:getAnimalSnap()});},
+    get y(){return pData.y;},set y(v){pData.y=v;groupEl.style.top=v+'px';groupEl.dataset.sdata=JSON.stringify({...baseSD,x:pData.x,y:v,animals:getAnimalSnap()});}
   });
 
   expandCanvas();
@@ -2113,12 +2418,6 @@ function drawMulchPattern(canvas,type,w,h){
   } else if(type==='grass'){
     ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
     for(let i=0;i<w*h/12;i++){const x=Math.random()*w,y=Math.random()*h,h2=4+Math.random()*8;ctx.beginPath();ctx.moveTo(x,y+h2);ctx.quadraticCurveTo(x+(Math.random()-.5)*4,y+h2/2,x+(Math.random()-.5)*2,y);ctx.stroke();}
-  } else if(type==='dark-grass'){
-    ctx.strokeStyle='rgba(0,80,0,0.35)';ctx.lineWidth=1.2;
-    for(let i=0;i<w*h/10;i++){const x=Math.random()*w,y=Math.random()*h,h2=5+Math.random()*10;ctx.beginPath();ctx.moveTo(x,y+h2);ctx.quadraticCurveTo(x+(Math.random()-.5)*5,y+h2/2,x+(Math.random()-.5)*3,y);ctx.stroke();}
-    // Lighter blade highlights
-    ctx.strokeStyle='rgba(100,200,80,0.25)';ctx.lineWidth=0.8;
-    for(let i=0;i<w*h/20;i++){const x=Math.random()*w,y=Math.random()*h,h2=3+Math.random()*7;ctx.beginPath();ctx.moveTo(x,y+h2);ctx.lineTo(x+(Math.random()-.5)*3,y);ctx.stroke();}
   }
 }
 function buildMulchTilePreview(){
@@ -2189,9 +2488,8 @@ function createMulchEl(data,mDef){
 // ── STRUCTURES ────────────────────────────────────────────────────────────────
 function buildThingsPanel(){
   const sg=document.getElementById('struct-grid');sg.innerHTML='';
-  STRUCTS.filter(s=>s.id!=='fence').forEach(s=>{
+  STRUCTS.filter(s=>s.id!=='fence'&&!s.cat).forEach(s=>{
     const t=document.createElement('div');t.className='ttile';
-    // Use a small inline SVG preview if available, else emoji
     let iconHtml;
     if(STRUCT_SVGS[s.icon]){
       iconHtml=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;width:44px;height:36px">${STRUCT_SVGS[s.icon](44,36)}</span>`;
@@ -2201,6 +2499,16 @@ function buildThingsPanel(){
     t.innerHTML=iconHtml+`<span class="ttile-name">${s.name}</span>`;
     t.onclick=()=>{if(isReadOnly)return;addStructure(s);closePanel('tp');};
     sg.appendChild(t);
+  });
+  ['tree','bush'].forEach(cat=>{
+    const g=document.getElementById(cat+'-grid');if(!g)return;g.innerHTML='';
+    STRUCTS.filter(s=>s.cat===cat).forEach(s=>{
+      const t=document.createElement('div');t.className='ttile';
+      const icon=STRUCT_SVGS[s.icon]?`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;width:44px;height:36px">${STRUCT_SVGS[s.icon](44,36)}</span>`:`<span class="ttile-icon">${s.icon||'🌳'}</span>`;
+      t.innerHTML=icon+`<span class="ttile-name">${s.name}</span>`;
+      t.onclick=()=>{if(isReadOnly)return;addStructure(s);closePanel('tp');};
+      g.appendChild(t);
+    });
   });
   const dg=document.getElementById('decor-grid');dg.innerHTML='';
   DECORS.forEach(d=>{
@@ -2351,22 +2659,12 @@ function createDecorEl(data,dDef){
     iconEl.textContent=dDef.emoji||'🌿';
   }
   if(dDef.id==='pebbles'){
-    iconEl.innerHTML=`<svg viewBox="0 0 52 36" width="52" height="36" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="8" cy="22" rx="7" ry="5" fill="#90A4AE"/>
-      <ellipse cx="8" cy="22" rx="5" ry="3" fill="#B0BEC5" opacity=".5" transform="translate(-1,-1)"/>
-      <ellipse cx="20" cy="28" rx="9" ry="6" fill="#78909C"/>
-      <ellipse cx="20" cy="28" rx="6" ry="3.5" fill="#90A4AE" opacity=".5" transform="translate(-1,-1)"/>
-      <ellipse cx="34" cy="26" rx="7" ry="5" fill="#B0BEC5"/>
-      <ellipse cx="34" cy="26" rx="5" ry="3" fill="#CFD8DC" opacity=".5" transform="translate(-1,-1)"/>
-      <ellipse cx="45" cy="22" rx="6" ry="4.5" fill="#607D8B"/>
-      <ellipse cx="45" cy="22" rx="4" ry="3" fill="#78909C" opacity=".5" transform="translate(-1,-1)"/>
-      <ellipse cx="14" cy="14" rx="5.5" ry="4" fill="#CFD8DC"/>
-      <ellipse cx="14" cy="14" rx="3.5" ry="2.5" fill="#ECEFF1" opacity=".5" transform="translate(-1,-1)"/>
-      <ellipse cx="27" cy="10" rx="7" ry="5" fill="#B0BEC5"/>
-      <ellipse cx="27" cy="10" rx="5" ry="3" fill="#CFD8DC" opacity=".5" transform="translate(-1,-1)"/>
-      <ellipse cx="41" cy="13" rx="5.5" ry="4" fill="#90A4AE"/>
-      <ellipse cx="41" cy="13" rx="3.5" ry="2.5" fill="#B0BEC5" opacity=".5" transform="translate(-1,-1)"/>
-    </svg>`;
+    // render as small scattered stones
+    iconEl.innerHTML='<svg viewBox="0 0 40 28" width="40" height="28" xmlns="http://www.w3.org/2000/svg">'+
+      ['#B0BEC5','#90A4AE','#CFD8DC','#B0BEC5','#78909C','#90A4AE','#B0BEC5','#CFD8DC'].map((c,i)=>{
+        const x=4+i*4.5,y=6+Math.sin(i*1.3)*6,rx=3+Math.cos(i)*1.5,ry=2+Math.sin(i)*1;
+        return `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${c}"/>`;
+      }).join('')+'</svg>';
   }
   const lbl=document.createElement('div');lbl.className='decor-lbl';lbl.textContent=dDef.name;
   const xbtn=document.createElement('button');xbtn.className='decor-x';xbtn.textContent='×';
@@ -2424,10 +2722,10 @@ function restorePastureGroup(data){
   document.getElementById('gc').appendChild(groupEl);
   // Grass
   const grassBg=document.createElement('div');
-  grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#1B5E20;`;
+  grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#7CB342;`;
   const cv=document.createElement('canvas');cv.style.cssText='position:absolute;inset:0;pointer-events:none;';
   grassBg.appendChild(cv);groupEl.appendChild(grassBg);
-  setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'dark-grass',pw,ph);}},60);
+  setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'grass',pw,ph);}},60);
   // Label
   const lbl=document.createElement('div');
   lbl.style.cssText='position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:3px 10px;pointer-events:none;z-index:5;white-space:nowrap;';
@@ -2460,14 +2758,11 @@ function restorePastureGroup(data){
   [{x:14,y:22},{x:70,y:55},{x:40,y:65}].forEach(p=>{const pad=document.createElement('div');pad.style.cssText=`position:absolute;left:${p.x}px;top:${p.y}px;width:16px;height:14px;border-radius:50%;background:#2E7D32;opacity:.85;font-size:9px;display:flex;align-items:center;justify-content:center;`;pad.textContent='🌿';pondEl.appendChild(pad);});
   [{emoji:'🐡'},{emoji:'🐠'},{emoji:'🐟'}].forEach((fd,i)=>{const f=document.createElement('div');f.style.cssText='position:absolute;font-size:11px;pointer-events:none;';f.textContent=fd.emoji;pondEl.appendChild(f);let x=15+i*25,y=20+i*15,vx=(Math.random()-.5)*.6,vy=(Math.random()-.5)*.4;function swim(){if(!pondEl.isConnected)return;x+=vx;y+=vy;if(x<2||x>pondW-16){vx*=-1;f.style.transform=vx<0?'scaleX(-1)':'';}if(y<2||y>pondH-16)vy*=-1;f.style.left=x+'px';f.style.top=y+'px';requestAnimationFrame(swim);}swim();});
   groupEl.appendChild(pondEl);
-  // Animals — restore from embedded data OR use default specs for new pastures
+  // Restore animals from embedded data (prevents duplication on reload)
+  const ab={x:px+30,y:py+50,w:pw-pondW-60,h:ph-80};
   const savedAnimals=data.animals;
-  const ab={x:px+30,y:py+50,w:pondX-30,h:ph-80};
   if(savedAnimals&&savedAnimals.length){
-    savedAnimals.forEach(adata=>{
-      const aDef=ANIMALS.find(a=>a.id===adata.aid);
-      if(aDef)createAnimalEl({...adata,pastureBounds:{x:ab.x,y:ab.y,w:ab.w,h:ab.h}},aDef);
-    });
+    savedAnimals.forEach(ad=>{const aDef=ANIMALS.find(a=>a.id===ad.aid);if(aDef)createAnimalEl({...ad,pastureBounds:ab},aDef);});
   }
   // Draggable
   const pData={x:px,y:py};
@@ -2817,20 +3112,18 @@ function openManageGarden(){
   modal.style.cssText='position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
 
   function buildContent(){
-    // Collect beds, growbags, hplanters, pastures
+    // Collect beds, growbags, hplanters
     const bedEls=[...document.getElementById('gc').querySelectorAll('.bed-wrap')];
     const gbEls=[...document.getElementById('gc').querySelectorAll('.growbag-wrap')];
     const hpEls=[...document.getElementById('gc').querySelectorAll('.hplanter-wrap')];
-    const pastureEls=[...document.getElementById('gc').querySelectorAll('.pasture-group')];
 
     function makeSection(title,emoji,items,removeOneFn,removeAllFn){
       if(items.length===0)return `<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">${emoji} ${title} <span style="font-weight:400">(none)</span></div></div>`;
       let rows=items.map((el,i)=>{
         let label='';
-        if(title==='Garden Beds'){const b=beds.find(x=>x.el===el);label=(b?b.name:('Bed '+(i+1)))+(b&&b.curved?' 🌙 Curved':'');}
+        if(title==='Garden Beds'){const b=beds.find(x=>x.el===el);label=b?b.name:('Bed '+(i+1));}
         else if(title==='Grow Bags'){try{const d=JSON.parse(el.dataset.sdata||'{}');label=d.plant_id?'Planted grow bag':'Empty grow bag';}catch(e){label='Grow Bag';}}
-        else if(title==='Hanging Planters'){try{const d=JSON.parse(el.dataset.sdata||'{}');label=d.plant_id?'Planted planter':'Empty planter';}catch(e){label='Planter';}}
-        else if(title==='Pastures'){try{const d=JSON.parse(el.dataset.sdata||'{}');label='Pasture'+(d.pastureId?' #'+d.pastureId.slice(-4):'');}catch(e){label='Pasture';}}
+        else{try{const d=JSON.parse(el.dataset.sdata||'{}');label=d.plant_id?'Planted planter':'Empty planter';}catch(e){label='Planter';}}
         return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f0e8;">
           <span style="font-size:20px">${emoji}</span>
           <div style="flex:1;font-size:13px;color:#333">${label}</div>
@@ -2844,7 +3137,7 @@ function openManageGarden(){
         </div>${rows}</div>`;
     }
 
-    const html=makeSection('Garden Beds','🌱',bedEls)+makeSection('Grow Bags','🪣',gbEls)+makeSection('Hanging Planters','🪴',hpEls)+makeSection('Pastures','🐄',pastureEls);
+    const html=makeSection('Garden Beds','🌱',bedEls)+makeSection('Grow Bags','🪣',gbEls)+makeSection('Hanging Planters','🪴',hpEls);
 
     modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:0;width:320px;max-width:94vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.35);overflow:hidden;">
       <div style="background:#2E7D32;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
@@ -2870,18 +3163,9 @@ function openManageGarden(){
     } else if(type==='Grow Bags'){
       const gbEls=[...gc.querySelectorAll('.growbag-wrap')];
       if(gbEls[idx])gbEls[idx].remove();
-    } else if(type==='Hanging Planters'){
+    } else {
       const hpEls=[...gc.querySelectorAll('.hplanter-wrap')];
       if(hpEls[idx])hpEls[idx].remove();
-    } else if(type==='Pastures'){
-      const pEls=[...gc.querySelectorAll('.pasture-group')];
-      if(pEls[idx]){
-        const pId=pEls[idx].dataset.pastureId;
-        // Remove pasture animals too
-        liveAnimals.filter(a=>a.data.pastureId===pId).forEach(a=>{clearTimeout(a.timer);a.el.remove();});
-        liveAnimals.splice(0,liveAnimals.length,...liveAnimals.filter(a=>a.data.pastureId!==pId));
-        pEls[idx].remove();
-      }
     }
     scheduleSave();
     const m=document.getElementById('manage-garden-modal');if(m)m.remove();
@@ -2889,20 +3173,12 @@ function openManageGarden(){
     toast('Item removed');
   };
   window._mgRemoveAll=function(type){
-    const label=type==='Garden Beds'?'all garden beds':type==='Grow Bags'?'all grow bags':type==='Hanging Planters'?'all hanging planters':'all pastures';
+    const label=type==='Garden Beds'?'all garden beds':type==='Grow Bags'?'all grow bags':'all hanging planters';
     if(!confirm('Remove '+label+'?'))return;
     const gc=document.getElementById('gc');
     if(type==='Garden Beds'){gc.querySelectorAll('.bed-wrap').forEach(e=>e.remove());beds=[];}
     else if(type==='Grow Bags')gc.querySelectorAll('.growbag-wrap').forEach(e=>e.remove());
-    else if(type==='Hanging Planters')gc.querySelectorAll('.hplanter-wrap').forEach(e=>e.remove());
-    else if(type==='Pastures'){
-      gc.querySelectorAll('.pasture-group').forEach(pg=>{
-        const pId=pg.dataset.pastureId;
-        liveAnimals.filter(a=>a.data.pastureId===pId).forEach(a=>{clearTimeout(a.timer);a.el.remove();});
-      });
-      liveAnimals.splice(0,liveAnimals.length,...liveAnimals.filter(a=>!a.data.pastureId));
-      gc.querySelectorAll('.pasture-group').forEach(e=>e.remove());
-    }
+    else gc.querySelectorAll('.hplanter-wrap').forEach(e=>e.remove());
     scheduleSave();
     const m=document.getElementById('manage-garden-modal');if(m)m.remove();
     openManageGarden();
@@ -3185,14 +3461,13 @@ function deselectAll(){
 // ── DRAG ──────────────────────────────────────────────────────────────────────
 function setupDrag(handle,obj,isMulch=false){
   let isDragging=false,active=false,startPointerX=0,startPointerY=0,startObjX=0,startObjY=0,didDrag=false,capturedId=null;
-  const THRESH=isMulch?8:3;// higher threshold for covers so finger wiggles don't kill taps
   function pdDown(e){
     if(isPinching)return;
     if(isReadOnly)return;
     if(e.target.tagName==='INPUT'||e.target.closest('button'))return;
     if(obj.locked||window._allLocked)return;
     e.preventDefault();
-    // Don't stopPropagation — let click bubble so onclick handlers on the same element still fire after a tap
+    e.stopPropagation();
     active=true;isDragging=false;didDrag=false;capturedId=e.pointerId;
     startPointerX=e.clientX;startPointerY=e.clientY;
     startObjX=parseFloat(obj.x)||0;startObjY=parseFloat(obj.y)||0;
@@ -3202,7 +3477,7 @@ function setupDrag(handle,obj,isMulch=false){
     if(!active||e.pointerId!==capturedId)return;
     const dx=(e.clientX-startPointerX)/scale;
     const dy=(e.clientY-startPointerY)/scale;
-    if(!isDragging&&Math.hypot(dx,dy)<THRESH)return;
+    if(!isDragging&&Math.hypot(dx,dy)<3)return;
     if(!isDragging){
       isDragging=true;didDrag=true;
       obj.el.style.zIndex=999;
@@ -3214,18 +3489,19 @@ function setupDrag(handle,obj,isMulch=false){
   }
   function pdUp(e){
     if(e.pointerId!==capturedId)return;
-    if(isDragging){obj.el.style.zIndex='';dragging=null;scheduleSave();}
+    if(isDragging){
+      obj.el.style.zIndex='';dragging=null;
+      scheduleSave('Move');// push undo snapshot for the move
+    }
     isDragging=false;active=false;capturedId=null;
-    // Only suppress the synthetic click if we actually dragged
     if(didDrag){
       const absorb=ev=>{ev.stopImmediatePropagation();ev.preventDefault();handle.removeEventListener('click',absorb,true);};
       handle.addEventListener('click',absorb,{capture:true,once:true});
     }
-    didDrag=false;
   }
   function pdCancel(e){
     if(isDragging){obj.el.style.zIndex='';dragging=null;}
-    isDragging=false;active=false;capturedId=null;didDrag=false;
+    isDragging=false;active=false;capturedId=null;
   }
   handle.addEventListener('pointerdown',pdDown,{passive:false});
   handle.addEventListener('pointermove',pdMove,{passive:true});
