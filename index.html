@@ -413,26 +413,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
     <!-- ADD THINGS -->
     <div class="panel" id="tp">
       <h3>Add to Garden</h3>
-      <div class="sec-hdr">🌿 Structures &amp; Features</div>
-      <div class="thing-grid" id="struct-grid"></div>
-      <div class="sec-hdr">🌳 Trees</div>
-      <div class="thing-grid" id="tree-grid"></div>
-      <div class="sec-hdr">🌿 Bushes</div>
-      <div class="thing-grid" id="bush-grid"></div>
-      <div class="sec-hdr">🪵 Fences</div>
-      <div class="thing-grid">
-        <div class="ttile" onclick="addFenceSegment('h');closePanel('tp')"><span class="ttile-icon">━━━</span><span class="ttile-name">Fence (horizontal)</span></div>
-        <div class="ttile" onclick="addFenceSegment('v');closePanel('tp')"><span class="ttile-icon">┃</span><span class="ttile-name">Fence (vertical)</span></div>
-        <div class="ttile" onclick="addFenceSegment('corner');closePanel('tp')"><span class="ttile-icon">┐</span><span class="ttile-name">Fence (corner post)</span></div>
-      </div>
-      <div class="sec-hdr">🎨 Decorations</div>
-      <div class="thing-grid" id="decor-grid"></div>
-      <div class="sec-hdr">🐾 Animals</div>
-      <div class="thing-grid" id="animal-grid"></div>
-      <div class="sec-hdr">🐄 Pasture</div>
-      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addPasture();closePanel('tp')">🌿 Add Pasture</button>
-      <div class="sec-hdr">👨‍🌾 Farmer</div>
-      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addFarmerPrompt()">🧑‍🌾 Add Farmer</button>
       <div class="sec-hdr">🪣 Grow Bags</div>
       <div class="thing-grid">
         <div class="ttile" onclick="addGrowBag('sm');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><ellipse cx="22" cy="28" rx="14" ry="12" fill="#A0522D"/><ellipse cx="22" cy="28" rx="14" ry="12" fill="none" stroke="#7B3D1A" stroke-width="2" stroke-dasharray="3,2"/><ellipse cx="22" cy="18" rx="12" ry="6" fill="#8B4513"/><ellipse cx="22" cy="16" rx="11" ry="4" fill="#5D2F0A"/><text x="22" y="33" text-anchor="middle" font-size="10">🌱</text></svg></span><span class="ttile-name">Small (6")</span></div>
@@ -441,10 +421,30 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
       </div>
       <div class="sec-hdr">🌸 Hanging Planters</div>
       <div class="thing-grid">
-        <div class="ttile" onclick="addHangingPlanter('sm');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><line x1="22" y1="2" x2="22" y2="12" stroke="#8D6E63" stroke-width="2"/><path d="M14 12 Q22 10 30 12 L27 30 Q22 33 17 30 Z" fill="#8D6E63"/><path d="M14 12 Q22 9 30 12 L30 16 Q22 13 14 16Z" fill="#A1887F"/><text x="22" y="28" text-anchor="middle" font-size="12">🌸</text></svg></span><span class="ttile-name">Small</span></div>
-        <div class="ttile" onclick="addHangingPlanter('md');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><line x1="22" y1="2" x2="22" y2="10" stroke="#8D6E63" stroke-width="2"/><path d="M12 10 Q22 8 32 10 L29 30 Q22 34 15 30 Z" fill="#8D6E63"/><path d="M12 10 Q22 7 32 10 L32 15 Q22 12 12 15Z" fill="#A1887F"/><text x="22" y="28" text-anchor="middle" font-size="13">🌺</text></svg></span><span class="ttile-name">Medium</span></div>
-        <div class="ttile" onclick="addHangingPlanter('lg');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><line x1="22" y1="1" x2="22" y2="9" stroke="#8D6E63" stroke-width="2.5"/><path d="M10 9 Q22 7 34 9 L31 31 Q22 35 13 31 Z" fill="#8D6E63"/><path d="M10 9 Q22 6 34 9 L34 15 Q22 11 10 15Z" fill="#A1887F"/><text x="22" y="29" text-anchor="middle" font-size="15">🌷</text></svg></span><span class="ttile-name">Large</span></div>
+        <div class="ttile" onclick="addHangingPlanter('sm');closePanel('tp')"><span class="ttile-icon" style="display:flex;align-items:center;justify-content:center">${hplanterPanelSvg(36,32,'🌸')}</span><span class="ttile-name">Small</span></div>
+        <div class="ttile" onclick="addHangingPlanter('md');closePanel('tp')"><span class="ttile-icon" style="display:flex;align-items:center;justify-content:center">${hplanterPanelSvg(40,36,'🌺')}</span><span class="ttile-name">Medium</span></div>
+        <div class="ttile" onclick="addHangingPlanter('lg');closePanel('tp')"><span class="ttile-icon" style="display:flex;align-items:center;justify-content:center">${hplanterPanelSvg(46,40,'🌷')}</span><span class="ttile-name">Large</span></div>
       </div>
+      <div class="sec-hdr">🌿 Structures &amp; Features</div>
+      <div class="thing-grid" id="struct-grid"></div>
+      <div class="sec-hdr">🎨 Decorations</div>
+      <div class="thing-grid" id="decor-grid"></div>
+      <div class="sec-hdr">🐾 Animals</div>
+      <div class="thing-grid" id="animal-grid"></div>
+      <div class="sec-hdr">🐄 Pasture</div>
+      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addPasture();closePanel('tp')">🌿 Add Pasture</button>
+      <div class="sec-hdr">👨‍🌾 Farmer</div>
+      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addFarmerPrompt()">🧑‍🌾 Add Farmer</button>
+      <div class="sec-hdr">🪵 Fences</div>
+      <div class="thing-grid">
+        <div class="ttile" onclick="addFenceSegment('h');closePanel('tp')"><span class="ttile-icon">━━━</span><span class="ttile-name">Fence (horizontal)</span></div>
+        <div class="ttile" onclick="addFenceSegment('v');closePanel('tp')"><span class="ttile-icon">┃</span><span class="ttile-name">Fence (vertical)</span></div>
+        <div class="ttile" onclick="addFenceSegment('corner');closePanel('tp')"><span class="ttile-icon">┐</span><span class="ttile-name">Fence (corner post)</span></div>
+      </div>
+      <div class="sec-hdr">🌿 Bushes</div>
+      <div class="thing-grid" id="bush-grid"></div>
+      <div class="sec-hdr">🌳 Trees</div>
+      <div class="thing-grid" id="tree-grid"></div>
       <button class="closebtn" onclick="closePanel('tp')">Close</button>
     </div>
 
@@ -697,33 +697,49 @@ const STRUCT_SVGS={
     <rect x="${w*0.7}" y="${h*0.2}" width="5" height="${h*0.22}" rx="2" fill="#6D4C41" transform="rotate(-12,${w*0.72},${h*0.31})"/>
     <ellipse cx="${w*0.66}" cy="${h*0.52}" rx="${w*0.15}" ry="${h*0.1}" fill="#558B2F" opacity=".9"/>
   </svg>`,
-  wateringcan:(w,h)=>`<svg viewBox="0 60 100 90" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Main body — galvanized look -->
-    <path d="M18 110 Q16 88 22 78 L78 78 Q84 88 82 110 Z" fill="#1E88E5"/>
-    <path d="M22 78 Q50 72 78 78" stroke="#1565C0" stroke-width="1.5" fill="none"/>
-    <path d="M18 110 Q50 114 82 110" stroke="#1565C0" stroke-width="1.5" fill="none"/>
-    <!-- Body highlight -->
-    <path d="M26 82 Q28 90 26 106" stroke="#42A5F5" stroke-width="3" fill="none" stroke-linecap="round" opacity=".5"/>
-    <!-- Top opening/rim -->
-    <ellipse cx="50" cy="78" rx="28" ry="7" fill="#1565C0"/>
-    <ellipse cx="50" cy="78" rx="24" ry="5" fill="#1976D2"/>
-    <!-- Spout — angled forward and up -->
-    <path d="M78 92 Q92 84 98 70" stroke="#0D47A1" stroke-width="9" fill="none" stroke-linecap="round"/>
-    <path d="M78 92 Q92 84 98 70" stroke="#1565C0" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <!-- Spout head/rose -->
-    <ellipse cx="98" cy="70" rx="7" ry="5" fill="#0D47A1" transform="rotate(-30 98 70)"/>
-    <!-- Water drops from rose -->
-    <circle cx="92" cy="62" r="2" fill="#64B5F6" opacity=".8"/>
-    <circle cx="100" cy="60" r="2" fill="#64B5F6" opacity=".8"/>
-    <circle cx="107" cy="64" r="1.5" fill="#64B5F6" opacity=".7"/>
-    <circle cx="96" cy="56" r="1.5" fill="#64B5F6" opacity=".6"/>
-    <circle cx="104" cy="56" r="1.5" fill="#64B5F6" opacity=".6"/>
-    <!-- Handle — arched over top -->
-    <path d="M22 80 Q18 64 30 62 Q42 60 50 64 Q58 60 70 62 Q82 64 78 80" stroke="#0D47A1" stroke-width="7" fill="none" stroke-linecap="round"/>
-    <path d="M22 80 Q18 66 30 64 Q42 62 50 66 Q58 62 70 64 Q82 66 78 80" stroke="#1565C0" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <!-- Rivet dots on body -->
-    <circle cx="30" cy="95" r="2.5" fill="#1565C0"/>
-    <circle cx="70" cy="95" r="2.5" fill="#1565C0"/>
+  wateringcan:(w,h)=>`<svg viewBox="0 0 120 100" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Shadow -->
+    <ellipse cx="52" cy="97" rx="30" ry="4" fill="rgba(0,0,0,.12)"/>
+    <!-- BODY — classic oval watering can body -->
+    <path d="M18 88 Q14 64 20 50 L84 50 Q90 64 86 88 Z" fill="#1976D2"/>
+    <!-- Body side highlight -->
+    <path d="M24 54 Q22 68 24 84" stroke="#42A5F5" stroke-width="4" fill="none" stroke-linecap="round" opacity=".5"/>
+    <!-- Body shadow right -->
+    <path d="M80 54 Q83 68 80 84" stroke="#0D47A1" stroke-width="4" fill="none" stroke-linecap="round" opacity=".3"/>
+    <!-- Top rim — elliptical opening -->
+    <ellipse cx="52" cy="50" rx="32" ry="9" fill="#1565C0"/>
+    <ellipse cx="52" cy="50" rx="28" ry="7" fill="#1E88E5"/>
+    <!-- Fill hole cap -->
+    <ellipse cx="52" cy="42" rx="12" ry="4" fill="#0D47A1"/>
+    <ellipse cx="52" cy="41" rx="10" ry="3" fill="#1565C0"/>
+    <!-- LONG SPOUT — angled upward from right side of body, classic style -->
+    <path d="M84 68 Q100 62 108 48 Q112 40 110 34" stroke="#0D47A1" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M84 68 Q100 62 108 48 Q112 40 110 34" stroke="#1565C0" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M84 68 Q100 62 108 48 Q111 41 109.5 35" stroke="#2196F3" stroke-width="4" fill="none" stroke-linecap="round" opacity=".4"/>
+    <!-- Rose head (sprinkler) — flat disc with holes -->
+    <ellipse cx="110" cy="33" rx="9" ry="7" fill="#0D47A1" transform="rotate(-35 110 33)"/>
+    <ellipse cx="110" cy="33" rx="7" ry="5.5" fill="#1565C0" transform="rotate(-35 110 33)"/>
+    <!-- Sprinkler holes -->
+    ${[[108,27],[114,29],[112,35],[106,33],[110,31]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.2" fill="#0A2D6E"/>`).join('')}
+    <!-- Water arc streams from rose -->
+    <path d="M106 25 Q102 18 98 12" stroke="#64B5F6" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    <path d="M110 24 Q107 16 105 9" stroke="#90CAF9" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".8"/>
+    <path d="M114 27 Q112 19 112 13" stroke="#64B5F6" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".75"/>
+    <path d="M116 31 Q116 22 118 17" stroke="#90CAF9" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".7"/>
+    <!-- Water drop tips -->
+    <ellipse cx="98" cy="12" rx="2" ry="2.8" fill="#42A5F5" opacity=".9"/>
+    <ellipse cx="105" cy="9" rx="2" ry="2.8" fill="#64B5F6" opacity=".85"/>
+    <ellipse cx="112" cy="13" rx="2" ry="2.8" fill="#42A5F5" opacity=".8"/>
+    <ellipse cx="118" cy="17" rx="1.8" ry="2.5" fill="#90CAF9" opacity=".75"/>
+    <!-- HANDLE — tall arched handle over the top -->
+    <path d="M20 56 Q10 28 28 18 Q46 10 60 16 Q74 10 84 20 Q96 30 84 56" stroke="#0D47A1" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M20 56 Q10 30 28 20 Q46 12 60 18 Q74 12 84 22 Q95 32 84 56" stroke="#1565C0" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M22 54 Q12 32 30 22 Q48 14 60 20" stroke="#2196F3" stroke-width="3" fill="none" stroke-linecap="round" opacity=".4"/>
+    <!-- Seam / rivet line on body -->
+    <line x1="52" y1="50" x2="52" y2="88" stroke="#1565C0" stroke-width="1.5" opacity=".35"/>
+    <!-- Base -->
+    <ellipse cx="52" cy="88" rx="34" ry="5" fill="#1565C0"/>
+    <ellipse cx="52" cy="88" rx="30" ry="3.5" fill="#1976D2" opacity=".6"/>
   </svg>`,
   bench:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="4" y="${h*0.28}" width="${w-8}" height="${h*0.14}" rx="3" fill="#A1887F"/>
@@ -796,26 +812,53 @@ const STRUCT_SVGS={
     <rect x="${w*0.32}" y="${h*0.94}" width="${w*0.36}" height="${h*0.04}" rx="1" fill="#B0BEC5"/>
   </svg>`,
   windmill:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Tower body -->
-    <path d="M${w*0.38} ${h*0.98} L${w*0.44} ${h*0.28} L${w*0.56} ${h*0.28} L${w*0.62} ${h*0.98} Z" fill="#BCAAA4"/>
-    <path d="M${w*0.38} ${h*0.98} L${w*0.44} ${h*0.28} L${w*0.5} ${h*0.28} L${w*0.54} ${h*0.98} Z" fill="#D7CCC8"/>
-    <!-- Tower stripes -->
-    ${[0.4,0.55,0.7,0.85].map(r=>`<line x1="${w*0.39}" y1="${h*r}" x2="${w*0.61}" y2="${h*r}" stroke="#A1887F" stroke-width="1" opacity=".5"/>`).join('')}
-    <!-- Cap -->
-    <ellipse cx="${w*0.5}" cy="${h*0.27}" rx="${w*0.1}" ry="${h*0.04}" fill="#795548"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.25}" rx="${w*0.08}" ry="${h*0.03}" fill="#6D4C41"/>
-    <!-- Hub -->
-    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(4,w*0.07)}" fill="#455A64"/>
-    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(2,w*0.04)}" fill="#607D8B"/>
-    <!-- Blades (4, static but angled) -->
-    <path d="M${w*0.5} ${h*0.22} L${w*0.44} ${h*0.02} L${w*0.56} ${h*0.07} Z" fill="#EF5350" opacity=".9"/>
-    <path d="M${w*0.5} ${h*0.22} L${w*0.78} ${h*0.16} L${w*0.73} ${h*0.28} Z" fill="#42A5F5" opacity=".9"/>
-    <path d="M${w*0.5} ${h*0.22} L${w*0.56} ${h*0.42} L${w*0.44} ${h*0.37} Z" fill="#FFB300" opacity=".9"/>
-    <path d="M${w*0.5} ${h*0.22} L${w*0.22} ${h*0.28} L${w*0.27} ${h*0.16} Z" fill="#66BB6A" opacity=".9"/>
-    <!-- Door -->
-    <rect x="${w*0.44}" y="${h*0.82}" width="${w*0.12}" height="${h*0.14}" rx="2" fill="#5D4037"/>
-    <!-- Base -->
-    <rect x="${w*0.3}" y="${h*0.97}" width="${w*0.4}" height="${h*0.03}" rx="2" fill="#A1887F"/>
+    <!-- Dutch windmill: tapered octagonal stone tower -->
+    <!-- Stone texture base -->
+    <path d="M${w*0.3} ${h*0.98} L${w*0.38} ${h*0.28} L${w*0.62} ${h*0.28} L${w*0.7} ${h*0.98} Z" fill="#9E9E9E"/>
+    <path d="M${w*0.3} ${h*0.98} L${w*0.38} ${h*0.28} L${w*0.5} ${h*0.28} L${w*0.52} ${h*0.98} Z" fill="#BDBDBD"/>
+    <!-- Stone block pattern -->
+    ${[0.38,0.5,0.62,0.74,0.86].map((r,i)=>`<line x1="${w*0.3}" y1="${h*r}" x2="${w*0.7}" y2="${h*r}" stroke="#757575" stroke-width="1" opacity=".4"/>` + (i%2===0?`<line x1="${w*(0.3+(0.4*0.33))}" y1="${h*r}" x2="${w*(0.3+(0.4*0.33))}" y2="${h*(r+0.12)}" stroke="#757575" stroke-width="0.8" opacity=".3"/>`:'')).join('')}
+    <!-- Wooden cap (rotating bonnet) — distinctive Dutch dark wood cap -->
+    <path d="M${w*0.28} ${h*0.28} Q${w*0.5} ${h*0.14} ${w*0.72} ${h*0.28} L${w*0.68} ${h*0.3} Q${w*0.5} ${h*0.2} ${w*0.32} ${h*0.3} Z" fill="#4E342E"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.28}" rx="${w*0.22}" ry="${h*0.035}" fill="#5D4037"/>
+    <!-- Gallery rail around tower top -->
+    <rect x="${w*0.28}" y="${h*0.3}" width="${w*0.44}" height="${h*0.025}" rx="1" fill="#6D4C41"/>
+    ${[0.3,0.38,0.46,0.54,0.62,0.7].map(x=>`<rect x="${w*x}" y="${h*0.29}" width="${w*0.018}" height="${h*0.04}" rx="1" fill="#5D4037"/>`).join('')}
+    <!-- HUB at 1/3 up the cap -->
+    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(5,w*0.085)}" fill="#3E2723"/>
+    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(3,w*0.05)}" fill="#5D4037"/>
+    <circle cx="${w*0.5}" cy="${h*0.22}" r="${Math.max(1.5,w*0.025)}" fill="#795548"/>
+    <!-- 4 SAILS — Dutch windmill has long latticed sails -->
+    <!-- Top sail -->
+    <path d="M${w*0.5} ${h*0.22} L${w*0.44} ${h*0.03} L${w*0.48} ${h*0.03} L${w*0.56} ${h*0.08} Z" fill="#D7CCC8" stroke="#A1887F" stroke-width="0.8"/>
+    <line x1="${w*0.46}" y1="${h*0.2}" x2="${w*0.46}" y2="${h*0.04}" stroke="#8D6E63" stroke-width="1.5"/>
+    <line x1="${w*0.53}" y1="${h*0.2}" x2="${w*0.54}" y2="${h*0.05}" stroke="#8D6E63" stroke-width="1.5"/>
+    ${[0.07,0.11,0.15].map(y=>`<line x1="${w*0.455}" y1="${h*y}" x2="${w*0.543}" y2="${h*(y+0.03)}" stroke="#8D6E63" stroke-width="0.8"/>`).join('')}
+    <!-- Right sail -->
+    <path d="M${w*0.5} ${h*0.22} L${w*0.82} ${h*0.16} L${w*0.8} ${h*0.2} L${w*0.66} ${h*0.3} Z" fill="#D7CCC8" stroke="#A1887F" stroke-width="0.8"/>
+    <line x1="${w*0.54}" y1="${h*0.19}" x2="${w*0.81}" y2="${h*0.17}" stroke="#8D6E63" stroke-width="1.5"/>
+    <line x1="${w*0.54}" y1="${h*0.24}" x2="${w*0.78}" y2="${h*0.24}" stroke="#8D6E63" stroke-width="1.5"/>
+    ${[0.61,0.68,0.74].map(x=>`<line x1="${w*x}" y1="${h*0.17}" x2="${w*(x+0.01)}" y2="${h*0.26}" stroke="#8D6E63" stroke-width="0.8"/>`).join('')}
+    <!-- Bottom sail -->
+    <path d="M${w*0.5} ${h*0.22} L${w*0.56} ${h*0.41} L${w*0.52} ${h*0.41} L${w*0.44} ${h*0.36} Z" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="0.8"/>
+    <line x1="${w*0.54}" y1="${h*0.24}" x2="${w*0.54}" y2="${h*0.4}" stroke="#8D6E63" stroke-width="1.5"/>
+    <line x1="${w*0.47}" y1="${h*0.24}" x2="${w*0.46}" y2="${h*0.39}" stroke="#8D6E63" stroke-width="1.5"/>
+    ${[0.29,0.33,0.37].map(y=>`<line x1="${w*0.457}" y1="${h*y}" x2="${w*0.537}" y2="${h*(y+0.01)}" stroke="#8D6E63" stroke-width="0.8"/>`).join('')}
+    <!-- Left sail -->
+    <path d="M${w*0.5} ${h*0.22} L${w*0.18} ${h*0.28} L${w*0.2} ${h*0.24} L${w*0.34} ${h*0.14} Z" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="0.8"/>
+    <line x1="${w*0.46}" y1="${h*0.19}" x2="${w*0.19}" y2="${h*0.27}" stroke="#8D6E63" stroke-width="1.5"/>
+    <line x1="${w*0.46}" y1="${h*0.24}" x2="${w*0.22}" y2="${h*0.24}" stroke="#8D6E63" stroke-width="1.5"/>
+    <!-- Windows — distinctive Dutch round/arch windows -->
+    <ellipse cx="${w*0.5}" cy="${h*0.52}" rx="${w*0.07}" ry="${h*0.05}" fill="#81D4FA" stroke="#607D8B" stroke-width="1.2"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.68}" rx="${w*0.07}" ry="${h*0.05}" fill="#81D4FA" stroke="#607D8B" stroke-width="1.2"/>
+    <!-- Dutch door (split top/bottom) -->
+    <path d="M${w*0.43} ${h*0.98} L${w*0.43} ${h*0.82} Q${w*0.5} ${h*0.78} ${w*0.57} ${h*0.82} L${w*0.57} ${h*0.98} Z" fill="#5D4037"/>
+    <line x1="${w*0.43}" y1="${h*0.9}" x2="${w*0.57}" y2="${h*0.9}" stroke="#795548" stroke-width="1.5"/>
+    <circle cx="${w*0.545}" cy="${h*0.86}" r="${Math.max(1.5,w*0.022)}" fill="#FFD54F"/>
+    <!-- Ground base -->
+    <rect x="${w*0.2}" y="${h*0.97}" width="${w*0.6}" height="${h*0.03}" rx="2" fill="#A1887F"/>
+    <!-- Decorative base ring -->
+    <ellipse cx="${w*0.5}" cy="${h*0.97}" rx="${w*0.24}" ry="${h*0.02}" fill="#8D6E63" opacity=".7"/>
   </svg>`,
   picnic:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <!-- Tabletop -->
@@ -874,16 +917,46 @@ const STRUCT_SVGS={
   </svg>`,
   // Tree SVGs
   maple:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.44}" y="${h*0.6}" width="${w*0.12}" height="${h*0.38}" rx="3" fill="#5D4037"/>
-    <path d="M${w*0.5} ${h*0.08} L${w*0.3} ${h*0.45} L${w*0.38} ${h*0.45} L${w*0.22} ${h*0.65} L${w*0.4} ${h*0.62} L${w*0.35} ${h*0.75} L${w*0.5} ${h*0.66} L${w*0.65} ${h*0.75} L${w*0.6} ${h*0.62} L${w*0.78} ${h*0.65} L${w*0.62} ${h*0.45} L${w*0.7} ${h*0.45} Z" fill="#C62828"/>
-    <path d="M${w*0.5} ${h*0.08} L${w*0.32} ${h*0.45} L${w*0.4} ${h*0.45} L${w*0.26} ${h*0.63} L${w*0.42} ${h*0.6} L${w*0.5} ${h*0.66} L${w*0.58} ${h*0.6} L${w*0.74} ${h*0.63} L${w*0.6} ${h*0.45} L${w*0.68} ${h*0.45} Z" fill="#E53935"/>
+    <!-- Trunk — dark reddish-brown, textured -->
+    <rect x="${w*0.44}" y="${h*0.58}" width="${w*0.12}" height="${h*0.4}" rx="4" fill="#3E2723"/>
+    <line x1="${w*0.47}" y1="${h*0.6}" x2="${w*0.46}" y2="${h*0.96}" stroke="#4E342E" stroke-width="2" opacity=".4"/>
+    <!-- Root flare -->
+    <ellipse cx="${w*0.36}" cy="${h*0.97}" rx="${w*0.08}" ry="${h*0.02}" fill="#3E2723" opacity=".6"/>
+    <ellipse cx="${w*0.64}" cy="${h*0.97}" rx="${w*0.08}" ry="${h*0.02}" fill="#3E2723" opacity=".6"/>
+    <!-- Main canopy — layered fall colors -->
+    <ellipse cx="${w*0.5}" cy="${h*0.38}" rx="${w*0.44}" ry="${h*0.36}" fill="#BF360C"/>
+    <ellipse cx="${w*0.36}" cy="${h*0.36}" rx="${w*0.3}" ry="${h*0.28}" fill="#C62828"/>
+    <ellipse cx="${w*0.65}" cy="${h*0.34}" rx="${w*0.28}" ry="${h*0.26}" fill="#D32F2F"/>
+    <!-- Bright fall highlights -->
+    <ellipse cx="${w*0.5}" cy="${h*0.22}" rx="${w*0.26}" ry="${h*0.2}" fill="#E53935"/>
+    <ellipse cx="${w*0.36}" cy="${h*0.24}" rx="${w*0.18}" ry="${h*0.16}" fill="#F44336"/>
+    <ellipse cx="${w*0.64}" cy="${h*0.26}" rx="${w*0.16}" ry="${h*0.14}" fill="#EF5350"/>
+    <!-- Orange & yellow accent patches -->
+    <ellipse cx="${w*0.28}" cy="${h*0.42}" rx="${w*0.14}" ry="${h*0.12}" fill="#FF6F00" opacity=".7"/>
+    <ellipse cx="${w*0.72}" cy="${h*0.4}" rx="${w*0.13}" ry="${h*0.11}" fill="#FF8F00" opacity=".65"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.14}" rx="${w*0.12}" ry="${h*0.1}" fill="#FFB300" opacity=".6"/>
+    <!-- Maple leaf silhouette overlay at crown -->
+    <path d="M${w*0.5} ${h*0.06} L${w*0.43} ${h*0.18} L${w*0.32} ${h*0.14} L${w*0.38} ${h*0.26} L${w*0.24} ${h*0.28} L${w*0.38} ${h*0.36} L${w*0.34} ${h*0.48} L${w*0.5} ${h*0.42} L${w*0.66} ${h*0.48} L${w*0.62} ${h*0.36} L${w*0.76} ${h*0.28} L${w*0.62} ${h*0.26} L${w*0.68} ${h*0.14} L${w*0.57} ${h*0.18} Z" fill="#FF1744" opacity=".55"/>
   </svg>`,
   oak:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.43}" y="${h*0.55}" width="${w*0.14}" height="${h*0.44}" rx="4" fill="#4E342E"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.38}" rx="${w*0.42}" ry="${h*0.38}" fill="#2E7D32"/>
-    <ellipse cx="${w*0.38}" cy="${h*0.32}" rx="${w*0.3}" ry="${h*0.28}" fill="#388E3C"/>
-    <ellipse cx="${w*0.62}" cy="${h*0.3}" rx="${w*0.28}" ry="${h*0.26}" fill="#43A047"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.2}" rx="${w*0.22}" ry="${h*0.2}" fill="#66BB6A"/>
+    <!-- Thick gnarly trunk with visible bark texture -->
+    <rect x="${w*0.41}" y="${h*0.52}" width="${w*0.18}" height="${h*0.46}" rx="5" fill="#3E2723"/>
+    <line x1="${w*0.45}" y1="${h*0.55}" x2="${w*0.44}" y2="${h*0.94}" stroke="#4E342E" stroke-width="2" opacity=".4"/>
+    <line x1="${w*0.55}" y1="${h*0.58}" x2="${w*0.56}" y2="${h*0.94}" stroke="#6D4C41" stroke-width="1.5" opacity=".3"/>
+    <!-- Root flare -->
+    <ellipse cx="${w*0.38}" cy="${h*0.96}" rx="${w*0.09}" ry="${h*0.025}" fill="#3E2723" opacity=".7"/>
+    <ellipse cx="${w*0.62}" cy="${h*0.96}" rx="${w*0.09}" ry="${h*0.025}" fill="#3E2723" opacity=".7"/>
+    <!-- Wide asymmetric canopy — 5 overlapping lobes -->
+    <ellipse cx="${w*0.5}" cy="${h*0.4}" rx="${w*0.46}" ry="${h*0.36}" fill="#1B5E20"/>
+    <ellipse cx="${w*0.28}" cy="${h*0.38}" rx="${w*0.28}" ry="${h*0.26}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.72}" cy="${h*0.36}" rx="${w*0.26}" ry="${h*0.24}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.24}" rx="${w*0.3}" ry="${h*0.22}" fill="#33691E"/>
+    <ellipse cx="${w*0.35}" cy="${h*0.26}" rx="${w*0.2}" ry="${h*0.18}" fill="#388E3C"/>
+    <ellipse cx="${w*0.66}" cy="${h*0.28}" rx="${w*0.18}" ry="${h*0.16}" fill="#43A047"/>
+    <!-- Light dapple -->
+    <circle cx="${w*0.42}" cy="${h*0.22}" r="${w*0.06}" fill="#558B2F" opacity=".55"/>
+    <circle cx="${w*0.65}" cy="${h*0.32}" r="${w*0.05}" fill="#66BB6A" opacity=".45"/>
+    <circle cx="${w*0.3}" cy="${h*0.44}" r="${w*0.05}" fill="#558B2F" opacity=".4"/>
   </svg>`,
   'apple-tree':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="${w*0.43}" y="${h*0.58}" width="${w*0.14}" height="${h*0.4}" rx="3" fill="#5D4037"/>
@@ -895,14 +968,24 @@ const STRUCT_SVGS={
     <circle cx="${w*0.5}" cy="${h*0.38}" r="${w*0.06}" fill="#C62828"/>
   </svg>`,
   'avocado-tree':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.44}" y="${h*0.6}" width="${w*0.12}" height="${h*0.38}" rx="3" fill="#4E342E"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.36}" rx="${w*0.38}" ry="${h*0.36}" fill="#2E7D32"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.28}" rx="${w*0.28}" ry="${h*0.28}" fill="#388E3C"/>
-    <ellipse cx="${w*0.36}" cy="${h*0.4}" rx="${w*0.22}" ry="${h*0.2}" fill="#43A047"/>
-    <ellipse cx="${w*0.65}" cy="${h*0.38}" rx="${w*0.2}" ry="${h*0.22}" fill="#558B2F"/>
-    <!-- Avocado fruit -->
-    <ellipse cx="${w*0.44}" cy="${h*0.54}" rx="${w*0.055}" ry="${w*0.08}" fill="#33691E"/>
-    <ellipse cx="${w*0.6}" cy="${h*0.52}" rx="${w*0.05}" ry="${w*0.075}" fill="#558B2F"/>
+    <!-- Slender pale grey-green trunk -->
+    <rect x="${w*0.45}" y="${h*0.55}" width="${w*0.1}" height="${h*0.43}" rx="3" fill="#6D8C5A"/>
+    <!-- Large tropical leaves radiating outward — long ellipses -->
+    <ellipse cx="${w*0.5}" cy="${h*0.38}" rx="${w*0.4}" ry="${h*0.18}" fill="#33691E" transform="rotate(-20 ${w*0.5} ${h*0.38})"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.38}" rx="${w*0.38}" ry="${h*0.17}" fill="#33691E" transform="rotate(20 ${w*0.5} ${h*0.38})"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.36}" rx="${w*0.36}" ry="${h*0.16}" fill="#388E3C" transform="rotate(-55 ${w*0.5} ${h*0.36})"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.36}" rx="${w*0.36}" ry="${h*0.16}" fill="#388E3C" transform="rotate(55 ${w*0.5} ${h*0.36})"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.32}" rx="${w*0.28}" ry="${h*0.14}" fill="#43A047"/>
+    <!-- Leaf midribs -->
+    <line x1="${w*0.5}" y1="${h*0.52}" x2="${w*0.14}" y2="${h*0.3}" stroke="#2E7D32" stroke-width="1" opacity=".5"/>
+    <line x1="${w*0.5}" y1="${h*0.52}" x2="${w*0.86}" y2="${h*0.3}" stroke="#2E7D32" stroke-width="1" opacity=".5"/>
+    <!-- Pear-shaped avocados — distinctive dark green/black -->
+    <ellipse cx="${w*0.34}" cy="${h*0.58}" rx="${w*0.065}" ry="${w*0.1}" fill="#1A3D0A"/>
+    <ellipse cx="${w*0.34}" cy="${h*0.63}" rx="${w*0.055}" ry="${w*0.06}" fill="#2E5A12"/>
+    <ellipse cx="${w*0.66}" cy="${h*0.56}" rx="${w*0.06}" ry="${w*0.09}" fill="#1A3D0A"/>
+    <ellipse cx="${w*0.66}" cy="${h*0.61}" rx="${w*0.05}" ry="${w*0.055}" fill="#2E5A12"/>
+    <!-- Leaf gloss -->
+    <ellipse cx="${w*0.5}" cy="${h*0.26}" rx="${w*0.14}" ry="${h*0.07}" fill="#66BB6A" opacity=".35"/>
   </svg>`,
   'banana-tree':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="${w*0.44}" y="${h*0.4}" width="${w*0.12}" height="${h*0.58}" rx="4" fill="#33691E"/>
@@ -942,10 +1025,18 @@ const STRUCT_SVGS={
     <line x1="${w*0.58}" y1="${h*0.46}" x2="${w*0.58}" y2="${h*0.38}" stroke="#2E7D32" stroke-width="1.5"/>
   </svg>`,
   willow:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.46}" y="${h*0.3}" width="${w*0.08}" height="${h*0.68}" rx="3" fill="#5D4037"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.22}" rx="${w*0.38}" ry="${h*0.22}" fill="#2E7D32"/>
-    <!-- Drooping branches -->
-    ${[0.18,0.3,0.42,0.58,0.7,0.82].map(x=>`<path d="M${w*x} ${h*0.28} Q${w*(x-0.08)} ${h*0.56} ${w*(x-0.12)} ${h*0.82}" stroke="#43A047" stroke-width="2.5" fill="none" stroke-linecap="round"/>`).join('')}
+    <!-- Trunk — pale brown, slightly curved -->
+    <path d="M${w*0.48} ${h*0.98} Q${w*0.51} ${h*0.65} ${w*0.5} ${h*0.18}" stroke="#795548" stroke-width="${w*0.09}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.98} Q${w*0.52} ${h*0.65} ${w*0.51} ${h*0.18}" stroke="#8D6E63" stroke-width="${w*0.05}" fill="none" stroke-linecap="round" opacity=".5"/>
+    <!-- Crown mass -->
+    <ellipse cx="${w*0.5}" cy="${h*0.18}" rx="${w*0.36}" ry="${h*0.17}" fill="#33691E"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.14}" rx="${w*0.28}" ry="${h*0.12}" fill="#388E3C"/>
+    <!-- Long weeping branch curtains — many fine cascading lines -->
+    ${[0.16,0.24,0.32,0.42,0.5,0.58,0.67,0.76,0.84].map((x,i)=>{const curve=((i%3)-1)*0.06;return `<path d="M${w*x} ${h*0.25} C${w*(x+curve)} ${h*0.5} ${w*(x+curve*1.5)} ${h*0.7} ${w*(x+curve*2)} ${h*0.94}" stroke="#558B2F" stroke-width="${1.5+Math.abs(curve)*8}" fill="none" stroke-linecap="round" opacity="${0.7+Math.abs(curve)*2}"/>`}).join('')}
+    <!-- Leaf tufts along branches -->
+    ${[0.18,0.32,0.5,0.68,0.82].map(x=>`<ellipse cx="${w*x}" cy="${h*0.72}" rx="${w*0.055}" ry="${h*0.06}" fill="#66BB6A" opacity=".65" transform="rotate(${(x-0.5)*30} ${w*x} ${h*0.72})"/>`).join('')}
+    <!-- Ground shadow -->
+    <ellipse cx="${w*0.5}" cy="${h*0.98}" rx="${w*0.35}" ry="${h*0.025}" fill="rgba(0,0,0,.12)"/>
   </svg>`,
   birch:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <rect x="${w*0.42}" y="${h*0.32}" width="${w*0.16}" height="${h*0.66}" rx="4" fill="#ECEFF1"/>
@@ -957,47 +1048,117 @@ const STRUCT_SVGS={
   </svg>`,
   // Bush SVGs
   hydrangea:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.43}" y="${h*0.72}" width="${w*0.14}" height="${h*0.26}" rx="2" fill="#5D4037"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.5}" rx="${w*0.44}" ry="${h*0.48}" fill="#7B1FA2"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.46}" rx="${w*0.36}" ry="${h*0.38}" fill="#9C27B0"/>
-    <!-- Flower clusters -->
-    ${[[0.3,0.35],[0.55,0.3],[0.7,0.45],[0.4,0.58],[0.65,0.6]].map(([cx,cy])=>`<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.1}" fill="#CE93D8" opacity=".8"/><circle cx="${w*cx}" cy="${h*cy}" r="${w*0.06}" fill="#E1BEE7"/>`).join('')}
+    <!-- Stem -->
+    <rect x="${w*0.45}" y="${h*0.72}" width="${w*0.1}" height="${h*0.27}" rx="2" fill="#4E342E"/>
+    <!-- Leaf mass -->
+    <ellipse cx="${w*0.5}" cy="${h*0.54}" rx="${w*0.44}" ry="${h*0.44}" fill="#1A5276"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.5}" rx="${w*0.4}" ry="${h*0.4}" fill="#2980B9" opacity=".4"/>
+    <!-- Big mophead bloom clusters — each is a pompom of tiny petals -->
+    ${[[0.28,0.36,0.18],[0.52,0.26,0.16],[0.72,0.4,0.15],[0.36,0.58,0.16],[0.64,0.56,0.15]].map(([cx,cy,r])=>
+      `<circle cx="${w*cx}" cy="${h*cy}" r="${w*r}" fill="#6A1B9A"/>` +
+      [0,60,120,180,240,300].map(a=>`<ellipse cx="${w*cx+Math.cos(a*Math.PI/180)*w*r*0.7}" cy="${h*cy+Math.sin(a*Math.PI/180)*w*r*0.7}" rx="${w*0.055}" ry="${h*0.055}" fill="#CE93D8"/>`).join('') +
+      `<circle cx="${w*cx}" cy="${h*cy}" r="${w*r*0.45}" fill="#E1BEE7"/>` +
+      [0,60,120,180,240,300].map(a=>`<ellipse cx="${w*cx+Math.cos(a*Math.PI/180)*w*r*0.38}" cy="${h*cy+Math.sin(a*Math.PI/180)*w*r*0.38}" rx="${w*0.03}" ry="${h*0.03}" fill="#fff" opacity=".7"/>`).join('')
+    ).join('')}
+    <!-- Leaf highlights -->
+    <ellipse cx="${w*0.22}" cy="${h*0.6}" rx="${w*0.12}" ry="${h*0.1}" fill="#2E7D32" opacity=".5" transform="rotate(-25 ${w*0.22} ${h*0.6})"/>
+    <ellipse cx="${w*0.78}" cy="${h*0.62}" rx="${w*0.11}" ry="${h*0.09}" fill="#388E3C" opacity=".5" transform="rotate(20 ${w*0.78} ${h*0.62})"/>
   </svg>`,
   bougainvillea:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.44}" y="${h*0.78}" width="${w*0.12}" height="${h*0.2}" rx="2" fill="#5D4037"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.48}" rx="${w*0.44}" ry="${h*0.46}" fill="#AD1457"/>
-    <ellipse cx="${w*0.4}" cy="${h*0.42}" rx="${w*0.3}" ry="${h*0.34}" fill="#C2185B"/>
-    <ellipse cx="${w*0.62}" cy="${h*0.44}" rx="${w*0.28}" ry="${h*0.3}" fill="#E91E63"/>
-    <!-- Bracts -->
-    ${[[0.25,0.38],[0.48,0.25],[0.7,0.35],[0.35,0.55],[0.62,0.58]].map(([cx,cy])=>`<path d="M${w*cx} ${h*cy} Q${w*(cx+0.06)} ${h*(cy-0.08)} ${w*(cx+0.12)} ${h*cy} Q${w*(cx+0.06)} ${h*(cy+0.04)} ${w*cx} ${h*cy}Z" fill="#F48FB1" opacity=".8"/>`).join('')}
+    <!-- Woody stems -->
+    <path d="M${w*0.5} ${h*0.98} Q${w*0.42} ${h*0.8} ${w*0.28} ${h*0.62}" stroke="#5D4037" stroke-width="${w*0.04}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.98} Q${w*0.58} ${h*0.78} ${w*0.72} ${h*0.58}" stroke="#4E342E" stroke-width="${w*0.035}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.9} Q${w*0.5} ${h*0.7} ${w*0.5} ${h*0.52}" stroke="#6D4C41" stroke-width="${w*0.03}" fill="none" stroke-linecap="round"/>
+    <!-- Dense green foliage mass -->
+    <ellipse cx="${w*0.5}" cy="${h*0.48}" rx="${w*0.46}" ry="${h*0.46}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.36}" cy="${h*0.44}" rx="${w*0.3}" ry="${h*0.3}" fill="#388E3C"/>
+    <ellipse cx="${w*0.64}" cy="${h*0.42}" rx="${w*0.28}" ry="${h*0.28}" fill="#43A047"/>
+    <!-- Vivid magenta-pink paper bracts (bougainvillea's showy part) -->
+    ${[[0.2,0.34,35],[0.44,0.18,0],[0.7,0.28,-25],[0.28,0.56,15],[0.62,0.56,-20],[0.5,0.38,0],[0.36,0.28,20],[0.66,0.48,-15]].map(([cx,cy,rot])=>
+      `<g transform="rotate(${rot} ${w*cx} ${h*cy})">` +
+      `<ellipse cx="${w*cx}" cy="${h*cy}" rx="${w*0.09}" ry="${h*0.07}" fill="#E91E63"/>` +
+      `<ellipse cx="${w*(cx+0.06)}" cy="${h*cy}" rx="${w*0.085}" ry="${h*0.065}" fill="#F06292"/>` +
+      `<ellipse cx="${w*(cx+0.03)}" cy="${h*(cy-0.02)}" rx="${w*0.04}" ry="${h*0.03}" fill="#fff" opacity=".3"/>` +
+      `</g>`
+    ).join('')}
+    <!-- True small white flowers in center of bracts -->
+    ${[[0.44,0.18],[0.7,0.28],[0.5,0.38],[0.22,0.34]].map(([cx,cy])=>`<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.025}" fill="#FFF9C4"/>`).join('')}
   </svg>`,
   'rose-bush':(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.44}" y="${h*0.72}" width="${w*0.12}" height="${h*0.26}" rx="2" fill="#4E342E"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.48}" rx="${w*0.44}" ry="${h*0.46}" fill="#388E3C"/>
-    <!-- Thorny stems visible at bottom -->
-    <line x1="${w*0.5}" y1="${h*0.72}" x2="${w*0.38}" y2="${h*0.58}" stroke="#2E7D32" stroke-width="2"/>
-    <line x1="${w*0.5}" y1="${h*0.72}" x2="${w*0.62}" y2="${h*0.6}" stroke="#2E7D32" stroke-width="2"/>
-    <!-- Rose blooms -->
-    ${[[0.32,0.35],[0.55,0.28],[0.68,0.46],[0.38,0.56]].map(([cx,cy])=>`<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.1}" fill="#C62828"/><circle cx="${w*cx}" cy="${h*cy}" r="${w*0.06}" fill="#EF5350"/><circle cx="${w*cx}" cy="${h*cy}" r="${w*0.03}" fill="#FFCDD2"/>`).join('')}
+    <!-- Thorny cane stems -->
+    <path d="M${w*0.5} ${h*0.98} Q${w*0.38} ${h*0.78} ${w*0.3} ${h*0.56}" stroke="#2E7D32" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.95} Q${w*0.5} ${h*0.76} ${w*0.52} ${h*0.5}" stroke="#388E3C" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.9} Q${w*0.64} ${h*0.74} ${w*0.72} ${h*0.54}" stroke="#2E7D32" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Thorns -->
+    ${[[0.36,0.76,'-30'],[0.5,0.72,'20'],[0.62,0.78,'-20'],[0.44,0.62,'30'],[0.58,0.64,'-25']].map(([cx,cy,rot])=>`<path d="M${w*cx} ${h*cy} L${w*(parseFloat(cx)+0.04)} ${h*(parseFloat(cy)-0.04)}" stroke="#1B5E20" stroke-width="1.5" stroke-linecap="round"/>`).join('')}
+    <!-- Dense leafy mass -->
+    <ellipse cx="${w*0.5}" cy="${h*0.5}" rx="${w*0.44}" ry="${h*0.44}" fill="#1B5E20"/>
+    <ellipse cx="${w*0.36}" cy="${h*0.46}" rx="${w*0.28}" ry="${h*0.28}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.64}" cy="${h*0.44}" rx="${w*0.26}" ry="${h*0.26}" fill="#388E3C"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.3}" rx="${w*0.22}" ry="${h*0.2}" fill="#43A047" opacity=".8"/>
+    <!-- Rose blooms — realistic multi-petal spirals -->
+    ${[[0.28,0.38,w*0.1,'#C62828','#EF5350'],[0.56,0.26,w*0.095,'#D32F2F','#F44336'],[0.72,0.44,w*0.088,'#B71C1C','#E53935'],[0.34,0.58,w*0.085,'#C62828','#EF5350'],[0.62,0.6,w*0.09,'#D32F2F','#EF9A9A']].map(([cx,cy,r,c1,c2])=>
+      `<circle cx="${w*cx}" cy="${h*cy}" r="${r}" fill="${c1}"/>` +
+      [0,45,90,135,180,225,270,315].map(a=>`<ellipse cx="${w*cx+Math.cos(a*Math.PI/180)*r*0.5}" cy="${h*cy+Math.sin(a*Math.PI/180)*r*0.5}" rx="${r*0.42}" ry="${r*0.28}" fill="${c2}" transform="rotate(${a} ${w*cx+Math.cos(a*Math.PI/180)*r*0.5} ${h*cy+Math.sin(a*Math.PI/180)*r*0.5})"/>`).join('') +
+      `<circle cx="${w*cx}" cy="${h*cy}" r="${r*0.35}" fill="${c1}"/>` +
+      `<circle cx="${w*cx}" cy="${h*cy}" r="${r*0.18}" fill="#FFCDD2"/>`
+    ).join('')}
   </svg>`,
   lilac:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.44}" y="${h*0.74}" width="${w*0.12}" height="${h*0.24}" rx="2" fill="#5D4037"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.5}" rx="${w*0.44}" ry="${h*0.46}" fill="#6A1B9A"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.44}" rx="${w*0.36}" ry="${h*0.38}" fill="#8E24AA"/>
-    ${[[0.3,0.32],[0.52,0.26],[0.7,0.38],[0.38,0.52],[0.64,0.54]].map(([cx,cy])=>`<ellipse cx="${w*cx}" cy="${h*cy}" rx="${w*0.1}" ry="${h*0.12}" fill="#CE93D8" opacity=".85"/><ellipse cx="${w*cx}" cy="${h*(cy-0.04)}" rx="${w*0.07}" ry="${h*0.08}" fill="#E1BEE7"/>`).join('')}
+    <!-- Multiple stems -->
+    <path d="M${w*0.5} ${h*0.98} Q${w*0.44} ${h*0.82} ${w*0.4} ${h*0.7}" stroke="#5D4037" stroke-width="${w*0.04}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.98} Q${w*0.5} ${h*0.8} ${w*0.5} ${h*0.68}" stroke="#4E342E" stroke-width="${w*0.035}" fill="none" stroke-linecap="round"/>
+    <path d="M${w*0.5} ${h*0.96} Q${w*0.56} ${h*0.82} ${w*0.6} ${h*0.7}" stroke="#5D4037" stroke-width="${w*0.04}" fill="none" stroke-linecap="round"/>
+    <!-- Heart-shaped green leaves -->
+    <ellipse cx="${w*0.5}" cy="${h*0.54}" rx="${w*0.44}" ry="${h*0.42}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.34}" cy="${h*0.5}" rx="${w*0.26}" ry="${h*0.24}" fill="#388E3C"/>
+    <ellipse cx="${w*0.66}" cy="${h*0.48}" rx="${w*0.24}" ry="${h*0.22}" fill="#43A047"/>
+    <!-- Cone-shaped panicles (lilac's distinctive bloom form) -->
+    ${[[0.28,0.22,0.14,0.28],[0.5,0.14,0.16,0.3],[0.72,0.2,0.13,0.26],[0.38,0.34,0.12,0.24],[0.63,0.33,0.11,0.22]].map(([cx,cy,rx,ry])=>
+      `<ellipse cx="${w*cx}" cy="${h*cy}" rx="${w*rx}" ry="${h*ry}" fill="#6A1B9A"/>` +
+      `<ellipse cx="${w*cx}" cy="${h*(cy-ry*0.2)}" rx="${w*rx*0.8}" ry="${h*ry*0.65}" fill="#9C27B0"/>` +
+      `<ellipse cx="${w*cx}" cy="${h*(cy-ry*0.35)}" rx="${w*rx*0.55}" ry="${h*ry*0.42}" fill="#CE93D8"/>` +
+      // tiny 4-petal florets texture
+      [0,0.3,0.6,0.9,1.2,1.5,1.8,2.1,2.4,2.7,3.0,3.3,3.6,3.9,4.2,4.5,4.8,5.1,5.4,5.7].map(a=>
+        `<circle cx="${w*cx+(Math.cos(a)*w*rx*0.65)}" cy="${h*cy+(Math.sin(a)*h*ry*0.55)}" r="${w*0.018}" fill="#E1BEE7" opacity=".8"/>`
+      ).join('')
+    ).join('')}
   </svg>`,
   forsythia:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.44}" y="${h*0.76}" width="${w*0.12}" height="${h*0.22}" rx="2" fill="#5D4037"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.5}" rx="${w*0.44}" ry="${h*0.46}" fill="#F57F17"/>
-    <ellipse cx="${w*0.38}" cy="${h*0.44}" rx="${w*0.3}" ry="${h*0.36}" fill="#F9A825"/>
-    <ellipse cx="${w*0.64}" cy="${h*0.46}" rx="${w*0.28}" ry="${h*0.34}" fill="#FDD835"/>
-    ${[[0.26,0.36],[0.5,0.24],[0.72,0.38],[0.36,0.58],[0.64,0.6]].map(([cx,cy])=>`<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.08}" fill="#FFEE58" opacity=".8"/>`).join('')}
+    <!-- Arching canes radiating outward -->
+    ${[[-0.22,0.4,-0.15,0.12],[-0.1,0.36,-0.06,0.08],[0,0.35,0,0.06],[0.1,0.36,0.06,0.08],[0.22,0.4,0.15,0.12]].map(([dx1,dy1,dx2,dy2])=>
+      `<path d="M${w*0.5} ${h*0.9} Q${w*(0.5+dx1*1.2)} ${h*dy1} ${w*(0.5+dx2+dx1)} ${h*(dy1-dy2*1.5)}" stroke="#5D4037" stroke-width="2.5" fill="none" stroke-linecap="round"/>`
+    ).join('')}
+    <!-- Bright yellow 4-petal flowers covering every cane (forsythia blooms before leaves) -->
+    ${Array.from({length:35},(_,i)=>{
+      const a=i*0.22,r=w*(0.08+Math.random()*0.36);
+      const cx=0.5+Math.cos(a)*r/w,cy=0.5-Math.sin(a)*r/h*0.8;
+      if(cx<0.04||cx>0.96||cy<0.04||cy>0.88)return '';
+      return [0,90,180,270].map(ang=>`<ellipse cx="${w*cx+Math.cos(ang*Math.PI/180)*w*0.04}" cy="${h*cy+Math.sin(ang*Math.PI/180)*h*0.04}" rx="${w*0.038}" ry="${w*0.022}" fill="#FDD835" transform="rotate(${ang} ${w*cx+Math.cos(ang*Math.PI/180)*w*0.04} ${h*cy+Math.sin(ang*Math.PI/180)*h*0.04})"/>`).join('') +
+        `<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.018}" fill="#F9A825"/>`;
+    }).join('')}
+    <!-- A few emerging leaves -->
+    <ellipse cx="${w*0.3}" cy="${h*0.66}" rx="${w*0.1}" ry="${h*0.07}" fill="#558B2F" opacity=".7" transform="rotate(-20 ${w*0.3} ${h*0.66})"/>
+    <ellipse cx="${w*0.68}" cy="${h*0.64}" rx="${w*0.09}" ry="${h*0.065}" fill="#558B2F" opacity=".65" transform="rotate(15 ${w*0.68} ${h*0.64})"/>
   </svg>`,
   juniper:(w,h)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${w*0.44}" y="${h*0.76}" width="${w*0.12}" height="${h*0.22}" rx="2" fill="#4E342E"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.48}" rx="${w*0.44}" ry="${h*0.46}" fill="#1B5E20"/>
-    <ellipse cx="${w*0.5}" cy="${h*0.42}" rx="${w*0.36}" ry="${h*0.38}" fill="#2E7D32"/>
-    <path d="M${w*0.5} ${h*0.06} L${w*0.28} ${h*0.44} L${w*0.38} ${h*0.44} L${w*0.22} ${h*0.62} L${w*0.78} ${h*0.62} L${w*0.62} ${h*0.44} L${w*0.72} ${h*0.44} Z" fill="#388E3C"/>
+    <!-- Central trunk -->
+    <rect x="${w*0.46}" y="${h*0.7}" width="${w*0.08}" height="${h*0.28}" rx="2" fill="#4E342E"/>
+    <!-- Dense layered sprays — juniper has a mounding sculptural form -->
+    <ellipse cx="${w*0.5}" cy="${h*0.55}" rx="${w*0.44}" ry="${h*0.42}" fill="#1B5E20"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.48}" rx="${w*0.38}" ry="${h*0.36}" fill="#1E5F24"/>
+    <ellipse cx="${w*0.38}" cy="${h*0.46}" rx="${w*0.28}" ry="${h*0.26}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.62}" cy="${h*0.44}" rx="${w*0.26}" ry="${h*0.24}" fill="#2E7D32"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.34}" rx="${w*0.3}" ry="${h*0.26}" fill="#388E3C"/>
+    <ellipse cx="${w*0.5}" cy="${h*0.22}" rx="${w*0.22}" ry="${h*0.18}" fill="#43A047"/>
+    <!-- Blue-green berry clusters (distinctive juniper feature) -->
+    ${[[0.26,0.54],[0.58,0.5],[0.42,0.4],[0.7,0.38],[0.34,0.6]].map(([cx,cy])=>
+      `<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.035}" fill="#37474F"/>` +
+      `<circle cx="${w*cx}" cy="${h*cy}" r="${w*0.022}" fill="#78909C"/>` +
+      `<circle cx="${w*(cx-0.01)}" cy="${h*(cy-0.01)}" r="${w*0.01}" fill="#B0BEC5" opacity=".7"/>`
+    ).join('')}
+    <!-- Scale-like foliage texture -->
+    ${Array.from({length:18},(_,i)=>{const a=i*0.35,r=w*(0.1+i%4*0.07);const cx=0.5+Math.cos(a)*r/w,cy=0.42-Math.sin(a)*r/h*0.7;return cy>0.08&&cy<0.68&&cx>0.08&&cx<0.92?`<ellipse cx="${w*cx}" cy="${h*cy}" rx="${w*0.04}" ry="${h*0.03}" fill="#1B5E20" opacity=".5" transform="rotate(${a*30} ${w*cx} ${h*cy})"/>`:'';}).join('')}
     <!-- Berries -->
     <circle cx="${w*0.36}" cy="${h*0.48}" r="${w*0.04}" fill="#1A237E" opacity=".7"/>
     <circle cx="${w*0.62}" cy="${h*0.52}" r="${w*0.04}" fill="#1A237E" opacity=".7"/>
@@ -1016,10 +1177,10 @@ const DECORS=[
   {id:'gnome',name:'Garden Gnome',svg:true},
   {id:'beehive',name:'Bee Hive',svg:true},
   {id:'flag',name:'Garden Flag',svg:true},
-  {id:'windchime',name:'Wind Chime',emoji:'🎐'},
+  {id:'windchime',name:'Wind Chime',svg:true},
   {id:'mushroom',name:'Mushrooms',emoji:'🍄'},
   {id:'stones',name:'Garden Stones',emoji:'🪨'},
-  {id:'pebbles',name:'Garden Pebbles',emoji:'⚪'},
+  {id:'pebbles',name:'Garden Pebbles',svg:true},
 ];
 const DECOR_SVGS={
   scarecrow:(sz)=>`<svg viewBox="0 0 40 56" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
@@ -1100,6 +1261,58 @@ const DECOR_SVGS={
     <!-- Ground line -->
     <line x1="12" y1="60" x2="40" y2="60" stroke="#795548" stroke-width="2"/>
   </svg>`,
+  windchime:(sz)=>`<svg viewBox="0 0 52 64" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hanging ring at top -->
+    <circle cx="26" cy="5" r="3.5" fill="none" stroke="#B0BEC5" stroke-width="2"/>
+    <!-- Main horizontal bar -->
+    <rect x="8" y="10" width="36" height="5" rx="2.5" fill="#CFD8DC"/>
+    <rect x="8" y="10" width="36" height="2.5" rx="2" fill="#ECEFF1" opacity=".7"/>
+    <!-- Decorative top piece -->
+    <ellipse cx="26" cy="12" rx="6" ry="3" fill="#90A4AE"/>
+    <!-- Strings — 5 chimes -->
+    ${[12,18,24,30,36].map((x,i)=>`<line x1="${x}" y1="15" x2="${x}" y2="${28+i%3*3}" stroke="#90A4AE" stroke-width="1" opacity=".8"/>`).join('')}
+    <!-- Chime tubes — metallic cylinders of varying lengths -->
+    <rect x="9" y="28" width="6" height="22" rx="3" fill="url(#cg0)"/>
+    <rect x="15" y="30" width="6" height="18" rx="3" fill="url(#cg1)"/>
+    <rect x="21" y="26" width="6" height="26" rx="3" fill="url(#cg2)"/>
+    <rect x="27" y="29" width="6" height="20" rx="3" fill="url(#cg3)"/>
+    <rect x="33" y="27" width="6" height="24" rx="3" fill="url(#cg4)"/>
+    <!-- Tube highlights -->
+    ${[12,18,24,30,36].map(x=>`<rect x="${x}" y="${28}" width="2" height="${16}" rx="1" fill="#fff" opacity=".3"/>`).join('')}
+    <!-- Clapper (striker) in middle -->
+    <line x1="24" y1="15" x2="26" y2="42" stroke="#78909C" stroke-width="1.5" stroke-dasharray="2,2"/>
+    <ellipse cx="26" cy="44" rx="5" ry="4" fill="#546E7A"/>
+    <ellipse cx="26" cy="42" rx="4" ry="3" fill="#78909C"/>
+    <!-- Musical note decoration -->
+    <text x="20" y="8" font-size="8" fill="#B0BEC5" opacity=".7">♪</text>
+    <defs>
+      <linearGradient id="cg0" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#78909C"/><stop offset="35%" stop-color="#ECEFF1"/><stop offset="100%" stop-color="#546E7A"/></linearGradient>
+      <linearGradient id="cg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#78909C"/><stop offset="35%" stop-color="#ECEFF1"/><stop offset="100%" stop-color="#546E7A"/></linearGradient>
+      <linearGradient id="cg2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#78909C"/><stop offset="35%" stop-color="#ECEFF1"/><stop offset="100%" stop-color="#546E7A"/></linearGradient>
+      <linearGradient id="cg3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#78909C"/><stop offset="35%" stop-color="#ECEFF1"/><stop offset="100%" stop-color="#546E7A"/></linearGradient>
+      <linearGradient id="cg4" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#78909C"/><stop offset="35%" stop-color="#ECEFF1"/><stop offset="100%" stop-color="#546E7A"/></linearGradient>
+    </defs>
+  </svg>`,
+  pebbles:(sz)=>`<svg viewBox="0 0 52 42" width="${sz}" height="${Math.round(sz*0.8)}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Scattered pebbles — rounded irregular stones in natural colours -->
+    ${[
+      [10,30,12,9,'#9E9E9E'],
+      [24,34,10,8,'#BDBDBD'],
+      [36,32,13,9,'#8D8D8D'],
+      [6,22,9,7,'#757575'],
+      [18,22,11,8,'#AEAEAE'],
+      [30,24,10,7,'#9E9E9E'],
+      [42,28,11,8,'#C0C0C0'],
+      [14,14,10,7,'#8D8D8D'],
+      [28,14,12,8,'#BDBDBD'],
+      [40,18,9,7,'#9E9E9E'],
+      [22,6,11,7,'#A5A5A5'],
+      [36,8,10,7,'#757575'],
+    ].map(([cx,cy,rx,ry,fill])=>
+      `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" stroke="rgba(0,0,0,.1)" stroke-width=".8"/>` +
+      `<ellipse cx="${cx-rx*0.25}" cy="${cy-ry*0.25}" rx="${rx*0.45}" ry="${ry*0.35}" fill="#fff" opacity=".2"/>`
+    ).join('')}
+  </svg>`,
   flag:(sz)=>`<svg viewBox="0 0 36 52" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
     <rect x="6" y="4" width="3" height="46" rx="1.5" fill="#5D4037"/>
     <rect x="9" y="6" width="24" height="18" rx="2" fill="#2E7D32"/>
@@ -1109,131 +1322,85 @@ const DECOR_SVGS={
   </svg>`,
 };
 const ANIMAL_SVGS={
-  horse:function(sz){return `<svg viewBox="0 0 110 90" width="${sz}" height="${sz*0.82}" xmlns="http://www.w3.org/2000/svg">
-  <!-- Ground shadow -->
-  <ellipse cx="60" cy="88" rx="38" ry="5" fill="rgba(0,0,0,.13)"/>
-  <!-- TAIL — swept high, flowing dark brown -->
-  <path d="M90 46 C100 38 110 30 108 18 C106 10 100 8 96 14 C101 20 98 30 92 40" fill="#6B3A1E"/>
-  <path d="M90 46 C97 36 104 24 102 14" stroke="#4A2208" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M90 46 C96 34 100 26 98 16" stroke="#7A4C28" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <!-- BODY — large warm golden-tan barrel, galloping lean forward -->
-  <ellipse cx="58" cy="52" rx="32" ry="20" fill="#EFB96C"/>
-  <!-- Body shading -->
-  <ellipse cx="70" cy="46" rx="18" ry="13" fill="#F5D090" opacity=".55"/>
-  <ellipse cx="44" cy="58" rx="14" ry="10" fill="#D4944A" opacity=".35"/>
-  <!-- Hip bump -->
-  <ellipse cx="80" cy="48" rx="14" ry="13" fill="#E0A050" opacity=".5"/>
-  <!-- Chest muscle -->
-  <ellipse cx="36" cy="50" rx="10" ry="12" fill="#D4944A" opacity=".4"/>
-  <!-- NECK — thick, arched forward (galloping) -->
-  <path d="M34 44 C28 33 26 20 30 12 C33 6 41 4 44 8 C46 14 44 28 40 42 Z" fill="#D8A050"/>
-  <path d="M34 44 C29 33 28 22 31 13" stroke="#B8742A" stroke-width="2" fill="none"/>
-  <!-- HEAD — warm amber, slightly tilted forward -->
-  <path d="M42 10 C41 3 46 -1 53 0 C60 1 65 6 65 13 C65 19 61 23 54 23 C46 23 42 18 42 10Z" fill="#C8883C"/>
-  <!-- Cheek highlight -->
-  <ellipse cx="50" cy="14" rx="6" ry="5" fill="#E0A04A" opacity=".5"/>
-  <!-- Face blaze — white stripe -->
-  <path d="M54 1 C53 6 52 12 53 18" stroke="#F5DDA8" stroke-width="4" fill="none" stroke-linecap="round" opacity=".65"/>
-  <!-- Muzzle — rounded, lighter -->
-  <ellipse cx="63" cy="17" rx="6" ry="5" fill="#D4A060" transform="rotate(8 63 17)"/>
-  <!-- Nostrils -->
-  <ellipse cx="61" cy="18" rx="2" ry="1.5" fill="#7A4818"/>
-  <ellipse cx="65" cy="17.5" rx="1.8" ry="1.4" fill="#7A4818"/>
-  <!-- Mouth line -->
-  <path d="M58 21 Q63 23 68 21" stroke="#8B5820" stroke-width="1.2" fill="none"/>
-  <!-- EYE — large, round, dark with highlight -->
-  <circle cx="48" cy="9" r="3.5" fill="#0F0800"/>
-  <circle cx="49.2" cy="7.8" r="1.2" fill="#fff" opacity=".8"/>
-  <!-- Ear -->
-  <path d="M44 5 L41 -2 L49 4 Z" fill="#C8883C" stroke="#A06828" stroke-width=".8"/>
-  <path d="M44 5 L43 0 L47 3 Z" fill="#E8C882"/>
-  <!-- MANE — thick dark brown, swept back -->
-  <path d="M48 2 C46 8 46 16 48 22" stroke="#2A1000" stroke-width="7" fill="none" stroke-linecap="round"/>
-  <path d="M44 5 C42 11 42 20 43 27" stroke="#3D1800" stroke-width="5" fill="none" stroke-linecap="round"/>
-  <path d="M40 9 C38 15 38 23 38 30" stroke="#5A2A0A" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M36 14 C34 20 34 28 35 35" stroke="#2A1000" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <!-- LEGS — galloping: front pair thrust forward, back pair back -->
-  <!-- Front-left (leading, extended far fwd) -->
-  <path d="M32 66 C26 74 20 80 16 88" stroke="#B87838" stroke-width="10" fill="none" stroke-linecap="round"/>
-  <!-- Front knee joint -->
-  <ellipse cx="26" cy="76" rx="5.5" ry="4" fill="#9A6028" opacity=".6"/>
-  <!-- Front-right (tucked) -->
-  <path d="M40 68 C38 76 36 82 38 88" stroke="#C89048" stroke-width="9" fill="none" stroke-linecap="round"/>
-  <!-- Back-left (extended back) -->
-  <path d="M76 66 C82 74 88 80 92 88" stroke="#C89048" stroke-width="10" fill="none" stroke-linecap="round"/>
-  <!-- Back knee -->
-  <ellipse cx="84" cy="76" rx="5.5" ry="4" fill="#9A6028" opacity=".55"/>
-  <!-- Back-right (tucked under) -->
-  <path d="M84 66 C86 74 84 82 82 88" stroke="#B87838" stroke-width="9" fill="none" stroke-linecap="round"/>
-  <!-- HOOVES — dark brown, chunky -->
-  <ellipse cx="15" cy="88" rx="7" ry="3.5" fill="#4A2808"/>
-  <ellipse cx="38" cy="88" rx="6.5" ry="3" fill="#4A2808"/>
-  <ellipse cx="93" cy="88" rx="7" ry="3.5" fill="#4A2808"/>
-  <ellipse cx="81" cy="88" rx="6.5" ry="3" fill="#4A2808"/>
-</svg>`;},
+  horse:function(sz){return `<svg viewBox="0 0 120 92" width="${sz}" height="${sz*0.82}" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="60" cy="90" rx="42" ry="5" fill="rgba(0,0,0,.13)"/>
+  <path d="M22 44 C10 36 4 22 8 10 C10 4 16 4 18 10 C14 18 16 30 22 42" fill="#7A4C28"/>
+  <path d="M22 44 C12 34 6 20 9 9" stroke="#5D3010" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M22 44 C14 32 10 20 12 8" stroke="#A06030" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M23 46 C16 40 10 30 12 18" stroke="#6B3A1E" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="60" cy="54" rx="36" ry="21" fill="#D4924A"/>
+  <ellipse cx="58" cy="48" rx="28" ry="15" fill="#E8B06C" opacity=".6"/>
+  <ellipse cx="40" cy="58" rx="14" ry="10" fill="#C07832" opacity=".35"/>
+  <ellipse cx="80" cy="50" rx="18" ry="15" fill="#C88040" opacity=".4"/>
+  <path d="M78 44 C84 32 86 20 84 13 C82 7 76 5 72 9 C70 15 72 30 76 44 Z" fill="#C8843C"/>
+  <path d="M78 44 C84 32 85 20 83 13" stroke="#A06020" stroke-width="2" fill="none"/>
+  <path d="M84 12 C83 4 77 0 70 1 C63 2 58 7 58 14 C58 20 62 25 70 25 C79 25 84 20 84 12Z" fill="#C8843C"/>
+  <path d="M57 12 C54 10 52 13 52 17 C52 22 55 25 59 24" fill="#B87030"/>
+  <ellipse cx="54" cy="19" rx="4" ry="3" fill="#A86028"/>
+  <ellipse cx="53" cy="20" rx="2" ry="1.5" fill="#7A3A10"/>
+  <circle cx="68" cy="11" r="4" fill="#2C1A0A"/>
+  <circle cx="68" cy="11" r="2.5" fill="#1A0A00"/>
+  <circle cx="69.5" cy="9.5" r="1.2" fill="#fff" opacity=".8"/>
+  <path d="M64 10 Q68 7 72 10" stroke="#A06020" stroke-width="1" fill="none"/>
+  <path d="M74 5 L76 -2 L80 4 Z" fill="#C8843C"/>
+  <path d="M75 4 L77 -1 L79 3.5 Z" fill="#FFB08A" opacity=".6"/>
+  <path d="M74 8 C72 10 70 15 68 22" stroke="#5D3010" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M76 7 C74 10 72 15 70 22" stroke="#7A4C28" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M78 8 C76 11 74 16 72 22" stroke="#4A2208" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <rect x="42" y="70" width="9" height="22" rx="4" fill="#C07030"/>
+  <rect x="42" y="82" width="11" height="10" rx="3" fill="#2C2C2C"/>
+  <rect x="55" y="72" width="9" height="20" rx="4" fill="#C07030"/>
+  <rect x="55" y="84" width="11" height="9" rx="3" fill="#2C2C2C"/>
+  <rect x="68" y="70" width="9" height="22" rx="4" fill="#B86828"/>
+  <rect x="68" y="82" width="11" height="10" rx="3" fill="#2C2C2C"/>
+  <rect x="80" y="71" width="9" height="21" rx="4" fill="#B86828"/>
+  <rect x="80" y="83" width="11" height="10" rx="3" fill="#2C2C2C"/>
+  <ellipse cx="62" cy="70" rx="22" ry="5" fill="#A05820" opacity=".3"/>
+  `;},
   cow:function(sz){return `<svg viewBox="0 0 100 90" width="${sz}" height="${sz*0.9}" xmlns="http://www.w3.org/2000/svg">
-  <!-- Ground shadow -->
   <ellipse cx="50" cy="88" rx="34" ry="4.5" fill="rgba(0,0,0,.13)"/>
-  <!-- Tail — thin ropy, right side -->
   <path d="M82 50 C90 52 94 60 92 68 C91 74 88 78 86 84" stroke="#B0A898" stroke-width="3.5" fill="none" stroke-linecap="round"/>
   <ellipse cx="85" cy="85" rx="5.5" ry="3.5" fill="#909080" transform="rotate(-10 85 85)"/>
-  <!-- BODY — large white boxy Holstein body -->
   <ellipse cx="52" cy="57" rx="32" ry="22" fill="#F4F0EA"/>
   <ellipse cx="52" cy="57" rx="32" ry="22" fill="none" stroke="#C8C4BC" stroke-width="1.5"/>
-  <!-- Holstein BLACK patches -->
   <ellipse cx="36" cy="46" rx="14" ry="13" fill="#0E0E0E" opacity=".9"/>
   <ellipse cx="68" cy="61" rx="11" ry="10" fill="#0E0E0E" opacity=".88"/>
   <path d="M74 44 C80 40 86 42 84 50 C82 54 76 52 74 44Z" fill="#0E0E0E" opacity=".8"/>
-  <!-- Belly shading -->
   <path d="M24 70 Q52 76 80 70" stroke="#D8D4CC" stroke-width="2" fill="none"/>
-  <!-- RUMP -->
   <ellipse cx="78" cy="54" rx="16" ry="20" fill="#ECE8E0"/>
   <ellipse cx="82" cy="48" rx="9" ry="8" fill="#0E0E0E" opacity=".45"/>
-  <!-- UDDER — prominent pink -->
   <ellipse cx="46" cy="76" rx="14" ry="7.5" fill="#F0AAAA"/>
   <ellipse cx="46" cy="76" rx="13" ry="4.5" fill="#E09090" opacity=".55"/>
-  <!-- Teats -->
   <rect x="36" y="80" width="4.5" height="7" rx="2.2" fill="#C07070"/>
   <rect x="42" y="81" width="4.5" height="7" rx="2.2" fill="#C07070"/>
   <rect x="48" y="81" width="4.5" height="7" rx="2.2" fill="#C07070"/>
   <rect x="54" y="80" width="4.5" height="7" rx="2.2" fill="#C07070"/>
-  <!-- NECK -->
   <path d="M30 48 C25 38 24 26 28 17 C31 10 39 8 42 11 C43 18 41 32 37 46 Z" fill="#EEE8DC"/>
-  <!-- Dewlap -->
   <path d="M28 44 C24 50 23 55 26 57" stroke="#D0CCC4" stroke-width="3.5" fill="none" stroke-linecap="round"/>
   <ellipse cx="36" cy="22" rx="6" ry="7" fill="#0E0E0E" opacity=".55"/>
-  <!-- HEAD — large square friendly head, front facing slightly -->
   <ellipse cx="48" cy="14" rx="17" ry="16" fill="#F0ECE0"/>
   <ellipse cx="48" cy="14" rx="17" ry="16" fill="none" stroke="#C8C4BC" stroke-width="1.2"/>
-  <!-- Head patches -->
   <ellipse cx="46" cy="7" rx="6" ry="5.5" fill="#0E0E0E" opacity=".7"/>
-  <!-- EARS — large rounded, pink inside -->
   <path d="M32 12 C26 7 23 10 25 17 C27 22 33 20 32 12Z" fill="#EEE8DC" stroke="#C8C4BC" stroke-width=".8"/>
   <path d="M32 12 C28 9 27 12 28 17" fill="#F4AAAA" opacity=".7"/>
   <path d="M62 12 C68 7 71 10 69 17 C67 22 61 20 62 12Z" fill="#EEE8DC" stroke="#C8C4BC" stroke-width=".8"/>
   <path d="M62 12 C66 9 67 12 66 17" fill="#F4AAAA" opacity=".7"/>
-  <!-- HORNS — curved pink horns (like reference) -->
   <path d="M38 8 C35 3 31 1 28 2" stroke="#F4CCCC" stroke-width="4" fill="none" stroke-linecap="round"/>
   <path d="M57 8 C60 3 64 1 67 2" stroke="#F4CCCC" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <!-- EYES — large round with highlights, grey circles (like reference) -->
   <circle cx="40" cy="13" r="6" fill="#5A5A5A"/>
   <circle cx="40" cy="13" r="4.5" fill="#3A3A3A"/>
   <circle cx="41.8" cy="11.2" r="2" fill="#fff" opacity=".85"/>
   <circle cx="56" cy="13" r="6" fill="#5A5A5A"/>
   <circle cx="56" cy="13" r="4.5" fill="#3A3A3A"/>
   <circle cx="57.8" cy="11.2" r="2" fill="#fff" opacity=".85"/>
-  <!-- BIG PINK MUZZLE rectangle — dominant feature of reference image -->
   <rect x="34" y="22" width="28" height="16" rx="9" fill="#F4AAAA"/>
   <rect x="34" y="22" width="28" height="8" rx="9" fill="#F8C8C8" opacity=".5"/>
-  <!-- Nostrils — large brown circles inside muzzle -->
   <circle cx="42" cy="31" r="4.5" fill="#8A5040"/>
   <circle cx="54" cy="31" r="4.5" fill="#8A5040"/>
-  <!-- LEGS — white with dark grey hooves -->
   <rect x="22" y="74" width="11" height="16" rx="5" fill="#EAE4D8"/>
   <rect x="36" y="76" width="11" height="14" rx="5" fill="#F0EAE0"/>
   <rect x="58" y="76" width="11" height="14" rx="5" fill="#F0EAE0"/>
   <rect x="72" y="74" width="11" height="16" rx="5" fill="#EAE4D8"/>
-  <!-- Hooves — dark grey, split -->
   <ellipse cx="27" cy="89" rx="7" ry="3.5" fill="#4A4A4A"/>
   <line x1="27" y1="85" x2="27" y2="90" stroke="#666" stroke-width="1.3"/>
   <ellipse cx="41" cy="89" rx="6.5" ry="3" fill="#4A4A4A"/>
@@ -1269,6 +1436,7 @@ const MULCHES=[
   {id:'patio-charcoal',name:'Patio Stones — Charcoal',color:'#455A64',type:'patio-charcoal'},
   {id:'patio-terracotta',name:'Patio Stones — Terracotta',color:'#B5541C',type:'patio-terracotta'},
   {id:'grass',name:'Grass Clippings',color:'#7CB342',type:'grass'},
+  {id:'dark-grass',name:'Dark Green Grass',color:'#2E7D32',type:'dark-grass'},
 ];
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -1892,6 +2060,7 @@ function createCurvedBed(data){
 // ── QUARTER-CIRCLE BED ────────────────────────────────────────────────────────
 function createQuarterBed(data){
   bedCount++;
+  let fakebed;
   const cellSize=44,cols=data.cols||4,rows=data.rows||4;
   const R=Math.max(cols,rows)*cellSize*0.72+20;
   const totalW=R+20,totalH=R+20;
@@ -1907,10 +2076,49 @@ function createQuarterBed(data){
   const lb=document.createElement('button');lb.className='bab'+(data.locked?' lkd':'');lb.textContent=data.locked?'🔒':'🔓';
   lb.onclick=e=>{e.stopPropagation();if(isReadOnly)return;data.locked=!data.locked;lb.className='bab'+(data.locked?' lkd':'');lb.textContent=data.locked?'🔒':'🔓';scheduleSave();};
   lb.onpointerdown=e=>e.stopPropagation();
+  // Quarter-circle resize button
+  const qrb=document.createElement('button');qrb.className='bab';qrb.textContent='⊞';qrb.title='Resize quarter-circle bed';
+  qrb.onpointerdown=e=>e.stopPropagation();
+  qrb.onclick=e=>{
+    e.stopPropagation();if(isReadOnly)return;
+    const ex=document.getElementById('quarter-resize-modal');if(ex)ex.remove();
+    const modal=document.createElement('div');modal.id='quarter-resize-modal';
+    modal.style.cssText='position:fixed;inset:0;z-index:950;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+    modal.innerHTML=`<div style="background:#fff;border-radius:18px;padding:20px;width:280px;max-width:92vw;box-shadow:0 16px 48px rgba(0,0,0,.35);">
+      <div style="font-size:15px;font-weight:700;color:#1B4A0A;margin-bottom:14px;">⊞ Resize Quarter-Circle Bed</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <label style="width:80px;font-size:13px;color:#555">Columns</label>
+          <input id="_qrc" type="range" min="2" max="12" value="${cols}" style="flex:1;accent-color:var(--gb)" oninput="document.getElementById('_qrcv').textContent=this.value">
+          <span id="_qrcv" style="width:22px;text-align:right;font-weight:700;color:var(--tm)">${cols}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <label style="width:80px;font-size:13px;color:#555">Rows</label>
+          <input id="_qrr" type="range" min="1" max="8" value="${rows}" style="flex:1;accent-color:var(--gb)" oninput="document.getElementById('_qrrv').textContent=this.value">
+          <span id="_qrrv" style="width:22px;text-align:right;font-weight:700;color:var(--tm)">${rows}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="document.getElementById('quarter-resize-modal').remove()" style="flex:1;background:#F0EBE0;color:#555;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+        <button id="_qrapply" style="flex:1;background:var(--gb);color:#fff;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Apply</button>
+      </div>
+    </div>`;
+    modal.onclick=ev=>{if(ev.target===modal)modal.remove();};
+    document.body.appendChild(modal);
+    document.getElementById('_qrapply').onclick=()=>{
+      const nc=Math.max(2,parseInt(document.getElementById('_qrc').value));
+      const nr=Math.max(1,parseInt(document.getElementById('_qrr').value));
+      modal.remove();
+      const savedData={...data,cols:nc,rows:nr,cells:Array(nc*nr).fill(null),x:parseFloat(wrap.style.left),y:parseFloat(wrap.style.top)};
+      wrap.remove();beds=beds.filter(b=>b.id!==fakebed.id);
+      createQuarterBed(savedData);
+      scheduleSave('Resize quarter bed');toast('Quarter bed resized to '+nc+'×'+nr);
+    };
+  };
   const db=document.createElement('button');db.className='bab';db.textContent='✕';
   db.onclick=e=>{e.stopPropagation();if(isReadOnly)return;if(!confirm('Delete "'+data.name+'"?'))return;wrap.remove();beds=beds.filter(b=>b.id!==data.id);scheduleSave();};
   db.onpointerdown=e=>e.stopPropagation();
-  nameTag.appendChild(ni);nameTag.appendChild(lb);nameTag.appendChild(db);
+  nameTag.appendChild(ni);nameTag.appendChild(lb);nameTag.appendChild(qrb);nameTag.appendChild(db);
 
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('width',totalW);svg.setAttribute('height',totalH);
@@ -1964,7 +2172,7 @@ function createQuarterBed(data){
     }
   }
 
-  const fakebed={id:data.id||bedCount,name:data.name,cols,rows,locked:!!data.locked,cells:data.cells,inter:false,intercells:[],cellEls,interEls:[],el:wrap,quarter:true,x:data.x||60,y:data.y||60};
+  fakebed={id:data.id||bedCount,name:data.name,cols,rows,locked:!!data.locked,cells:data.cells,inter:false,intercells:[],cellEls,interEls:[],el:wrap,quarter:true,x:data.x||60,y:data.y||60};
   beds.push(fakebed);
 
   wrap.appendChild(nameTag);wrap.appendChild(svg);wrap.appendChild(cellsContainer);
@@ -1998,7 +2206,7 @@ function findOpenPasturePos(pw,ph){
 function addPasture(){
   if(isReadOnly)return;
   const ts=Date.now();
-  const pw=440,ph=420;
+  const pw=560,ph=460;
   const pos=findOpenPasturePos(pw,ph);
   const px=pos.x,py=pos.y;
   const pastureId='pasture_'+ts;
@@ -2011,13 +2219,13 @@ function addPasture(){
   groupEl.style.cssText=`position:absolute;left:${px}px;top:${py}px;width:${pw}px;height:${ph}px;z-index:8;touch-action:none;`;
   document.getElementById('gc').appendChild(groupEl);
 
-  // Grass background
+  // Dark Green Grass background
   const grassBg=document.createElement('div');
-  grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#7CB342;`;
+  grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#2E7D32;`;
   const cv=document.createElement('canvas');cv.style.cssText='position:absolute;inset:0;pointer-events:none;';
   grassBg.appendChild(cv);
   groupEl.appendChild(grassBg);
-  setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'grass',pw,ph);}},60);
+  setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'dark-grass',pw,ph);}},60);
 
   // Pasture label
   const lbl=document.createElement('div');
@@ -2101,6 +2309,25 @@ function addPasture(){
     swim();
   });
   groupEl.appendChild(pondEl);
+
+  // --- Picnic table (bottom-left area of pasture) ---
+  const ptEl=document.createElement('div');
+  ptEl.style.cssText=`position:absolute;left:${Math.round(pw*0.08)}px;top:${Math.round(ph*0.58)}px;width:70px;height:55px;pointer-events:none;z-index:5;`;
+  ptEl.innerHTML=STRUCT_SVGS.picnic(70,55);
+  groupEl.appendChild(ptEl);
+
+  // --- Mushrooms (2) scattered in pasture ---
+  [{mx:Math.round(pw*0.18),my:Math.round(ph*0.32)},{mx:Math.round(pw*0.28),my:Math.round(ph*0.72)}].forEach(({mx,my})=>{
+    const mEl=document.createElement('div');
+    mEl.style.cssText=`position:absolute;left:${mx}px;top:${my}px;font-size:22px;pointer-events:none;z-index:5;`;
+    mEl.textContent='🍄';groupEl.appendChild(mEl);
+  });
+
+  // --- Garden Gnome (1) near the pond edge ---
+  const gnEl=document.createElement('div');
+  gnEl.style.cssText=`position:absolute;left:${Math.round(pw*0.62)}px;top:${Math.round(ph*0.7)}px;width:32px;height:32px;pointer-events:none;z-index:5;`;
+  gnEl.innerHTML=DECOR_SVGS.gnome(32);
+  groupEl.appendChild(gnEl);
 
   // Animals (left/center area, away from pond)
   const animalSpecs=[
@@ -2441,51 +2668,102 @@ function addMulch(m){
 function createMulchEl(data,mDef){
   if(!mDef)mDef=MULCHES.find(m=>m.id===data.mid)||MULCHES[0];
   const el=document.createElement('div');el.className='mulch-strip';
-  el.style.cssText=`left:${data.x}px;top:${data.y}px;width:${data.w||160}px;height:${data.h||38}px;background:${mDef.color||data.color};`;
+  el.style.cssText=`left:${data.x}px;top:${data.y}px;width:${data.w||160}px;height:${data.h||38}px;background:${mDef.color||data.color};position:absolute;`;
   const cv=document.createElement('canvas');cv.style.cssText='position:absolute;inset:0;pointer-events:none;';
   el.appendChild(cv);
   const xbtn=document.createElement('button');xbtn.className='mulch-x';xbtn.textContent='×';
   xbtn.onclick=e=>{e.stopPropagation();if(isReadOnly)return;el.remove();scheduleSave();};
   el.appendChild(xbtn);
   const rh=document.createElement('div');rh.className='mulch-rh';
-  rh.onpointerdown=e=>{
+  rh.addEventListener('pointerdown',e=>{
     e.stopPropagation();e.preventDefault();
-    const startX=e.clientX,startY=e.clientY,sw=data.w,sh=data.h;
-    // Record initial pointer position relative to canvas coords
+    const startX=e.clientX,startY=e.clientY,sw=data.w||160,sh=data.h||38;
+    rh.setPointerCapture(e.pointerId);
     const mm=ev=>{
       const dw=(ev.clientX-startX)/scale;
       const dh=(ev.clientY-startY)/scale;
-      data.w=Math.max(40,sw+dw);
-      data.h=Math.max(16,sh+dh);
-      el.style.width=data.w+'px';
-      el.style.height=data.h+'px';
-      // Resize canvas properly without resetting to 0
-      cv.style.width=data.w+'px';
-      cv.style.height=data.h+'px';
+      data.w=Math.max(40,sw+dw);data.h=Math.max(16,sh+dh);
+      el.style.width=data.w+'px';el.style.height=data.h+'px';
+      cv.style.width=data.w+'px';cv.style.height=data.h+'px';
       saveSdata();
     };
     const mu=()=>{
-      document.removeEventListener('pointermove',mm);
-      document.removeEventListener('pointerup',mu);
-      // Full redraw at new size
+      rh.removeEventListener('pointermove',mm);rh.removeEventListener('pointerup',mu);
       drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);
       scheduleSave();
     };
-    document.addEventListener('pointermove',mm);document.addEventListener('pointerup',mu);
-    rh.setPointerCapture(e.pointerId);
-  };
+    rh.addEventListener('pointermove',mm);rh.addEventListener('pointerup',mu);
+  },{passive:false});
   el.appendChild(rh);
-  el.onclick=e=>{if(e.target!==xbtn&&e.target!==rh){deselectAll();el.classList.toggle('selected');}};
-  function saveSdata(){el.dataset.sdata=JSON.stringify({...data,x:parseFloat(el.style.left),y:parseFloat(el.style.top)});}
+  function saveSdata(){el.dataset.sdata=JSON.stringify({...data,x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0});}
   saveSdata();
   document.getElementById('gc').appendChild(el);
   drawMulchPattern(cv,data.mtype||mDef.type,data.w,data.h);
-  // Draggable directly; tap toggles selection to show remove/resize handles
-  const dragObj={get el(){return el;},get locked(){return !!data.locked||window._allLocked;},get x(){return parseFloat(el.style.left);},set x(v){el.style.left=v+'px';data.x=v;saveSdata();},get y(){return parseFloat(el.style.top);},set y(v){el.style.top=v+'px';data.y=v;saveSdata();}};
-  setupDrag(el,dragObj,true);
+  // Dedicated drag handle that covers the strip (sits above canvas, below buttons)
+  // This separates dragging from the click-to-select handler
+  const dragHandle=document.createElement('div');
+  dragHandle.style.cssText='position:absolute;inset:0;z-index:2;cursor:move;touch-action:none;';
+  el.appendChild(dragHandle);
+  // Click on drag handle toggles selection
+  dragHandle.addEventListener('click',e=>{
+    if(window._mulchDidDrag)return;
+    deselectAll();el.classList.toggle('selected');
+  });
+  // Drag
+  let _mdActive=false,_mdDragging=false,_mdId=null,_mdSX=0,_mdSY=0,_mdOX=0,_mdOY=0;
+  dragHandle.addEventListener('pointerdown',e=>{
+    if(isPinching||isReadOnly||data.locked||window._allLocked)return;
+    e.preventDefault();e.stopPropagation();
+    _mdActive=true;_mdDragging=false;_mdId=e.pointerId;
+    _mdSX=e.clientX;_mdSY=e.clientY;
+    _mdOX=parseFloat(el.style.left)||0;_mdOY=parseFloat(el.style.top)||0;
+    window._mulchDidDrag=false;
+    try{dragHandle.setPointerCapture(e.pointerId);}catch(ex){}
+  },{passive:false});
+  dragHandle.addEventListener('pointermove',e=>{
+    if(!_mdActive||e.pointerId!==_mdId)return;
+    const dx=(e.clientX-_mdSX)/scale,dy=(e.clientY-_mdSY)/scale;
+    if(!_mdDragging&&Math.hypot(dx,dy)<4)return;
+    _mdDragging=true;window._mulchDidDrag=true;
+    el.style.left=Math.max(0,_mdOX+dx)+'px';
+    el.style.top=Math.max(0,_mdOY+dy)+'px';
+    data.x=Math.max(0,_mdOX+dx);data.y=Math.max(0,_mdOY+dy);
+    saveSdata();expandCanvas();
+  },{passive:true});
+  dragHandle.addEventListener('pointerup',e=>{
+    if(e.pointerId!==_mdId)return;
+    if(_mdDragging)scheduleSave('Move cover');
+    _mdActive=false;_mdDragging=false;_mdId=null;
+    setTimeout(()=>{window._mulchDidDrag=false;},50);
+  },{passive:true});
+  dragHandle.addEventListener('pointercancel',()=>{_mdActive=false;_mdDragging=false;_mdId=null;},{passive:true});
 }
 
 // ── STRUCTURES ────────────────────────────────────────────────────────────────
+function hplanterPanelSvg(potW,potH,emoji){
+  const tw=Math.max(potW,50),th=potH+28;
+  const cx=tw/2,chainLen=18,hookY=4,potTop=hookY+chainLen;
+  const chainSpacing=potW*0.3;
+  // Chains left/right
+  let chains='';
+  for(let i=0;i<=4;i++){
+    const y1=hookY+i*chainLen*0.2,y2=hookY+(i+1)*chainLen*0.2;
+    chains+=`<line x1="${(cx-chainSpacing).toFixed(1)}" y1="${y1.toFixed(1)}" x2="${(cx-chainSpacing+1).toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#A1887F" stroke-width="1.5" stroke-linecap="round"/>`;
+    chains+=`<line x1="${(cx+chainSpacing).toFixed(1)}" y1="${y1.toFixed(1)}" x2="${(cx+chainSpacing-1).toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#A1887F" stroke-width="1.5" stroke-linecap="round"/>`;
+  }
+  const potBottom=potTop+potH;
+  return `<svg viewBox="0 0 ${tw} ${th+8}" width="${tw}" height="${th+8}" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="${cx}" cy="${hookY}" r="3.5" fill="none" stroke="#8D6E63" stroke-width="1.5"/>
+    ${chains}
+    <path d="M${(cx-chainSpacing-2).toFixed(1)} ${potTop} Q${cx} ${(potTop-6).toFixed(1)} ${(cx+chainSpacing+2).toFixed(1)} ${potTop}" stroke="#8D6E63" stroke-width="2" fill="none"/>
+    <path d="M${(cx-potW/2).toFixed(1)} ${potTop} Q${(cx-potW*0.42).toFixed(1)} ${potBottom+4} ${cx} ${potBottom+4} Q${(cx+potW*0.42).toFixed(1)} ${potBottom+4} ${(cx+potW/2).toFixed(1)} ${potTop} Z" fill="#8D6E63"/>
+    <ellipse cx="${cx}" cy="${potTop}" rx="${(potW/2).toFixed(1)}" ry="${(potH*0.14).toFixed(1)}" fill="#A1887F"/>
+    <text x="${cx}" y="${(potTop+potH*0.62).toFixed(1)}" text-anchor="middle" font-size="${Math.round(potH*0.55)}">${emoji}</text>
+    <path d="M${(cx-potW*0.35).toFixed(1)} ${potBottom} Q${(cx-potW*0.5).toFixed(1)} ${(potBottom+8).toFixed(1)} ${(cx-potW*0.4).toFixed(1)} ${(th+6).toFixed(1)}" stroke="#388E3C" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M${(cx+potW*0.3).toFixed(1)} ${potBottom} Q${(cx+potW*0.48).toFixed(1)} ${(potBottom+6).toFixed(1)} ${(cx+potW*0.38).toFixed(1)} ${(th+6).toFixed(1)}" stroke="#2E7D32" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M${cx} ${potBottom+2} Q${cx} ${potBottom+10} ${(cx-potW*0.12).toFixed(1)} ${(th+4).toFixed(1)}" stroke="#43A047" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
 function buildThingsPanel(){
   const sg=document.getElementById('struct-grid');sg.innerHTML='';
   STRUCTS.filter(s=>s.id!=='fence'&&!s.cat).forEach(s=>{
@@ -2516,8 +2794,6 @@ function buildThingsPanel(){
     let iconHtml;
     if(d.svg&&DECOR_SVGS[d.id]){
       iconHtml=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;width:44px;height:38px">${DECOR_SVGS[d.id](38)}</span>`;
-    } else if(d.id==='pebbles'){
-      iconHtml=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;font-size:20px">⬜⬜⬜</span>`;
     } else {
       iconHtml=`<span class="ttile-icon">${d.emoji}</span>`;
     }
@@ -2722,7 +2998,7 @@ function restorePastureGroup(data){
   document.getElementById('gc').appendChild(groupEl);
   // Grass
   const grassBg=document.createElement('div');
-  grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#7CB342;`;
+  grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#2E7D32;`;
   const cv=document.createElement('canvas');cv.style.cssText='position:absolute;inset:0;pointer-events:none;';
   grassBg.appendChild(cv);groupEl.appendChild(grassBg);
   setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'grass',pw,ph);}},60);
@@ -2764,6 +3040,20 @@ function restorePastureGroup(data){
   if(savedAnimals&&savedAnimals.length){
     savedAnimals.forEach(ad=>{const aDef=ANIMALS.find(a=>a.id===ad.aid);if(aDef)createAnimalEl({...ad,pastureBounds:ab},aDef);});
   }
+  // Picnic table
+  const rptEl=document.createElement('div');
+  rptEl.style.cssText=`position:absolute;left:${Math.round(pw*0.08)}px;top:${Math.round(ph*0.58)}px;width:70px;height:55px;pointer-events:none;z-index:5;`;
+  rptEl.innerHTML=STRUCT_SVGS.picnic(70,55);
+  groupEl.appendChild(rptEl);
+  // Mushrooms
+  [{mx:Math.round(pw*0.18),my:Math.round(ph*0.32)},{mx:Math.round(pw*0.28),my:Math.round(ph*0.72)}].forEach(({mx,my})=>{
+    const mEl=document.createElement('div');mEl.style.cssText=`position:absolute;left:${mx}px;top:${my}px;font-size:22px;pointer-events:none;z-index:5;`;mEl.textContent='🍄';groupEl.appendChild(mEl);
+  });
+  // Gnome
+  const rgnEl=document.createElement('div');
+  rgnEl.style.cssText=`position:absolute;left:${Math.round(pw*0.62)}px;top:${Math.round(ph*0.7)}px;width:32px;height:32px;pointer-events:none;z-index:5;`;
+  rgnEl.innerHTML=DECOR_SVGS.gnome(32);
+  groupEl.appendChild(rgnEl);
   // Draggable
   const pData={x:px,y:py};
   setupDrag(groupEl,{get el(){return groupEl;},locked:false,get x(){return pData.x;},set x(v){pData.x=v;groupEl.style.left=v+'px';groupEl.dataset.sdata=JSON.stringify({...data,x:v,y:pData.y});},get y(){return pData.y;},set y(v){pData.y=v;groupEl.style.top=v+'px';groupEl.dataset.sdata=JSON.stringify({...data,x:pData.x,y:v});}});
