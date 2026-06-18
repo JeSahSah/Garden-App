@@ -112,7 +112,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 /* ── STRUCTURES ── */
 .struct-wrap{position:absolute;z-index:15;touch-action:none;cursor:move;}
 .struct-wrap.selected{z-index:30;}
-.struct-card{border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.struct-card{border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;pointer-events:none;}
+.struct-card svg{pointer-events:none;}
+.struct-card>div{pointer-events:none;}
 .struct-icon{font-size:42px;line-height:1;pointer-events:none;}
 .struct-lbl{font-size:10px;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);margin-top:2px;pointer-events:none;}
 .struct-x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
@@ -134,9 +136,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
 .mulch-strip canvas{position:absolute;inset:0;pointer-events:none;}
 .mulch-strip.selected{cursor:grab;z-index:15;}
 .mulch-strip.selected:active{cursor:grabbing;}
-.mulch-x{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;}
+.mulch-x{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:#C0392B;color:#fff;border:none;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:5;}
 .mulch-strip.selected .mulch-x{display:flex;}
-.mulch-rh{position:absolute;bottom:-4px;right:-4px;width:24px;height:24px;background:rgba(255,255,255,.5);cursor:se-resize;border-radius:50%;touch-action:none;border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.mulch-rh{position:absolute;bottom:0;right:0;width:22px;height:22px;background:rgba(255,255,255,.6);cursor:se-resize;border-radius:50% 0 4px 0;touch-action:none;border:2px solid rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(0,0,0,.35);z-index:4;}
 
 /* ── ANIMALS ── */
 .animal-wrap{position:absolute;z-index:20;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
@@ -420,27 +422,23 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,Blink
         <div class="ttile" onclick="addGrowBag('lg');closePanel('tp')"><span class="ttile-icon"><svg viewBox="0 0 44 44" width="36" height="36"><ellipse cx="22" cy="32" rx="19" ry="11" fill="#A0522D"/><ellipse cx="22" cy="32" rx="19" ry="11" fill="none" stroke="#7B3D1A" stroke-width="2" stroke-dasharray="3,2"/><ellipse cx="22" cy="23" rx="18" ry="7" fill="#8B4513"/><ellipse cx="22" cy="21" rx="17" ry="5" fill="#5D2F0A"/><text x="22" y="36" text-anchor="middle" font-size="10">🌿</text></svg></span><span class="ttile-name">Large (15")</span></div>
       </div>
       <div class="sec-hdr">🌸 Hanging Planters</div>
-      <div class="thing-grid">
-        <div class="ttile" onclick="addHangingPlanter('sm');closePanel('tp')"><span class="ttile-icon" style="display:flex;align-items:center;justify-content:center">${hplanterPanelSvg(36,32,'🌸')}</span><span class="ttile-name">Small</span></div>
-        <div class="ttile" onclick="addHangingPlanter('md');closePanel('tp')"><span class="ttile-icon" style="display:flex;align-items:center;justify-content:center">${hplanterPanelSvg(40,36,'🌺')}</span><span class="ttile-name">Medium</span></div>
-        <div class="ttile" onclick="addHangingPlanter('lg');closePanel('tp')"><span class="ttile-icon" style="display:flex;align-items:center;justify-content:center">${hplanterPanelSvg(46,40,'🌷')}</span><span class="ttile-name">Large</span></div>
-      </div>
+      <div class="thing-grid" id="hplanter-grid"></div>
       <div class="sec-hdr">🌿 Structures &amp; Features</div>
       <div class="thing-grid" id="struct-grid"></div>
       <div class="sec-hdr">🎨 Decorations</div>
       <div class="thing-grid" id="decor-grid"></div>
       <div class="sec-hdr">🐾 Animals</div>
       <div class="thing-grid" id="animal-grid"></div>
-      <div class="sec-hdr">🐄 Pasture</div>
-      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addPasture();closePanel('tp')">🌿 Add Pasture</button>
-      <div class="sec-hdr">👨‍🌾 Farmer</div>
-      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addFarmerPrompt()">🧑‍🌾 Add Farmer</button>
       <div class="sec-hdr">🪵 Fences</div>
       <div class="thing-grid">
         <div class="ttile" onclick="addFenceSegment('h');closePanel('tp')"><span class="ttile-icon">━━━</span><span class="ttile-name">Fence (horizontal)</span></div>
         <div class="ttile" onclick="addFenceSegment('v');closePanel('tp')"><span class="ttile-icon">┃</span><span class="ttile-name">Fence (vertical)</span></div>
         <div class="ttile" onclick="addFenceSegment('corner');closePanel('tp')"><span class="ttile-icon">┐</span><span class="ttile-name">Fence (corner post)</span></div>
       </div>
+      <div class="sec-hdr">🐄 Pasture</div>
+      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addPasture();closePanel('tp')">🌿 Add Pasture</button>
+      <div class="sec-hdr">👨‍🌾 Farmer</div>
+      <button class="apgo" style="width:100%;margin-bottom:6px" onclick="addFarmerPrompt()">🧑‍🌾 Add Farmer</button>
       <div class="sec-hdr">🌿 Bushes</div>
       <div class="thing-grid" id="bush-grid"></div>
       <div class="sec-hdr">🌳 Trees</div>
@@ -1170,7 +1168,7 @@ function getStructIcon(sDef,w,h){
     return `<div style="width:${w}px;height:${h}px;display:flex;align-items:center;justify-content:center;pointer-events:none;">${STRUCT_SVGS[sDef.icon](w,h)}</div>`;
   }
   const iconSize=Math.min(w,h)*0.6;
-  return `<span class="struct-icon" style="font-size:${iconSize}px">${sDef.icon}</span><span class="struct-lbl" style="font-size:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);margin-top:2px">${sDef.name}</span>`;
+  return `<span class="struct-icon" style="font-size:${iconSize}px;pointer-events:none">${sDef.icon}</span><span class="struct-lbl" style="font-size:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);margin-top:2px;pointer-events:none">${sDef.name}</span>`;
 }
 const DECORS=[
   {id:'scarecrow',name:'Scarecrow',svg:true},
@@ -1717,9 +1715,9 @@ async function loadGarden(g){
   cGardenId=g.id;
   if(cUser)localStorage.setItem('lastGardenId_'+cUser.id,g.id);
   document.getElementById('gsel-btn').textContent=(g.name||'Garden')+' ▾';
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap').forEach(e=>e.remove());
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.farmer-el,.hplanter-wrap').forEach(e=>e.remove());
   document.getElementById('farmer')?.remove();farmerEl=null;
-  beds=[];bedCount=0;liveAnimals.length=0;
+  beds=[];bedCount=0;liveAnimals.length=0;stopAllAnimals();
   applyBg(g.bg||'lush');
   try{const b=JSON.parse(g.beds_json||'[]');b.forEach(d=>restoreBed(d));}catch(e){console.error('Beds parse:',e);}
   try{const s=JSON.parse(g.structures_json||'[]');s.forEach(d=>restoreStructure(d));}catch(e){console.error('Struct parse:',e);}
@@ -1757,7 +1755,7 @@ async function clearCurrentGarden(){
   if(!cGardenId)return;
   if(!confirm('Remove everything from this garden? This cannot be undone.'))return;
   closePanel('gp');
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,#farmer').forEach(e=>e.remove());
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,.farmer-el,#farmer').forEach(e=>e.remove());
   beds=[];bedCount=0;liveAnimals.length=0;farmerEl=null;
   stopFarmer();stopAllAnimals();
   await sb.from('gardens').update({beds_json:'[]',structures_json:'[]'}).eq('id',cGardenId);
@@ -1770,7 +1768,7 @@ async function resetCurrentGarden(){
   if(!confirm('Reset this garden to the default layout? Everything will be replaced.'))return;
   closePanel('gp');
   // Clear current
-  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,#farmer').forEach(e=>e.remove());
+  document.getElementById('gc').querySelectorAll('.bed-wrap,.growbag-wrap,.struct-wrap,.decor-wrap,.mulch-strip,.animal-wrap,.hplanter-wrap,.farmer-el,#farmer').forEach(e=>e.remove());
   beds=[];bedCount=0;liveAnimals.length=0;farmerEl=null;
   stopFarmer();stopAllAnimals();
   // Rebuild default content into the current garden
@@ -2645,6 +2643,29 @@ function drawMulchPattern(canvas,type,w,h){
   } else if(type==='grass'){
     ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
     for(let i=0;i<w*h/12;i++){const x=Math.random()*w,y=Math.random()*h,h2=4+Math.random()*8;ctx.beginPath();ctx.moveTo(x,y+h2);ctx.quadraticCurveTo(x+(Math.random()-.5)*4,y+h2/2,x+(Math.random()-.5)*2,y);ctx.stroke();}
+  } else if(type==='dark-grass'){
+    // Individual blades of dark grass — quadratic curves, multi-tone
+    const bladeColors=['#1B5E20','#2E7D32','#256228','#1A6B1A','#33691E','#1E4D1E'];
+    ctx.lineCap='round';
+    for(let i=0;i<Math.ceil(w*h/10);i++){
+      const x=Math.random()*w;
+      const baseY=Math.random()*h;
+      const bladeH=5+Math.random()*11;
+      const lean=(Math.random()-.5)*6;
+      const color=bladeColors[Math.floor(Math.random()*bladeColors.length)];
+      ctx.beginPath();
+      ctx.moveTo(x,baseY+bladeH);
+      ctx.quadraticCurveTo(x+lean*0.5,baseY+bladeH*0.45,x+lean,baseY);
+      ctx.strokeStyle=color;
+      ctx.lineWidth=1.0+Math.random()*1.0;
+      ctx.stroke();
+    }
+    // Fine dark tips for depth
+    ctx.strokeStyle='rgba(0,30,0,0.25)';ctx.lineWidth=0.7;
+    for(let i=0;i<Math.ceil(w*h/35);i++){
+      const x=Math.random()*w,y2=Math.random()*h;
+      ctx.beginPath();ctx.moveTo(x,y2+2);ctx.lineTo(x+(Math.random()-.5)*3,y2-2);ctx.stroke();
+    }
   }
 }
 function buildMulchTilePreview(){
@@ -2682,7 +2703,7 @@ function createMulchEl(data,mDef){
     const mm=ev=>{
       const dw=(ev.clientX-startX)/scale;
       const dh=(ev.clientY-startY)/scale;
-      data.w=Math.max(40,sw+dw);data.h=Math.max(16,sh+dh);
+      data.w=Math.max(60,sw+dw);data.h=Math.max(30,sh+dh);
       el.style.width=data.w+'px';el.style.height=data.h+'px';
       cv.style.width=data.w+'px';cv.style.height=data.h+'px';
       saveSdata();
@@ -2713,6 +2734,7 @@ function createMulchEl(data,mDef){
   let _mdActive=false,_mdDragging=false,_mdId=null,_mdSX=0,_mdSY=0,_mdOX=0,_mdOY=0;
   dragHandle.addEventListener('pointerdown',e=>{
     if(isPinching||isReadOnly||data.locked||window._allLocked)return;
+    if(e.target===rh||e.target===xbtn)return;
     e.preventDefault();e.stopPropagation();
     _mdActive=true;_mdDragging=false;_mdId=e.pointerId;
     _mdSX=e.clientX;_mdSY=e.clientY;
@@ -2765,6 +2787,17 @@ function hplanterPanelSvg(potW,potH,emoji){
   </svg>`;
 }
 function buildThingsPanel(){
+  // Populate hanging planters (must be done in JS to render SVG correctly)
+  const hpg=document.getElementById('hplanter-grid');
+  if(hpg){
+    hpg.innerHTML='';
+    [{size:'sm',potW:36,potH:32,emoji:'🌸',label:'Small'},{size:'md',potW:40,potH:36,emoji:'🌺',label:'Medium'},{size:'lg',potW:46,potH:40,emoji:'🌷',label:'Large'}].forEach(hp=>{
+      const t=document.createElement('div');t.className='ttile';
+      t.innerHTML=`<span class="ttile-icon" style="display:flex;align-items:center;justify-content:center;width:50px;height:42px;overflow:visible">${hplanterPanelSvg(hp.potW,hp.potH,hp.emoji)}</span><span class="ttile-name">${hp.label}</span>`;
+      t.onclick=()=>{if(isReadOnly)return;addHangingPlanter(hp.size);closePanel('tp');};
+      hpg.appendChild(t);
+    });
+  }
   const sg=document.getElementById('struct-grid');sg.innerHTML='';
   STRUCTS.filter(s=>s.id!=='fence'&&!s.cat).forEach(s=>{
     const t=document.createElement('div');t.className='ttile';
@@ -3001,7 +3034,7 @@ function restorePastureGroup(data){
   grassBg.style.cssText=`position:absolute;inset:0;border-radius:8px;overflow:hidden;background:#2E7D32;`;
   const cv=document.createElement('canvas');cv.style.cssText='position:absolute;inset:0;pointer-events:none;';
   grassBg.appendChild(cv);groupEl.appendChild(grassBg);
-  setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'grass',pw,ph);}},60);
+  setTimeout(()=>{if(cv.parentElement){cv.width=pw;cv.height=ph;drawMulchPattern(cv,'dark-grass',pw,ph);}},60);
   // Label
   const lbl=document.createElement('div');
   lbl.style.cssText='position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:3px 10px;pointer-events:none;z-index:5;white-space:nowrap;';
@@ -3192,7 +3225,11 @@ function addFarmerPrompt(){
   setTimeout(()=>document.getElementById('afm-name')?.focus(),100);
 }
 function createFarmerEl(data){
-  // Allow multiple farmers — no singleton guard
+  // Enforce max 5 farmers at all times
+  const existingFarmers=document.getElementById('gc').querySelectorAll('.farmer-el');
+  if(existingFarmers.length>=5&&!data._restore){
+    toast('👨‍🌾 Max 5 farmers reached');return;
+  }
   const el=document.createElement('div');el.className='farmer-el';
   el.style.cssText=`left:${data.x||60}px;top:${data.y||60}px;position:absolute;z-index:25;cursor:pointer;`;
   el.dataset.sdata=JSON.stringify(data);
